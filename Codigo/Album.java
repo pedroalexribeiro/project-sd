@@ -7,8 +7,9 @@ public class Album implements Serializable {
     public String releaseDate;
     public String composer;
     public String history;
-    public ArrayList<Music> songs = new ArrayList<Music>();
-    public ArrayList<Review> reviews = new ArrayList<Review>();
+    public ArrayList<Music> songs = new ArrayList<>();
+    public ArrayList<Review> reviews = new ArrayList<>();
+    public ArrayList<User> editors = new ArrayList<>();
 
     public Album(String name,String rel,String comp,String hist) {
         this.name = name;

@@ -2,6 +2,7 @@ import java.rmi.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.*;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class RMIServer extends UnicastRemoteObject implements Interface {
@@ -9,7 +10,6 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     private static final long serialVersionUID = 1L;
 
     private static User tempUser;
-
     public RMIServer() throws RemoteException {
         super();
     }
@@ -41,17 +41,107 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         /*Searches user on database and updates user.clientInterface Option so it saves the interface*/
         if(tempUser.username.equals(username)){
             tempUser.cInterface = cInterface;
+            tempUser.online = true;
         }
     }
 
-    public void sendNotifcation(Notification note,String username) throws RemoteException{
-        /*Fetch cInterface from Database of username*/
+    public void sendNotifcation(Notification note,String username,Boolean edit) throws RemoteException{
+        /*Fetch cInterface from Database using username*/
 
         System.out.println(tempUser.username+ " : " + username);
         if(tempUser.username.equalsIgnoreCase(username)){
-            tempUser.cInterface.liveNotification(note);
+            if(edit){
+                tempUser.setEditor(true);
+            }
+
+            if(tempUser.isOnline()) {
+                tempUser.cInterface.liveNotification(note);
+            }else{
+                /*Enviar para databse para meter la note para user receber when he gets online  */
+            }
+        }
+        else{
+            System.out.println("User doesnt exist");
         }
     }
+
+    public void clearDatabaseNotifications(User user) throws RemoteException{
+        /*Ir a base dados limpar informacao de notificacoes no user */
+    }
+
+    public String playlistMethods(String method,String playlist,String music,User user){
+        switch(method){
+            case "create":
+                /*title = playlist
+                * user = user
+                * Go to Database and create Line */
+                return "Playlist Created!";
+            case "delete":
+                /*title = playlist
+                * user = user
+                * Go to database and delete Line
+                * What happens if it doesnt exist?*/
+                return "Playlist " + playlist + "deleted";
+            case "add":
+                /*title = playlist
+                * user = user
+                * go to database and fetch existing playlist  <---- return "no existing playlist with that name"
+                * After checking if playlist exists, check if music with that name exists <-- return "That music already exists on that playlist" */
+                return "Added "+music+" to " + playlist;
+            case "remove":
+                /*title = playlist
+                * user = user
+                * go to database and fetch existing playlist  <---- return "no existing playlist with that name"
+                * After checking if playlist exists, check if music with that name exists <-- return "That music doesnt exist on that playlist" */
+                return "Deleted "+music+" from "+playlist;
+            default:
+                return "Method Does Not exist!";
+        }
+    }
+
+
+
+    public ArrayList<String> search(String word,String whereSearch){
+
+        ArrayList<String> output = new ArrayList<>();
+
+        switch(whereSearch.toLowerCase()){
+            case "album":
+                /*
+                *   Search Database on table Album for any parameter equal to WORD
+                *   Return them all to UDP->Object convertion
+                *   Return them here and fill the Arraylist<String> of options
+                */
+                Album a1 = new Album("Album1","20/04/1998","composer1","History1");
+                Album a2 = new Album("Album2","20/04/1998","composer3","History2");
+                Album a3 = new Album("Album3","20/04/1998","composer2","History3");
+
+                output.add(a1.name + " " + a1.composer + " " +a1.releaseDate);
+                output.add(a2.name + " " + a2.composer + " " +a2.releaseDate);
+                output.add(a3.name + " " + a3.composer + " " +a3.releaseDate);
+
+                break;
+            case "artist":
+                break;
+            case "music":
+                break;
+            case "user":
+                break;
+        }
+
+        return output;
+    }
+
+    public ArrayList<String> retrieveInformation(String whereSearch,String option){
+        /*Go to data base and look for line with exact info on Option and retrieve them all*/
+
+        return new ArrayList<>();
+    }
+
+
+
+
+
 
     public Boolean isAlive() throws RemoteException {
         return true;

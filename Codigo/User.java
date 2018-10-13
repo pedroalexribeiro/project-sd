@@ -8,8 +8,9 @@ public class User implements Serializable {
     public String name;
     public String personalInfo;// ?
     public Boolean editor;
+    public Boolean online;
 
-        public clientInterface cInterface;
+    public clientInterface cInterface;
 
     public ArrayList<Review> reviews = new ArrayList<>();
     public ArrayList<Playlist> playlists = new ArrayList<>();
@@ -23,6 +24,7 @@ public class User implements Serializable {
         this.name = name;
         this.editor = edit;
         this.personalInfo = "";
+        this.online = false;
     }
 
     public String getUsername() {
@@ -41,12 +43,16 @@ public class User implements Serializable {
         return name;
     }
 
-    public Boolean getEditor() {
+    public Boolean isEditor() {
         return editor;
     }
 
     public void setEditor(Boolean editor) {
         this.editor = editor;
     }
+
+    public Boolean isOnline(){ return online; }
+
+    public ArrayList<Notification> getNotifications(){return notifications;}
 
 }
