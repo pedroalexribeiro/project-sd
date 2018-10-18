@@ -1,13 +1,21 @@
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.rmi.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.*;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class RMIServer extends UnicastRemoteObject implements Interface {
 
+    private String MULTICAST_ADDRESS = "224.1.1.1";
+    private int PORT_MULTICAST = 4321;
     private static final long serialVersionUID = 1L;
+
+    private CopyOnWriteArrayList<User> onlineUsers = new CopyOnWriteArrayList<>();
 
     private static User tempUser;
 
@@ -26,6 +34,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
          *
          * If not ->return null
          */
+
         System.out.println("User: " + username + " logged in");
         tempUser = new User(username, pass, "email", "name", true);
         return tempUser;
@@ -155,6 +164,31 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return true;
     }
 
+    public void sendMulticast(String message){
+        // Send it to multicast servers
+        /*try {
+            byte[] sendBuffer = message.getBytes();
+            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
+            DatagramPacket packet = new DatagramPacket(sendBuffer,sendBuffer.length, group, PORT_MULTICAST);
+            this.socket.send(packet);
+
+            // Waits for multicast servers to respond
+            byte[] receiveBuffer = new byte[1000];
+            DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+            this.socket.receive(request);
+
+            // Sends information to rmi server
+            DatagramPacket reply = new DatagramPacket(request.getData(), request.getLength(), this.packet.getAddress(), this.packet.getPort());
+            this.socket.send(reply);
+
+            // closes socket and ends thread
+            this.socket.close();
+
+        }catch(UnknownHostException ue){
+            System.out.println(ue);
+        }*/
+    }
+
     public static void main(String args[]) {
         try { // First checks if registry is created
             Registry r = LocateRegistry.createRegistry(7000);
@@ -222,9 +256,3 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }
     }
 }
-
-/*
- *
- * Callback <- capacidade do server invocar metodos no cliente
- *
- */

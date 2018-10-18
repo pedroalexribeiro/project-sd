@@ -158,7 +158,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                    }
                                }
 
-                               while(true){ //Another Switch?
+                               while(true){ //Another Switch?F
                                     break;
                                }
 
