@@ -1,6 +1,4 @@
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.io.*;
 import java.rmi.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -11,11 +9,9 @@ import java.util.concurrent.TimeUnit;
 
 public class RMIServer extends UnicastRemoteObject implements Interface {
 
-    private String MULTICAST_ADDRESS = "224.1.1.1";
-    private int PORT_MULTICAST = 4321;
     private static final long serialVersionUID = 1L;
 
-    private CopyOnWriteArrayList<User> onlineUsers = new CopyOnWriteArrayList<>();
+    private static CopyOnWriteArrayList<User> onlineUsers = new CopyOnWriteArrayList<>();
 
     private static User tempUser;
 
@@ -29,14 +25,20 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public User login(String username, String pass) throws RemoteException {
-        /*
-         * Goes to database and checks if user exists and returns it
-         *
-         * If not ->return null
-         */
+        for(User temp : onlineUsers){
+            if (temp.username.equalsIgnoreCase(username)){
+                System.out.println("The user "+ temp.username +" is already Online");
+                return null;
+            }
+        }
+
+        /* If not online
+        Goes to database and checks if user exists and returns it*/
 
         System.out.println("User: " + username + " logged in");
         tempUser = new User(username, pass, "email", "name", true);
+        onlineUsers.add(tempUser);
+        writeFile();
         return tempUser;
     }
 
@@ -51,34 +53,23 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public void subscribe(String username, clientInterface cInterface) {
-        /*
-         * Searches user on database and updates user.clientInterface Option so it saves
-         * the interface
-         */
-        if (tempUser.username.equals(username)) {
-            tempUser.cInterface = cInterface;
-            tempUser.online = true;
+        //Function that connects user with its interface
+        for(User temp : onlineUsers){
+            if (temp.username.equalsIgnoreCase(username)){
+                temp.cInterface = cInterface;
+            }
         }
     }
 
     public void sendNotifcation(Notification note, String username, Boolean edit) throws RemoteException {
-        /* Fetch cInterface from Database using username */
-
-        System.out.println(tempUser.username + " : " + username);
-        if (tempUser.username.equalsIgnoreCase(username)) {
-            if (edit) {
-                tempUser.setEditor(true);
+        if(note.text.equalsIgnoreCase("Editor")){ //Change this
+            for(User temp : onlineUsers){ // Is online?
+                if (temp.username.equalsIgnoreCase(username)){
+                    temp.cInterface.liveNotification(note);
+                }
             }
-
-            if (tempUser.isOnline()) {
-                tempUser.cInterface.liveNotification(note);
-            } else {
-                /*
-                 * Enviar para databse para meter la note para user receber when he gets online
-                 */
-            }
-        } else {
-            System.out.println("User doesnt exist");
+            //not online
+            //Go to database and save it for when he gets online!
         }
     }
 
@@ -189,6 +180,34 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }*/
     }
 
+    public void writeFile(){
+        try {
+            FileOutputStream fileOut = new FileOutputStream("onlineUsers.ser");
+            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeObject(onlineUsers);
+            objectOut.close();
+            fileOut.close();
+            System.out.println("The Object  was succesfully written to a file");
+            } catch (Exception e) {
+            System.out.println("Exception on writeFile" + e);
+        }
+    }
+
+    public static void readFile(){
+        try {
+            FileInputStream fileIn = new FileInputStream("onlineUsers.ser");
+            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+            onlineUsers = (CopyOnWriteArrayList<User>) objectIn.readObject();
+            objectIn.close();
+            fileIn.close();
+            System.out.println("The Object  was succesfully read to a file");
+
+            System.out.println(onlineUsers);
+        } catch (Exception e) {
+            System.out.println("Exception on readFile");
+        }
+    }
+
     public static void main(String args[]) {
         try { // First checks if registry is created
             Registry r = LocateRegistry.createRegistry(7000);
@@ -251,6 +270,8 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             RMIServer rs = new RMIServer();
             r.rebind("Server", rs);
             System.out.println("Server Ready");
+
+            readFile();
         } catch (RemoteException re) {
             System.out.println("Exception in RMIServer.main" + re);
         }

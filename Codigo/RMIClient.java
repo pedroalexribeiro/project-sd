@@ -99,7 +99,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                 }
                             }
                             else{
-                                System.out.println("Log in  Unsuccessful");
+                                System.out.println("Login Unsuccessful");
                             }
                         }
                         break;
@@ -109,7 +109,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         if(parts.size() == 2 && !userStatus(user)){
                             String username = parts.get(1);
                             if(user.isEditor() && user.username.equalsIgnoreCase(username)) {
-                                Notification note = new Notification(username,"You are now an Editor");
+                                Notification note = new Notification(username,"Editor");
                                 i.sendNotifcation(note, username,true);
                             }
                             else{
@@ -133,9 +133,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         break;
-
-
-
 
                     case "/Search":
                         if(parts.size() == 3 && !userStatus(user)){
