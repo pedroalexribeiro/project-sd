@@ -1,6 +1,10 @@
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -92,7 +96,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                     //notifications
                                     for(Notification tempNote : user.getNotifications()){
                                         System.out.println("Notification: " + tempNote.text);
-                                        i.clearDatabaseNotifications(user);
+                                        i.clearDatabaseNotifications(username);
                                     }
 
                                 }catch(Exception e){
@@ -128,7 +132,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                 if(parts.size()==4 && ( method.equalsIgnoreCase("add")||method.equalsIgnoreCase("remove"))){
                                     music = parts.get(3);
                                 }
-                                String output = i.playlistMethods(method,title,music,user);
+                                String output = i.playlistMethods(method,title,music,user.username);
                                 System.out.println(output);
                             }
                         }
@@ -150,7 +154,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                for(int j=0;j<options.size();j++){
                                    if(input2.equalsIgnoreCase(options.get(j))){
 
-                                       i.retrieveInformation(whereSearch,options.get(j));
 
                                    }
                                }

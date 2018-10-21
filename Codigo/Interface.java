@@ -15,16 +15,13 @@ public interface Interface extends Remote {
     void sendNotifcation(Notification note,String username,Boolean edit) throws RemoteException;
 
     //Deletes notifications on user line
-    void clearDatabaseNotifications(User user) throws RemoteException;
+    void clearDatabaseNotifications(String username) throws RemoteException;
 
 
-    String playlistMethods(String method,String word,String music,User user) throws RemoteException;
+    String playlistMethods(String method,String word,String music,String username) throws RemoteException;
 
     //Search Method
     ArrayList<String> search(String word,String whereSearch) throws RemoteException;
-
-    //Retrieves information about 1 Music/Artist/Album
-    ArrayList<String> retrieveInformation(String whereSearch,String option) throws RemoteException;
 
 
     Boolean isAlive() throws RemoteException;

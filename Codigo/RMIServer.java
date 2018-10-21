@@ -32,8 +32,9 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             }
         }
 
-        /* If not online
-        Goes to database and checks if user exists and returns it*/
+
+        String t = "search | user ; username | "+username+" ; password | "+pass+" ;";
+        //Send through Multicast
 
         System.out.println("User: " + username + " logged in");
         tempUser = new User(username, pass, "email", "name", true);
@@ -43,10 +44,12 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public User register(String username, String pass, String email, String name, Boolean edit) {
-        /*
-         * Goes to database and checks if user with that username exists if not <-
-         * Creates it else <- return null
-         */
+        String t = "create | user ; username | "+username+" ; password | "+pass+" ; email | "+email+" ; name | "+name+" ; edit | "+edit+" ;";
+
+        //Multicast udp.menu(str) and check result..
+        // if "Null" -> User already Exists
+        // Else -> Sucess!!
+
         tempUser = new User(username, pass, "email", "name", true);
         return tempUser;
 
@@ -68,44 +71,70 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                     temp.cInterface.liveNotification(note);
                 }
             }
-            //not online
-            //Go to database and save it for when he gets online!
+
+            String t = "create | notification ; text | "+note.text+" ; username | "+username+" ;";
+            //Multicast it to database and save it for when he gets online!
         }
     }
 
-    public void clearDatabaseNotifications(User user) throws RemoteException {
+    public void clearDatabaseNotifications(String username) throws RemoteException {
         /* Ir a base dados limpar informacao de notificacoes no user */
+
+        String t = "delete | notification ; username | "+username+ " ;";
+
     }
 
-    public String playlistMethods(String method, String playlist, String music, User user) {
+    public String playlistMethods(String method, String title, String music, String username) {
+        String t;
         switch (method) {
         case "create":
             /*
              * title = playlist user = user Go to Database and create Line
              */
+             t = "create | playlist ; title | "+title+" ; username | "+username+" ;";
             return "Playlist Created!";
         case "delete":
             /*
              * title = playlist user = user Go to database and delete Line What happens if
              * it doesnt exist?
              */
-            return "Playlist " + playlist + "deleted";
+
+             t = "delete | playlist ; title | "+title+" ;";
+
+            return "Playlist deleted";
         case "add":
+
+            t = "search | playlist ; title | "+title+" ;";
+            //playlistID = playlist.ID
+            //if null return "error"
+
+            t = "search | music ; name | "+music+" ;";
+            //musicID = music.ID
+            //if null return "error"
+
+            //t = "create | playlist_music ; title | "+playlistID+" ; music | "+musicID+" ;";
+
             /*
-             * title = playlist user = user go to database and fetch existing playlist <----
-             * return "no existing playlist with that name" After checking if playlist
-             * exists, check if music with that name exists <-- return
-             * "That music already exists on that playlist"
-             */
-            return "Added " + music + " to " + playlist;
+            * Go to database and add
+            * */
+            return "Added " + music + " to " + title;
         case "remove":
+
+
+            t = "search | playlist ; title | "+title+" ;";
+            //playlistID = playlist.ID
+            //if null return "error"
+
+            t = "search | music ; name | "+music+" ;";
+            //musicID = music.ID
+            //if null return "error"
+
+            //t = "delete | playlist_music ; title | "+playlistID+" ; music | "+musicID+" ;";
+
             /*
-             * title = playlist user = user go to database and fetch existing playlist <----
-             * return "no existing playlist with that name" After checking if playlist
-             * exists, check if music with that name exists <-- return
-             * "That music doesnt exist on that playlist"
-             */
-            return "Deleted " + music + " from " + playlist;
+             * Go to database and SWITCH title and music with respective ID and delete that song
+             * */
+            return "Deleted " + music + " from "+title;
         default:
             return "Method Does Not exist!";
         }
@@ -117,6 +146,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
         switch (whereSearch.toLowerCase()) {
         case "album":
+
             /*
              * Search Database on table Album for any parameter equal to WORD Return them
              * all to UDP->Object convertion Return them here and fill the Arraylist<String>
@@ -140,15 +170,6 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }
 
         return output;
-    }
-
-    public ArrayList<String> retrieveInformation(String whereSearch, String option) {
-        /*
-         * Go to data base and look for line with exact info on Option and retrieve them
-         * all
-         */
-
-        return new ArrayList<>();
     }
 
     public Boolean isAlive() throws RemoteException {
