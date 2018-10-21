@@ -175,6 +175,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     case "/exit":
                         isRunning = false;
                         break;
+                    case "/teste":
+                        String smth = i.helloWorld();
+                        System.out.println(smth);
+                        break;
                     default:
                         break;
                 }

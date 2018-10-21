@@ -26,7 +26,8 @@ public class UDP {
 
 
 
-    public static String menuToSQL(ArrayList<String> str){
+    public static String menuToSQL(String packet){
+        ArrayList<String> str = packetToArr(packet);
         switch (str.get(0).toLowerCase()){
             case "create":
                 return insertToSQL(str);
@@ -89,8 +90,6 @@ public class UDP {
 
     public static ArrayList<String> packetToArr(String packet){
         //Translates Packets received from UDP to Arraylist for later conversion to  SQL
-
-
         String word = "";
         ArrayList<String> packetToUDP = new ArrayList<>();
         for(int i=0;i<packet.length();i++){

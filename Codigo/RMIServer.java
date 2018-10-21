@@ -6,6 +6,12 @@ import java.rmi.server.*;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.net.DatagramSocket;
+import java.net.MulticastSocket;
+import java.sql.*;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.io.IOException;
 
 public class RMIServer extends UnicastRemoteObject implements Interface {
 
@@ -15,13 +21,26 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     private static User tempUser;
 
+    private static String MULTICAST_ADDRESS = "224.1.1.1";
+    private static int MULTICAST_PORT = 4100;
+    private static int RMI_PORT = 4000;
+    private MulticastSocket senderSocket = null;
+    private MulticastSocket receiverSocket = null;
+
     public RMIServer() throws RemoteException {
         super();
+        try {
+            this.receiverSocket = new MulticastSocket(RMI_PORT);  // create socket and bind it
+            this.senderSocket = new MulticastSocket(); // create socket and doesn't bind it
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.receiverSocket.close();
+            this.senderSocket.close();
+        }
     }
 
     public String helloWorld() throws RemoteException {
-        System.out.println("Hello World");
-        return "Went to the dark side and survived!";
+        return sendMulticast("Something");
     }
 
     public User login(String username, String pass) throws RemoteException {
@@ -176,29 +195,26 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return true;
     }
 
-    public void sendMulticast(String message){
+    public String sendMulticast(String message){
         // Send it to multicast servers
-        /*try {
+        try {
             byte[] sendBuffer = message.getBytes();
             InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
-            DatagramPacket packet = new DatagramPacket(sendBuffer,sendBuffer.length, group, PORT_MULTICAST);
-            this.socket.send(packet);
+            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, group, MULTICAST_PORT);
+            this.senderSocket.send(packet);
 
             // Waits for multicast servers to respond
             byte[] receiveBuffer = new byte[1000];
-            DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-            this.socket.receive(request);
-
-            // Sends information to rmi server
-            DatagramPacket reply = new DatagramPacket(request.getData(), request.getLength(), this.packet.getAddress(), this.packet.getPort());
-            this.socket.send(reply);
-
-            // closes socket and ends thread
-            this.socket.close();
-
+            DatagramPacket request = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+            this.receiverSocket.receive(request);
+            return (new String(request.getData(), 0, request.getLength()));
         }catch(UnknownHostException ue){
             System.out.println(ue);
-        }*/
+            return "error";
+        }catch(IOException e){
+            System.out.println(e);
+            return "error";
+        }
     }
 
     public void writeFile(){
