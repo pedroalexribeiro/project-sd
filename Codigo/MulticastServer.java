@@ -76,26 +76,41 @@ public class MulticastServer {
             ArrayList<String> arr = udp.packetToArr(received);
             String sql = udp.menuToSQL(arr);
             System.out.println(arr);
+            String output = "";
             switch (arr.get(0).toLowerCase()){
                 case"create":
                     insertDB(sql);
+                    output = "CRIEI";
                     break;
                 case"delete":
                     deleteDB(sql);
+                    output = "APAGUEI";
                     break;
                 case"update":
                     updateDB(sql);
+                    output = "DEI UPDATE";
                     break;
                 case"search":
-                    selectDB(sql);
+                    ResultSet rs = selectDB(sql);
+                    if(rs != null){
+                        try{
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            int columnCount = rsmd.getColumnCount();
+                            output = "Selected | " + arr.get(1) + " ; ";
+
+                            // The column count starts from 1
+                            for (int i = 1; i <= columnCount; i++) {
+                              output += rsmd.getColumnName(i) + " | " + rs.getString(i) + " ; ";
+                            }
+                        }catch(SQLException sqle){
+                            System.out.println(sqle);
+                        }
+                    }
                     break;
             }
 
-
-
-            String texto = "IT REACHED A WHOLE NEW LEVEL";
             // Send information from database to multicast
-            byte [] b = texto.getBytes();
+            byte [] b = output.getBytes();
             DatagramPacket reply = new DatagramPacket(b, b.length, this.packet.getAddress(), RMI_PORT);
             try{
                 this.socket.send(reply);
@@ -219,7 +234,7 @@ public class MulticastServer {
             }
         }
 
-        public void selectDB(String sql){
+        public ResultSet selectDB(String sql){
             System.out.println(sql);
             Connection conn = null;
             Statement stmt = null;
@@ -236,41 +251,25 @@ public class MulticastServer {
                 System.out.println("Creating statement...");
                 stmt = conn.createStatement();
 
-                ResultSet rs = stmt.executeQuery(sql);
-
-                //STEP 5: Extract data from result set
-                while(rs.next()){
-                    //Retrieve by column name
-                    String user = rs.getString("username");
-                    String email = rs.getString("email");
-                    String name = rs.getString("name");
-                    String personalinfo = rs.getString("personalinfo");
-
-                    //Display values
-                    System.out.print("Username: " + user);
-                    System.out.print("email: " + email);
-                    System.out.print("name: " + name);
-                    System.out.println("PersonalInfo: " + personalinfo);
-                }
-                rs.close();
-
-        }catch(SQLException se){
-            se.printStackTrace();  //Handle errors for JDBC
-        }catch(Exception e){
-            e.printStackTrace(); //Handle errors for Class.forName
-        }finally{
-            //finally block used to close resources
-            try{
-                if(stmt!=null)
-                    conn.close();
-            }catch(SQLException se){ }
-            try{
-                if(conn!=null)
-                    conn.close();
+                return stmt.executeQuery(sql);
             }catch(SQLException se){
-                se.printStackTrace();
+                se.printStackTrace();  //Handle errors for JDBC
+            }catch(Exception e){
+                e.printStackTrace(); //Handle errors for Class.forName
+            }finally{
+                //finally block used to close resources
+                try{
+                    if(stmt!=null)
+                        conn.close();
+                }catch(SQLException se){ }
+                try{
+                    if(conn!=null)
+                        conn.close();
+                }catch(SQLException se){
+                    se.printStackTrace();
+                }
             }
+            return null;
         }
     }
-}
 }
