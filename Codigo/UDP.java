@@ -26,21 +26,23 @@ public class UDP {
 
 
 
-    public static String menuToSQL(String packet){
-        ArrayList<String> str = packetToArr(packet);
+    public static String menuToSQL(ArrayList<String> str){
         switch (str.get(0).toLowerCase()){
             case "create":
+                System.out.println("create");
                 return insertToSQL(str);
             case "delete":
+                System.out.println("delete");
                 return deleteToSQL(str);
             case "update":
+                System.out.println("create");
                 return updateToSQL(str);
             case "search":
+                System.out.println("search");
                 return searchToSQL(str);
         }
         return "";
     }
-
 
     private static String insertToSQL(ArrayList<String> str){
         int i;
@@ -53,7 +55,7 @@ public class UDP {
                 output += str.get(i+1) + ", ";
             }
         }
-        output = output.substring(0, str.size() - 2);
+        output = output.substring(0, output.length() - 2);
         output += ");";
         System.out.println(output);
         return output;
@@ -70,7 +72,7 @@ public class UDP {
         for(; i < str.size(); i += 2){
             output += str.get(i) + "=" + str.get(i+1) + ", ";
         }
-        output = output.substring(0, str.size() - 2);
+        output = output.substring(0, output.length() - 2);
         output += " WHERE id = " + str.get(i+1) +";" ;
 
         System.out.println(output);
@@ -81,9 +83,14 @@ public class UDP {
         int i = 2;
         String output = "SELECT * FROM " + str.get(1) + " WHERE ";
         for(; i < str.size(); i += 2){
-            output += str.get(i) + "=" + str.get(i+1) + " AND ";
+            if(strType.get(str.get(i)).equalsIgnoreCase("string")){
+                output += str.get(i) + "=" + "'"+str.get(i+1)+"'" + " AND ";
+            }
+            else{
+                output += str.get(i)+ "=" + str.get(i+1) + " AND ";
+            }
         }
-        output = output.substring(0, str.size() - 5);
+        output = output.substring(0, output.length() - 5);
         output += ";";
         return output;
     }
@@ -102,10 +109,10 @@ public class UDP {
                 word += packet.charAt(i);
             }
         }
-
-        System.out.println(packetToUDP);
         return packetToUDP;
     }
+
+
 }
 
 

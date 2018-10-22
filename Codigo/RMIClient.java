@@ -1,10 +1,10 @@
+import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +26,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
     }
 
     public static void run(Boolean testing, String input) {
+
+        /*System.getProperties().put("java.security.policy", "java.policy.applet");
+        System.setSecurityManager(new RMISecurityManager());*/
+
         try {
             Scanner sc = new Scanner(System.in);
             boolean isRunning = true;
@@ -37,7 +41,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     System.out.println("\nInput:");
                     input = sc.nextLine();
                 }
-                i = (Interface) LocateRegistry.getRegistry(7000).lookup("//192.168.1.11/Server");
+                    i = (Interface) LocateRegistry.getRegistry("192.168.1.11",7000).lookup("Server");
 
                 // Splits input into arraylist for latter use
                 ArrayList<String> parts = new ArrayList<>();

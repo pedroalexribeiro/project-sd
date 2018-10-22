@@ -62,7 +62,8 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String helloWorld() throws RemoteException {
-        return sendMulticast("Something");
+        String t = "search | user ; username | francisco ; password | test ;";
+        return sendMulticast(t);
     }
 
     public User login(String username, String pass) throws RemoteException {
@@ -305,7 +306,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         try {
             Registry r = LocateRegistry.getRegistry(7000);
             RMIServer rs = new RMIServer();
-            r.rebind("//192.168.1.11/Server", rs);
+            r.rebind("Server", rs);
             System.out.println("Server Ready");
 
             readFile();
