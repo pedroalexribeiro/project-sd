@@ -38,7 +38,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     input = sc.nextLine();
                 }
                 i = (Interface) LocateRegistry.getRegistry(7000).lookup("Server");
-
+                System.out.println("TESTE TESTE TESTE");
                 // Splits input into arraylist for latter use
                 ArrayList<String> parts = new ArrayList<>();
                 String s[] = input.split(" ");
