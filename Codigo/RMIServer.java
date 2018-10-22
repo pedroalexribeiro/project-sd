@@ -39,6 +39,28 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }
     }
 
+    public String sendMulticast(String message){
+        // Send it to multicast servers
+        try {
+            byte[] sendBuffer = message.getBytes();
+            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
+            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, group, MULTICAST_PORT);
+            this.senderSocket.send(packet);
+
+            // Waits for multicast servers to respond
+            byte[] receiveBuffer = new byte[1000];
+            DatagramPacket request = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+            this.receiverSocket.receive(request);
+            return (new String(request.getData(), 0, request.getLength()));
+        }catch(UnknownHostException ue){
+            System.out.println(ue);
+            return "error";
+        }catch(IOException e){
+            System.out.println(e);
+            return "error";
+        }
+    }
+
     public String helloWorld() throws RemoteException {
         return sendMulticast("Something");
     }
@@ -195,28 +217,6 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return true;
     }
 
-    public String sendMulticast(String message){
-        // Send it to multicast servers
-        try {
-            byte[] sendBuffer = message.getBytes();
-            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
-            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, group, MULTICAST_PORT);
-            this.senderSocket.send(packet);
-
-            // Waits for multicast servers to respond
-            byte[] receiveBuffer = new byte[1000];
-            DatagramPacket request = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-            this.receiverSocket.receive(request);
-            return (new String(request.getData(), 0, request.getLength()));
-        }catch(UnknownHostException ue){
-            System.out.println(ue);
-            return "error";
-        }catch(IOException e){
-            System.out.println(e);
-            return "error";
-        }
-    }
-
     public void writeFile(){
         try {
             FileOutputStream fileOut = new FileOutputStream("onlineUsers.ser");
@@ -305,7 +305,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         try {
             Registry r = LocateRegistry.getRegistry(7000);
             RMIServer rs = new RMIServer();
-            r.rebind("Server", rs);
+            r.rebind("//192.168.1.11/Server", rs);
             System.out.println("Server Ready");
 
             readFile();
