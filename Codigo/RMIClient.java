@@ -5,6 +5,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -25,10 +26,14 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         return (user==null);
     }
 
+    public static Boolean stringContain(String s){
+        return  (!s.contains("|") && !s.contains(";"));
+    }
+
     public static void run(Boolean testing, String input) {
 
-        /*System.getProperties().put("java.security.policy", "java.policy.applet");
-        System.setSecurityManager(new RMISecurityManager());*/
+        System.getProperties().put("java.security.policy", "java.policy.applet");
+        System.setSecurityManager(new RMISecurityManager());
 
         try {
             Scanner sc = new Scanner(System.in);
@@ -41,7 +46,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     System.out.println("\nInput:");
                     input = sc.nextLine();
                 }
-                    i = (Interface) LocateRegistry.getRegistry(7000).lookup("Server");
+                    i = (Interface) LocateRegistry.getRegistry("192.168.1.11",7000).lookup("Server");
 
                 // Splits input into arraylist for latter use
                 ArrayList<String> parts = new ArrayList<>();
@@ -58,8 +63,11 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     case "/help":
                         System.out.println("Commands:" +
                                 "\n/helloworld" +
-                                "\n/login user pass" +
                                 "\n/register user pass email name" +
+                                "\n/login user pass" +
+                                "\n/logout" +
+                                "\n/add type" +
+
                                 "\n/editor user" +
                                 "\n/playlist method title music" +
                                 "\n/search type text" +
@@ -68,17 +76,17 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
 
                     case "/register":
-                        if(parts.size() == 5 && !parts.get(4).matches(".*\\d+.*")){
+                        if(parts.size() == 5 && !parts.get(4).matches(".*\\d+.*") && stringContain(input)){
                             String username=parts.get(1);
                             String pass=parts.get(2);
                             String email=parts.get(3);
                             String name=parts.get(4);
 
-                            user = i.register(username,pass,email,name,false);
-                            if(user != null){
-                                System.out.println("Register Successful");
-                            }else{
+                            String answer = i.register(username,pass,email,name,false);
+                            if(answer.equalsIgnoreCase("Error")){
                                 System.out.println("Register Unsuccessful");
+                            }else{
+                                System.out.println("Register Successful");
                             }
                         }
                         break;
@@ -86,7 +94,11 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
 
                     case "/login":
-                        if (parts.size() == 3) {
+                        if (parts.size() == 3 && stringContain(input) ) {
+                            if(user != null) {
+                                System.out.println("You are Already Logged In");
+                                break;
+                            }
                             String username = parts.get(1);
                             String pass = parts.get(2);
 
@@ -98,11 +110,11 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                     System.out.println("Log in Successful");
 
                                     //notifications
-                                    for(Notification tempNote : user.getNotifications()){
-                                        System.out.println("Notification: " + tempNote.text);
-                                        i.clearDatabaseNotifications(username);
+                                    ArrayList<Notification> notes = i.getNotifications(username);
+                                    for(Notification note : notes){
+                                        System.out.println(note.text);
                                     }
-
+                                    i.clearDatabaseNotifications(username);
                                 }catch(Exception e){
                                 }
                             }
@@ -112,13 +124,79 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         }
                         break;
 
+                    case "/logout":
+                        if(user == null){
+                            System.out.println("You are not logged in");
+                        }
+                        else{
+                            i.logout(user.username);
+                            user = null;
+                            System.out.println("Bye Bye");
+                        }
+                        break;
+
+
+                    case "/add":
+                        if(parts.size() == 2 && !userStatus(user) && stringContain(input)){
+                            if(user.editor){
+                                switch(parts.get(1)){
+                                    case "album":
+                                            while(true){
+                                                System.out.println("Title:");
+                                                String title = sc.nextLine();
+                                                System.out.println("ReleaseDate:");
+                                                String releaseDate = sc.nextLine();
+                                                System.out.println("Description:");
+                                                String description = sc.nextLine();
+                                                System.out.println("Artist:");
+                                                String artist = sc.nextLine();
+                                                if(stringContain(title)&&stringContain(releaseDate)&&stringContain(description)&&stringContain(artist)){
+                                                    System.out.println(i.addAlbum(title,releaseDate,description,artist));
+                                                    break;
+                                                }
+                                            }
+                                        break;
+                                    case "artist":
+                                        while(true){
+                                            System.out.println("Name:");
+                                            String name = sc.nextLine();
+                                            System.out.println("Details:");
+                                            String details = sc.nextLine();
+                                            if(stringContain(name)&&stringContain(details)){
+                                                System.out.println(i.addArtist(name,details));
+                                                break;
+                                            }
+                                        }
+
+                                        break;
+                                    case "music":
+                                        while(true){
+                                            System.out.println("Name:");
+                                            String name = sc.nextLine();
+                                            System.out.println("Genre:");
+                                            String genre = sc.nextLine();
+                                            System.out.println("Length:");
+                                            String length = sc.nextLine();
+                                            System.out.println("Album:");
+                                            String album = sc.nextLine();
+                                            if(stringContain(name)&&stringContain(genre)&&stringContain(length)&&stringContain(album)){
+                                                System.out.println(i.addMusic(name,genre,length,album));
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                }
+                           }
+                        }
+
+                            break;
 
                     case "/editor": // Turns another user into an editor
-                        if(parts.size() == 2 && !userStatus(user)){
+                        if(parts.size() == 2 && !userStatus(user) && stringContain(input)){
                             String username = parts.get(1);
-                            if(user.isEditor() && user.username.equalsIgnoreCase(username)) {
-                                Notification note = new Notification(username,"Editor");
-                                i.sendNotifcation(note, username,true);
+                            if(user.isEditor()) {
+                                Notification note = new Notification(username,"You are now an Editor");
+                                i.sendNotifcation(note, username);
                             }
                             else{
                                 System.out.println("Not an Editor/Chose another editor");
@@ -179,10 +257,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     case "/exit":
                         isRunning = false;
                         break;
-                    case "/teste":
-                        String smth = i.helloWorld();
-                        System.out.println(smth);
-                        break;
                     default:
                         break;
                 }
@@ -197,7 +271,8 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         } catch (Exception e) {
             try {
                 TimeUnit.SECONDS.sleep(1); // sleep for a bit
-                run(true, input);
+                e.printStackTrace();
+                //run(true, input);
             } catch (InterruptedException ie) {
                 System.out.println(ie);
             }

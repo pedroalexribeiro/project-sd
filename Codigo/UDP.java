@@ -6,7 +6,7 @@ public class UDP {
     private static final Map<String,String> strType = new HashMap<>() ;
     static {
         strType.put("title","string");
-        strType.put("releaseDate","string");
+        strType.put("releasedate","string");
         strType.put("description","string");
         strType.put("name","string");
         strType.put("details","string");
@@ -16,11 +16,15 @@ public class UDP {
         strType.put("text","string");
         strType.put("password","string");
         strType.put("email","string");
-        strType.put("personalInfo","string");
+        strType.put("personalinfo","string");
         strType.put("datee","string");
+        strType.put("notification","string");
+        strType.put("notificationid","null");
+        strType.put("user_username","string");
         strType.put("length","int");
         strType.put("rating","int");
         strType.put("id","int");
+        strType.put("edit","boolean");
         strType.put("editor","boolean");
     }
 
@@ -45,10 +49,10 @@ public class UDP {
     }
 
     private static String insertToSQL(ArrayList<String> str){
-        int i;
+        int i=2;
         String output = "INSERT INTO " +str.get(1)+" VALUES (";
-        for(i=2 ; i < str.size()-1 ; i++){
-            if(strType.get(str.get(i)).equalsIgnoreCase("string")){
+        for( ; i < str.size() ; i+=2){
+            if(strType.get(str.get(i).toLowerCase()).equalsIgnoreCase("string")){
                 output += "'"+str.get(i+1)+"'" + ", ";
             }
             else{
@@ -62,7 +66,12 @@ public class UDP {
     }
 
     private static String deleteToSQL(ArrayList<String> str){
-        String output = "DELETE FROM " + str.get(1) + " WHERE id = " + str.get(3)+";";
+        String output;
+        if(strType.get(str.get(2)).equalsIgnoreCase("String")){
+            output = "DELETE FROM " + str.get(1) + " WHERE "+str.get(2)+" = " +"'"+ str.get(3)+"'"+";";
+        }else{
+            output = "DELETE FROM " + str.get(1) + " WHERE "+str.get(2)+" = " +str.get(3)+";";
+        }
         return output;
     }
 
@@ -70,10 +79,28 @@ public class UDP {
         int i = 2;
         String output = "UPDATE " + str.get(1) + " SET ";
         for(; i < str.size(); i += 2){
-            output += str.get(i) + "=" + str.get(i+1) + ", ";
+            if(str.get(i).equalsIgnoreCase("WHERE")){
+                i++;
+                break;
+            }
+            if(strType.get(str.get(i)).equalsIgnoreCase("string")){
+                output += str.get(i) + "=" + "'"+str.get(i+1)+"'"+ ", ";
+            }
+            else{
+                output += str.get(i) + "=" + str.get(i+1) + ", ";
+            }
         }
         output = output.substring(0, output.length() - 2);
-        output += " WHERE id = " + str.get(i+1) +";" ;
+        output += " WHERE ";
+        for(; i < str.size(); i += 2){
+            if(strType.get(str.get(i)).equalsIgnoreCase("string")){
+                output += str.get(i) + "=" + "'"+str.get(i+1)+"'" + ", ";
+            }
+            else{
+                output += str.get(i) + "=" + str.get(i+1) + ", ";
+            }
+        }
+        output = output.substring(0, output.length() - 2);
 
         System.out.println(output);
         return output;
@@ -111,6 +138,9 @@ public class UDP {
         }
         return packetToUDP;
     }
+
+
+
 
 }
 
