@@ -1,6 +1,3 @@
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import java.io.*;
 import java.net.*;
 import java.sql.*;
@@ -86,37 +83,24 @@ public class MulticastServer {
                     output = this.socket.getLocalAddress().getHostAddress() + "|" + Integer.toString(TCP_PORT);
                     break;
                 case"create":
-                    insertDB(sql);
-                    output = "CRIEI";
+                    output = insertDB(sql);
                     break;
                 case"delete":
-                    deleteDB(sql);
-                    output = "APAGUEI";
+                    output = deleteDB(sql);
                     break;
                 case"update":
-                    updateDB(sql);
-                    output = "DEI UPDATE";
+                    output = updateDB(sql);
                     break;
                 case"search":
-                    ResultSet rs = selectDB(sql);
-                    if(rs != null){
-                        try{
-                            ResultSetMetaData rsmd = rs.getMetaData();
-                            int columnCount = rsmd.getColumnCount();
-                            output = "Selected | " + arr.get(1) + " ; ";
-
-                            // The column count starts from 1
-                            for (int i = 1; i <= columnCount; i++) {
-                              output += rsmd.getColumnName(i) + " | " + rs.getString(i) + " ; ";
-                            }
-                        }catch(SQLException sqle){
-                            System.out.println(sqle);
-                        }
-                    }
+                    output = selectDB(sql,arr.get(1));
                     break;
             }
 
             // Send information from database to multicast
+            if(output==null){
+                output="Nothing on Db";
+            }
+
             byte [] b = output.getBytes();
             DatagramPacket reply = new DatagramPacket(b, b.length, this.packet.getAddress(), RMI_PORT);
             try{
@@ -127,7 +111,7 @@ public class MulticastServer {
         }
 
 
-        public void insertDB(String sql){
+        private String insertDB(String sql){
             Connection conn = null;
             Statement stmt = null;
 
@@ -144,9 +128,9 @@ public class MulticastServer {
                 stmt = conn.createStatement();
 
                 stmt.executeUpdate(sql);
-
+                return "Success";
             }catch(SQLException se){
-                se.printStackTrace();  //Handle errors for JDBC
+                return "Error";
             }catch(Exception e){
                 e.printStackTrace(); //Handle errors for Class.forName
             }finally{
@@ -162,9 +146,10 @@ public class MulticastServer {
                     se.printStackTrace();
                 }
             }
+            return "Error";
         }
 
-        public void updateDB(String sql){
+        private String updateDB(String sql){
             Connection conn = null;
             Statement stmt = null;
 
@@ -182,10 +167,9 @@ public class MulticastServer {
                 stmt = conn.createStatement();
 
                 stmt.executeUpdate(sql);
-
+                return "Sucess";
             }catch(SQLException se){
-                System.out.println("USER ALREADY EXISTS");
-
+                return "Error";
             }catch(Exception e){
                 e.printStackTrace(); //Handle errors for Class.forName
             }finally{
@@ -201,12 +185,13 @@ public class MulticastServer {
                     se.printStackTrace();
                 }
             }
+            return "Error";
         }
 
-        public void deleteDB(String sql){
+        private String deleteDB(String sql){
             Connection conn = null;
             Statement stmt = null;
-
+            System.out.println(sql);
             try{
                 //STEP 2: Register JDBC driver
                 Class.forName("com.mysql.jdbc.Driver");
@@ -219,11 +204,11 @@ public class MulticastServer {
                 //STEP 4:
                 System.out.println("Creating statement...");
                 stmt = conn.createStatement();
-
                 stmt.executeUpdate(sql);
 
+                return "Sucess";
             }catch(SQLException se){
-                se.printStackTrace();  //Handle errors for JDBC
+                return "Error";
             }catch(Exception e){
                 e.printStackTrace(); //Handle errors for Class.forName
             }finally{
@@ -239,13 +224,13 @@ public class MulticastServer {
                     se.printStackTrace();
                 }
             }
+            return "Error";
         }
 
-        public ResultSet selectDB(String sql){
-            System.out.println(sql);
+        private String selectDB(String sql,String type){
             Connection conn = null;
             Statement stmt = null;
-
+            String output="";
             try{
                 //STEP 2: Register JDBC driver
                 Class.forName("com.mysql.jdbc.Driver");
@@ -258,7 +243,26 @@ public class MulticastServer {
                 System.out.println("Creating statement...");
                 stmt = conn.createStatement();
 
-                return stmt.executeQuery(sql);
+                ResultSet rs = stmt.executeQuery(sql);
+                while(rs.next()) {
+                    if(output.equals("")){
+                        output = "Selected | " + type + " ; ";
+                    }
+                    try {
+                        ResultSetMetaData rsmd = rs.getMetaData();
+                        int columnCount = rsmd.getColumnCount();
+                        // The column count starts from 1
+                        for (int i = 1; i <= columnCount; i++) {
+                            output += rsmd.getColumnName(i) + " | " + rs.getString(i) + " ; ";
+                        }
+
+                    } catch (SQLException sqle) {
+                        System.out.println(sqle);
+                    }
+
+                }
+                return output;
+
             }catch(SQLException se){
                 se.printStackTrace();  //Handle errors for JDBC
             }catch(Exception e){
