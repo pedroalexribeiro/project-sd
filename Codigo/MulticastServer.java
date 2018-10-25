@@ -1,15 +1,16 @@
-import java.net.DatagramSocket;
-import java.net.MulticastSocket;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.io.*;
+import java.net.*;
 import java.sql.*;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MulticastServer {
     private static String MULTICAST_ADDRESS = "224.1.1.1";
     private static int MULTICAST_PORT = 4100;
     private static int RMI_PORT = 4000;
+    private static int TCP_PORT = 3900;
     private int id;
 
     public static void main(String[] args) {
@@ -27,11 +28,14 @@ public class MulticastServer {
         MulticastSocket senderSocket = null;
         int numThreads = 0;
         System.out.println("Starting...");
+        ServerTCP tcp = new ServerTCP(TCP_PORT);
+        tcp.start();
         try {
             receiveSocket = new MulticastSocket(MULTICAST_PORT);  // create socket and bind it
             senderSocket = new MulticastSocket();  // create socket and doesnt bind it cause only for sending
             InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
             receiveSocket.joinGroup(group);
+            System.out.println("I'm ready!");
             while (true) {
                 // waits for packet from multicast
                 byte[] buffer = new byte[1000];
@@ -78,6 +82,9 @@ public class MulticastServer {
             System.out.println(arr);
             String output = "";
             switch (arr.get(0).toLowerCase()){
+                case"ip":
+                    output = this.socket.getLocalAddress().getHostAddress() + "|" + Integer.toString(TCP_PORT);
+                    break;
                 case"create":
                     insertDB(sql);
                     output = "CRIEI";
@@ -270,6 +277,69 @@ public class MulticastServer {
                 }
             }
             return null;
+        }
+    }
+
+    private class ServerTCP extends Thread {
+        ServerSocket serverSck = null;
+
+        public ServerTCP(int port){
+            try{
+                this.serverSck = new ServerSocket(port);
+            }catch (IOException e){
+                System.out.println(e);
+            }
+        }
+
+        public void run(){
+            if(serverSck.isBound()){
+                while(true){
+                    Socket client = null;
+                    try {
+                        client = this.serverSck.accept();
+                        ReceiveFile thread = new ReceiveFile(client);
+                        thread.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    private class ReceiveFile extends Thread {
+        Socket socket = null;
+
+        public ReceiveFile(Socket socket){
+            this.socket = socket;
+        }
+
+        public void run() {
+            if (this.socket.isConnected()) {
+                InputStream in = null;
+                OutputStream out = null;
+                try {
+                    in = new BufferedInputStream(socket.getInputStream());
+                    out = new FileOutputStream(new File("teste222.mp3"));
+                    int read = 0;
+                    byte[] buffer = new byte[1024];
+                    while ((read = in.read(buffer)) != -1){
+                        out.write(buffer, 0, read);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private class SendFile extends Thread {
+        Socket socket = null;
+
+        public SendFile(int port) {
+            this.socket = new Socket();
         }
     }
 }

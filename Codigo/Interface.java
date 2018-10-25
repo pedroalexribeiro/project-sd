@@ -1,4 +1,5 @@
-import java.rmi.*;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public interface Interface extends Remote {
@@ -25,4 +26,6 @@ public interface Interface extends Remote {
 
 
     Boolean isAlive() throws RemoteException;
+
+    String askIP() throws RemoteException;
 }

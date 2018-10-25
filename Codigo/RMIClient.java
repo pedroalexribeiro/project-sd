@@ -1,10 +1,12 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.nio.file.Files;
 import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -27,8 +29,8 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
     public static void run(Boolean testing, String input) {
 
-        /*System.getProperties().put("java.security.policy", "java.policy.applet");
-        System.setSecurityManager(new RMISecurityManager());*/
+        System.getProperties().put("java.security.policy", "java.policy.applet");
+        System.setSecurityManager(new RMISecurityManager());
 
         try {
             Scanner sc = new Scanner(System.in);
@@ -41,7 +43,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     System.out.println("\nInput:");
                     input = sc.nextLine();
                 }
-                    i = (Interface) LocateRegistry.getRegistry(7000).lookup("Server");
+                i = (Interface) LocateRegistry.getRegistry(7000).lookup("Server");
 
                 // Splits input into arraylist for latter use
                 ArrayList<String> parts = new ArrayList<>();
@@ -68,21 +70,20 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
 
                     case "/register":
-                        if(parts.size() == 5 && !parts.get(4).matches(".*\\d+.*")){
-                            String username=parts.get(1);
-                            String pass=parts.get(2);
-                            String email=parts.get(3);
-                            String name=parts.get(4);
+                        if (parts.size() == 5 && !parts.get(4).matches(".*\\d+.*")) {
+                            String username = parts.get(1);
+                            String pass = parts.get(2);
+                            String email = parts.get(3);
+                            String name = parts.get(4);
 
-                            user = i.register(username,pass,email,name,false);
-                            if(user != null){
+                            user = i.register(username, pass, email, name, false);
+                            if (user != null) {
                                 System.out.println("Register Successful");
-                            }else{
+                            } else {
                                 System.out.println("Register Unsuccessful");
                             }
                         }
                         break;
-
 
 
                     case "/login":
@@ -90,23 +91,22 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             String username = parts.get(1);
                             String pass = parts.get(2);
 
-                            user = i.login(username,pass);
-                            if(user != null){
-                                try{
+                            user = i.login(username, pass);
+                            if (user != null) {
+                                try {
                                     RMIClient rc = new RMIClient();
-                                    i.subscribe(username,rc); //Function that saves clientInterface and puts User.online true
+                                    i.subscribe(username, rc); //Function that saves clientInterface and puts User.online true
                                     System.out.println("Log in Successful");
 
                                     //notifications
-                                    for(Notification tempNote : user.getNotifications()){
+                                    for (Notification tempNote : user.getNotifications()) {
                                         System.out.println("Notification: " + tempNote.text);
                                         i.clearDatabaseNotifications(username);
                                     }
 
-                                }catch(Exception e){
+                                } catch (Exception e) {
                                 }
-                            }
-                            else{
+                            } else {
                                 System.out.println("Login Unsuccessful");
                             }
                         }
@@ -114,13 +114,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
 
                     case "/editor": // Turns another user into an editor
-                        if(parts.size() == 2 && !userStatus(user)){
+                        if (parts.size() == 2 && !userStatus(user)) {
                             String username = parts.get(1);
-                            if(user.isEditor() && user.username.equalsIgnoreCase(username)) {
-                                Notification note = new Notification(username,"Editor");
-                                i.sendNotifcation(note, username,true);
-                            }
-                            else{
+                            if (user.isEditor() && user.username.equalsIgnoreCase(username)) {
+                                Notification note = new Notification(username, "Editor");
+                                i.sendNotifcation(note, username, true);
+                            } else {
                                 System.out.println("Not an Editor/Chose another editor");
                             }
                         }
@@ -128,61 +127,70 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
 
                     case "/playlist":
-                        if(!userStatus(user)){
-                            if (2<parts.size() && parts.size()<5){
+                        if (!userStatus(user)) {
+                            if (2 < parts.size() && parts.size() < 5) {
                                 String method = parts.get(1);
                                 String title = parts.get(2);
                                 String music = "";
-                                if(parts.size()==4 && ( method.equalsIgnoreCase("add")||method.equalsIgnoreCase("remove"))){
+                                if (parts.size() == 4 && (method.equalsIgnoreCase("add") || method.equalsIgnoreCase("remove"))) {
                                     music = parts.get(3);
                                 }
-                                String output = i.playlistMethods(method,title,music,user.username);
+                                String output = i.playlistMethods(method, title, music, user.username);
                                 System.out.println(output);
                             }
                         }
                         break;
 
                     case "/Search":
-                        if(parts.size() == 3 && !userStatus(user)){
+                        if (parts.size() == 3 && !userStatus(user)) {
                             String whereSearch = parts.get(1);
                             String word = parts.get(2);
 
-                            ArrayList<String> options = i.search(word,whereSearch);
+                            ArrayList<String> options = i.search(word, whereSearch);
 
-                            System.out.println(options + "\n/exit "+"\nChoose One");
+                            System.out.println(options + "\n/exit " + "\nChoose One");
                             String input2 = sc.nextLine();
-                            while(true){
-                                if(input2.equalsIgnoreCase("/exit")){
+                            while (true) {
+                                if (input2.equalsIgnoreCase("/exit")) {
                                     break;
                                 }
-                               for(int j=0;j<options.size();j++){
-                                   if(input2.equalsIgnoreCase(options.get(j))){
+                                for (int j = 0; j < options.size(); j++) {
+                                    if (input2.equalsIgnoreCase(options.get(j))) {
 
 
-                                   }
-                               }
+                                    }
+                                }
 
-                               while(true){ //Another Switch?F
+                                while (true) { //Another Switch?F
                                     break;
-                               }
+                                }
 
 
                                 System.out.println("Try Again");
                             }
                         }
                         break;
-
-
-
-
-
+                    case "/teste":
+                        String smth = i.askIP();
+                        String arr[] = smth.split("\\|");
+                        Socket sck = new Socket(arr[0], Integer.parseInt(arr[1]));
+                        File soundFile = new File(parts.get(1));
+                        if (!soundFile.exists() || !soundFile.isFile()){
+                            throw new IllegalArgumentException("not a file: " + soundFile);
+                        }
+                        byte[] buffer = Files.readAllBytes(soundFile.toPath());
+                        try{
+                            OutputStream out = sck.getOutputStream();
+                            out.write(buffer, 0, buffer.length);
+                        }finally{
+                            sck.close();
+                        }
+                        System.out.println("Successful");
+                        break;
                     case "/exit":
                         isRunning = false;
                         break;
-                    case "/teste":
-                        String smth = i.helloWorld();
-                        System.out.println(smth);
-                        break;
+
                     default:
                         break;
                 }
@@ -196,6 +204,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
             System.out.println("Bye Bye");
         } catch (Exception e) {
             try {
+                e.printStackTrace();
                 TimeUnit.SECONDS.sleep(1); // sleep for a bit
                 run(true, input);
             } catch (InterruptedException ie) {

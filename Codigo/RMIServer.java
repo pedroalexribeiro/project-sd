@@ -1,17 +1,16 @@
 import java.io.*;
-import java.rmi.*;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.UnknownHostException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.*;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-import java.net.DatagramSocket;
-import java.net.MulticastSocket;
-import java.sql.*;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.io.IOException;
 
 public class RMIServer extends UnicastRemoteObject implements Interface {
 
@@ -212,6 +211,10 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }
 
         return output;
+    }
+
+    public String askIP(){
+        return sendMulticast("ip | nao percebo ;");
     }
 
     public Boolean isAlive() throws RemoteException {
