@@ -1,7 +1,8 @@
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.Map;
 
 public class MulticastServer {
     private static String MULTICAST_ADDRESS = "224.1.1.1";
@@ -72,15 +73,18 @@ public class MulticastServer {
 
 
         public void run() {
-            UDP udp = new UDP();
             String received = new String(this.packet.getData(),0,this.packet.getLength());
-            ArrayList<String> arr = udp.packetToArr(received);
-            String sql = udp.menuToSQL(arr);
-            System.out.println(arr);
+            Map<String, String> hash = UDP.protocolToHash(received);
+            String sql = UDP.menuToSQL(hash);
             String output = "";
-            switch (arr.get(0).toLowerCase()){
-                case"ip":
+            switch (hash.get("function")){
+                case"getIP":
                     output = this.socket.getLocalAddress().getHostAddress() + "|" + Integer.toString(TCP_PORT);
+                    break;
+                case "download":
+                    SendFile thread = new SendFile(hash.get("ip"), Integer.parseInt(hash.get("port")), "Path is missing");
+                    thread.start();
+                    output = "Starting download...";
                     break;
                 case"create":
                     output = insertDB(sql);
@@ -92,7 +96,7 @@ public class MulticastServer {
                     output = updateDB(sql);
                     break;
                 case"search":
-                    output = selectDB(sql,arr.get(1));
+                    output = selectDB(sql,hash.get("what"));
                     break;
             }
 
@@ -244,6 +248,7 @@ public class MulticastServer {
                 stmt = conn.createStatement();
 
                 ResultSet rs = stmt.executeQuery(sql);
+
                 while(rs.next()) {
                     if(output.equals("")){
                         output = "Selected | " + type + " ; ";
@@ -341,9 +346,31 @@ public class MulticastServer {
 
     private class SendFile extends Thread {
         Socket socket = null;
+        String path = null;
 
-        public SendFile(int port) {
-            this.socket = new Socket();
+        public SendFile(String host, int port, String path) {
+            try {
+                this.socket = new Socket(host, port);
+                this.path = path;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void run() {
+            File soundFile = new File(path);
+            if (!soundFile.exists() || !soundFile.isFile()) {
+                System.out.println("not a file: " + soundFile);
+                return;
+            }
+            try {
+                byte[] buffer = Files.readAllBytes(soundFile.toPath());
+                OutputStream out = this.socket.getOutputStream();
+                out.write(buffer, 0, buffer.length);
+                this.socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

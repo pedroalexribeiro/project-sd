@@ -1,37 +1,53 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class UDP {
-    private static final Map<String,String> strType = new HashMap<>() ;
+    private static final Map<String,String> user = new HashMap<>();
+    private static final Map<String,String> notification = new HashMap<>();
+    private static final Map<String,String> playlist = new HashMap<>();
+    private static final Map<String,String> playlist_music = new HashMap<>();
+    private static final Map<String,String> album = new HashMap<>();
+    private static final Map<String,String> artist = new HashMap<>();
+    private static final Map<String,String> music = new HashMap<>();
+    private static final Map<String, Map<String,String>> hashmaps = new HashMap<>();
     static {
-        strType.put("title","string");
-        strType.put("releasedate","string");
-        strType.put("description","string");
-        strType.put("name","string");
-        strType.put("details","string");
-        strType.put("filepath","string");
-        strType.put("username","string");
-        strType.put("genre","string");
-        strType.put("text","string");
-        strType.put("password","string");
-        strType.put("email","string");
-        strType.put("personalinfo","string");
-        strType.put("datee","string");
-        strType.put("notification","string");
-        strType.put("notificationid","null");
-        strType.put("user_username","string");
-        strType.put("length","int");
-        strType.put("rating","int");
-        strType.put("id","int");
-        strType.put("edit","boolean");
-        strType.put("editor","boolean");
+        user.put("username","string");
+        user.put("password","string");
+        user.put("email","string");
+        user.put("name","string");
+        user.put("personalinfo","string");
+        user.put("edit","boolean");
+        notification.put("notificationid","int");
+        notification.put("text","string");
+        notification.put("user_username","string");
+        playlist.put("title","string");
+        playlist.put("username","string");
+        playlist_music.put("title_id", "int");
+        playlist_music.put("music_id", "int");
+        album.put("id","int");
+        album.put("title","string");
+        album.put("releasedate","string");
+        album.put("description","string");
+        album.put("artist_id","int");
+        artist.put("id","int");
+        artist.put("name","string");
+        artist.put("details","string");
+        music.put("id","int");
+        music.put("name","string");
+        music.put("genre","string");
+        music.put("length","int");
+        music.put("album_id","int");
+        hashmaps.put("user", user);
+        hashmaps.put("notification", notification);
+        hashmaps.put("playlist", playlist);
+        hashmaps.put("playlist_music", playlist_music);
+        hashmaps.put("album", album);
+        hashmaps.put("artist", artist);
+        hashmaps.put("music", music);
     }
 
-
-
-    public static String menuToSQL(ArrayList<String> str){
-        switch (str.get(0).toLowerCase()){
+    public static String menuToSQL(Map<String, String> str){
+        switch (str.get("function").toLowerCase()){
             case "create":
                 System.out.println("create");
                 return insertToSQL(str);
@@ -48,95 +64,43 @@ public class UDP {
         return "";
     }
 
-    private static String insertToSQL(ArrayList<String> str){
-        int i=2;
-        String output = "INSERT INTO " +str.get(1)+" VALUES (";
-        for( ; i < str.size() ; i+=2){
-            if(strType.get(str.get(i).toLowerCase()).equalsIgnoreCase("string")){
-                output += "'"+str.get(i+1)+"'" + ", ";
-            }
-            else{
-                output += str.get(i+1) + ", ";
+    private static String insertToSQL(Map<String, String> str){
+        String output = "INSERT INTO " +str.get("what")+" VALUES (";
+        Map<String,String> hash = hashmaps.get(str.get("what"));
+        for (Map.Entry<String,String> entry : hash.entrySet()) {
+            if(entry.getValue().equalsIgnoreCase("string")){
+                output += "'" + str.get(entry.getKey()) + "', " ;
+            }else{
+                output += str.get(entry.getKey()) + "', ";
             }
         }
         output = output.substring(0, output.length() - 2);
         output += ");";
-        System.out.println(output);
         return output;
     }
 
-    private static String deleteToSQL(ArrayList<String> str){
-        String output;
-        if(strType.get(str.get(2)).equalsIgnoreCase("String")){
-            output = "DELETE FROM " + str.get(1) + " WHERE "+str.get(2)+" = " +"'"+ str.get(3)+"'"+";";
-        }else{
-            output = "DELETE FROM " + str.get(1) + " WHERE "+str.get(2)+" = " +str.get(3)+";";
-        }
-        return output;
+    private static String deleteToSQL(Map<String, String> str){
+        return "DELETE FROM " + str.get("what") + " WHERE " + str.get("where") + ";";
     }
 
-    private static String updateToSQL(ArrayList<String> str){
-        int i = 2;
-        String output = "UPDATE " + str.get(1) + " SET ";
-        for(; i < str.size(); i += 2){
-            if(str.get(i).equalsIgnoreCase("WHERE")){
-                i++;
-                break;
-            }
-            if(strType.get(str.get(i)).equalsIgnoreCase("string")){
-                output += str.get(i) + "=" + "'"+str.get(i+1)+"'"+ ", ";
-            }
-            else{
-                output += str.get(i) + "=" + str.get(i+1) + ", ";
-            }
-        }
-        output = output.substring(0, output.length() - 2);
-        output += " WHERE ";
-        for(; i < str.size(); i += 2){
-            if(strType.get(str.get(i)).equalsIgnoreCase("string")){
-                output += str.get(i) + "=" + "'"+str.get(i+1)+"'" + ", ";
-            }
-            else{
-                output += str.get(i) + "=" + str.get(i+1) + ", ";
-            }
-        }
-        output = output.substring(0, output.length() - 2);
-
-        System.out.println(output);
-        return output;
+    private static String updateToSQL(Map<String, String> str){
+        return "UPDATE " + str.get("what") + " SET " + str.get("set") + " WHERE " + str.get("where") + ";";
     }
 
-    private static String searchToSQL(ArrayList<String> str){
-        int i = 2;
-        String output = "SELECT * FROM " + str.get(1) + " WHERE ";
-        for(; i < str.size(); i += 2){
-            if(strType.get(str.get(i)).equalsIgnoreCase("string")){
-                output += str.get(i) + "=" + "'"+str.get(i+1)+"'" + " AND ";
-            }
-            else{
-                output += str.get(i)+ "=" + str.get(i+1) + " AND ";
-            }
-        }
-        output = output.substring(0, output.length() - 5);
-        output += ";";
-        return output;
+    private static String searchToSQL(Map<String, String> str){
+        return "SELECT * FROM " + str.get("what") + " WHERE " + str.get("where") + ";";
     }
 
-    public static ArrayList<String> packetToArr(String packet){
+    public static Map<String, String> protocolToHash(String packetInfo){
         //Translates Packets received from UDP to Arraylist for later conversion to  SQL
-        String word = "";
-        ArrayList<String> packetToUDP = new ArrayList<>();
-        for(int i=0;i<packet.length();i++){
-            if(packet.charAt(i) == '|' || packet.charAt(i) == ';'){
-                word = word.substring(0,word.length()-1);
-                packetToUDP.add(word);
-                word = "";
-                i++;
-            }else{
-                word += packet.charAt(i);
-            }
+        Map<String, String> hash = new HashMap<>();
+        String[] firstSplit = packetInfo.split(";");
+        String[] secondSplit;
+        for(int i=0; i < firstSplit.length; i++){
+            secondSplit = firstSplit[i].split("\\|");
+            hash.put(secondSplit[0], secondSplit[1]);
         }
-        return packetToUDP;
+        return hash;
     }
 
 

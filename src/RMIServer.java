@@ -9,6 +9,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -61,12 +62,12 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String helloWorld() throws RemoteException {
-        String t = "search | user ; username | francisco ; password | test ;";
+        String t = "function|search;what|user;where|username='francisco' AND password|'test'";
         return sendMulticast(t);
     }
 
     public String register(String username, String pass, String email, String name, Boolean edit) {
-        String t = "create | user ; username | "+username+" ; password | "+pass+" ; email | "+email+" ; name | "+name+" ; personalinfo | empty ; edit | 0 ;";
+        String t = "function|create;what|user;username|"+username+";password|"+pass+";email|"+email+";name|"+name+";personalinfo|empty;edit|0";
         String answer = sendMulticast(t);
         if(answer.equalsIgnoreCase("Error")){
             return "Error";
@@ -85,18 +86,18 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             }
         }
 
-        String t = "search | user ; username | "+username+" ; password | "+pass+" ;";
+        String t = "function|search;what|user;where|username='"+username+"' AND password|'"+pass+"'";
 
         //Send through Multicast
         String user = sendMulticast(t);
-        ArrayList<String> answer = udp.packetToArr(user);
+        Map<String, String> answer = UDP.protocolToHash(user);
         Boolean editor = true;
         if(user.equalsIgnoreCase("Error") || user.equals("")){
             tempUser =  null;
         }
         else{
             if(answer.get(11).equals("0")) editor = false;
-            tempUser =  new User(answer.get(3),answer.get(5),answer.get(7),answer.get(9),editor);
+            tempUser =  new User(answer.get("username"),answer.get("password"),answer.get("email"),answer.get("name"),editor);
             onlineUsers.add(tempUser);
         }
         writeFile();
@@ -125,27 +126,28 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         for(User temp : onlineUsers){
             if (temp.username.equalsIgnoreCase(username) && !temp.isEditor()){
                 temp.editor=true;
-                String t = "update | user ; editor | 1 ; WHERE ; username | "+username+" ;";
+                String t = "function|update;what|user;set|editor=1;where|username="+username;
                 String answer = sendMulticast(t);
                 temp.cInterface.liveNotification(note);
                 return;
             }
         }
-        String t = "update | user ; editor | 1 ; WHERE ; username | "+username+" ;";
+        String t = "function|update;what|user;set|editor=1;where|username="+username;
         String answer = sendMulticast(t);
         System.out.println(answer);
 
-         t = "create | notification ; notificationid | null ; text | "+note.text+" ; user_username | "+username+" ;";
+         t = "function|create;what|notification;notificationid|null;text|"+note.text+";user_username|"+username;
          answer = sendMulticast(t);
-        System.out.println(answer);
+         System.out.println(answer);
 
     }
+
     /*public void sendNotifcation(Notification note, ArrayList<String> usernames) throws RemoteException {
 
         for(String user : usernames) {
             for (User temp : onlineUsers) {
                 if (temp.username.equalsIgnoreCase(username) && !temp.isEditor()) {
-                    //String t = "update | notification ; text | "+note.text+" ; user_username | "+username+" ;";
+                    //String t = "function|update;what|notification;text | "+note.text+" ; user_username | "+username+" ;";
                     //String answer = sendMulticast(t);
                     temp.cInterface.liveNotification(note);
                     return;
@@ -160,7 +162,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
 
     public void clearDatabaseNotifications(String username) throws RemoteException {
-        String t = "delete | notification ; user_username | " + username + " ;";
+        String t = "function|delete;what|notification;where|user_username='" + username + "'";
         String answer = sendMulticast(t);
         if(answer.equalsIgnoreCase("Error")){
             System.out.println("Error");
@@ -171,18 +173,13 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public ArrayList<Notification> getNotifications(String username)throws RemoteException{
-        String t = "search | notification ; user_username | "+username+" ;";
+        String t = "function|search;what|notification;where|user_username='"+username+"'";
         String notifications = sendMulticast(t);
-        ArrayList<String> arr = udp.packetToArr(notifications);
+        Map<String, String> arr = UDP.protocolToHash(notifications);
         ArrayList<Notification> notes = new ArrayList<>();
         System.out.println(arr);
-        int i=2;
-        for(;i<arr.size();i++){
-            if(arr.get(i).equalsIgnoreCase("notificationid")){
-                Notification temp = new Notification(arr.get(i+5),arr.get(i+3));
-                notes.add(temp);
-            }
-        }
+        Notification temp = new Notification(arr.get("username"), arr.get("text"));
+        notes.add(temp);
         return notes;
     }
 
@@ -193,7 +190,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             /*
              * title = playlist user = user Go to Database and create Line
              */
-             t = "create | playlist ; title | "+title+" ; username | "+username+" ;";
+             t = "function|create;what|playlist;title|"+title+";username|"+username;
             return "Playlist Created!";
         case "delete":
             /*
@@ -201,20 +198,20 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
              * it doesnt exist?
              */
 
-             t = "delete | playlist ; title | "+title+" ;";
+             t = "function|delete;what|playlist;where|title='"+title + "'";
 
             return "Playlist deleted";
         case "add":
 
-            t = "search | playlist ; title | "+title+" ;";
+            t = "function|search;what|playlist;where|title='"+title + "'";
             //playlistID = playlist.ID
             //if null return "error"
 
-            t = "search | music ; name | "+music+" ;";
+            t = "function|search;what|music;where|name='"+music+"'";
             //musicID = music.ID
             //if null return "error"
 
-            //t = "create | playlist_music ; title | "+playlistID+" ; music | "+musicID+" ;";
+            //t = "create | playlist_music ; title_id | "+playlistID+" ; music_id | "+musicID+" ;";
 
             /*
             * Go to database and add
@@ -222,16 +219,15 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             return "Added " + music + " to " + title;
         case "remove":
 
-
-            t = "search | playlist ; title | "+title+" ;";
+            t = "function|search;what|playlist;where|title='"+title+"'";
             //playlistID = playlist.ID
             //if null return "error"
 
-            t = "search | music ; name | "+music+" ;";
+            t = "function|search;what|music;where|name='"+music+"'";
             //musicID = music.ID
             //if null return "error"
 
-            //t = "delete | playlist_music ; title | "+playlistID+" ; music | "+musicID+" ;";
+            //t = "function|delete;what|playlist_music;where|title="+playlistID+" AND music="+musicID;
 
             /*
              * Go to database and SWITCH title and music with respective ID and delete that song
@@ -244,42 +240,42 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     public String addAlbum(String title,String releaseDate,String description,String artist) throws RemoteException{
         int artistid;
-        String t = "search | artist ; name | "+artist+" ;";
+        String t = "function|search;what|artist;where|name='"+artist+"'";
         String answer = sendMulticast(t);
-        ArrayList<String> arr = udp.packetToArr(answer);
+        Map<String, String> arr = UDP.protocolToHash(answer);
         System.out.println(arr);
         if(!answer.equals("")){
-            artistid = Integer.parseInt(arr.get(3));
+            artistid = Integer.parseInt(arr.get("id"));
         } else{
             System.out.println("Error");
             return "Error - Artist doesn't exist";
         }
 
-        t = "create | album ; id | null ; title | "+title+" ; releasedate | "+releaseDate+" ; description | "+description + " ; id | "+artistid+" ;";
+        t = "function|create;what|album;id|null;title|"+title+";releasedate|"+releaseDate+";description|"+description + ";artist_id|"+artistid;
         answer = sendMulticast(t);
         return answer;
     }
 
     public String addArtist(String name,String details) throws RemoteException{
-        String t = "create | artist ; id | null ; name | "+name+" ; details | "+details+" ;";
+        String t = "function|create;what|artist;id|null;name|"+name+";details|"+details;
         String answer = sendMulticast(t);
         return answer;
     }
 
     public String addMusic(String name,String genre,String length,String album) throws RemoteException{
         int albumid;
-        String t = "search | album ; title | "+album+" ;";
+        String t = "function|search;what|album;where|title='"+album+"'";
         String answer = sendMulticast(t);
-        ArrayList<String> arr = udp.packetToArr(answer);
+        Map<String, String> arr = UDP.protocolToHash(answer);
         System.out.println(arr);
         if(!answer.equals("")){
-            albumid = Integer.parseInt(arr.get(3));
+            albumid = Integer.parseInt(arr.get("id"));
         } else{
             System.out.println("Error");
             return "Error - Album doesn't exist";
         }
 
-        t = "create | music ; id | null ; name | "+name+" ; genre | "+genre+" ; length | "+length + " ; id | "+albumid+" ;";
+        t = "function|create;what|music;id|null;name|"+name+";genre|"+genre+";length|"+length + ";album_id| "+albumid;
         answer = sendMulticast(t);
         return answer;
     }
@@ -290,13 +286,11 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
         switch (whereSearch.toLowerCase()) {
         case "album":
-
             /*
              * Search Database on table Album for any parameter equal to WORD Return them
              * all to UDP->Object convertion Return them here and fill the Arraylist<String>
              * of options
              */
-
             break;
         case "artist":
             break;
@@ -310,7 +304,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String askIP(){
-        return sendMulticast("ip | nao percebo ;");
+        return sendMulticast("function|getIP");
     }
 
     public Boolean isAlive() throws RemoteException {

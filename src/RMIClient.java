@@ -218,32 +218,13 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         }
                         break;
 
-                    case "/Search":
-                        if (parts.size() == 3 && !userStatus(user)) {
-                            String whereSearch = parts.get(1);
-                            String word = parts.get(2);
-
-                            ArrayList<String> options = i.search(word, whereSearch);
-
-                            System.out.println(options + "\n/exit " + "\nChoose One");
-                            String input2 = sc.nextLine();
-                            while (true) {
-                                if (input2.equalsIgnoreCase("/exit")) {
+                    case "/search":
+                        if (parts.size() == 4 && !userStatus(user)) {
+                            switch (parts.get(2)){
+                                case "album":
                                     break;
-                                }
-                                for (int j = 0; j < options.size(); j++) {
-                                    if (input2.equalsIgnoreCase(options.get(j))) {
-
-
-                                    }
-                                }
-
-                                while (true) { //Another Switch?F
-                                    break;
-                                }
-
-
-                                System.out.println("Try Again");
+                                default:
+                                    System.out.println("Not an available option");
                             }
                         }
                         break;
@@ -253,7 +234,8 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         Socket sck = new Socket(arr[0], Integer.parseInt(arr[1]));
                         File soundFile = new File(parts.get(1));
                         if (!soundFile.exists() || !soundFile.isFile()){
-                            throw new IllegalArgumentException("not a file: " + soundFile);
+                            System.out.println("not a file: " + soundFile);
+                            break;
                         }
                         byte[] buffer = Files.readAllBytes(soundFile.toPath());
                         try{
