@@ -67,7 +67,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String register(String username, String pass, String email, String name, Boolean edit) {
-        String t = "function|create;what|user;username|"+username+";password|"+pass+";email|"+email+";name|"+name+";personalinfo|empty;edit|0";
+        String t = "function|create;what|user;username|"+username+";password|"+pass+";email|"+email+";name|"+name+";personalinfo|empty;editor|0";
         String answer = sendMulticast(t);
         if(answer.equalsIgnoreCase("Error")){
             return "Error";
@@ -86,7 +86,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             }
         }
 
-        String t = "function|search;what|user;where|username='"+username+"' AND password|'"+pass+"'";
+        String t = "function|search;what|user;where|username='"+username+"' AND password='"+pass+"'";
 
         //Send through Multicast
         String user = sendMulticast(t);
@@ -96,7 +96,8 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             tempUser =  null;
         }
         else{
-            if(answer.get(11).equals("0")) editor = false;
+            System.out.println(answer.get("editor"));
+            if(answer.get("editor").equals("0")) editor = false;
             tempUser =  new User(answer.get("username"),answer.get("password"),answer.get("email"),answer.get("name"),editor);
             onlineUsers.add(tempUser);
         }
@@ -126,17 +127,18 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         for(User temp : onlineUsers){
             if (temp.username.equalsIgnoreCase(username) && !temp.isEditor()){
                 temp.editor=true;
-                String t = "function|update;what|user;set|editor=1;where|username="+username;
+                String t = "function|update;what|user;set|editor=1;where|username='"+username+"'";
                 String answer = sendMulticast(t);
+                System.out.println(answer);
                 temp.cInterface.liveNotification(note);
                 return;
             }
         }
-        String t = "function|update;what|user;set|editor=1;where|username="+username;
+        String t = "function|update;what|user;set|editor=1;where|username='"+username+"'";
         String answer = sendMulticast(t);
         System.out.println(answer);
 
-         t = "function|create;what|notification;notificationid|null;text|"+note.text+";user_username|"+username;
+         t = "function|create;what|notification;id|null;text|"+note.text+";user_username|"+username;
          answer = sendMulticast(t);
          System.out.println(answer);
 
@@ -175,11 +177,15 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     public ArrayList<Notification> getNotifications(String username)throws RemoteException{
         String t = "function|search;what|notification;where|user_username='"+username+"'";
         String notifications = sendMulticast(t);
-        Map<String, String> arr = UDP.protocolToHash(notifications);
         ArrayList<Notification> notes = new ArrayList<>();
-        System.out.println(arr);
-        Notification temp = new Notification(arr.get("username"), arr.get("text"));
-        notes.add(temp);
+        if(notifications != "") {
+            String objects[] = notifications.split("\\*\\*");
+            for(int i=0; i < objects.length; i++){
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Notification temp = new Notification(arr.get("username"), arr.get("text"));
+                notes.add(temp);
+            }
+        }
         return notes;
     }
 
@@ -242,9 +248,8 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         int artistid;
         String t = "function|search;what|artist;where|name='"+artist+"'";
         String answer = sendMulticast(t);
-        Map<String, String> arr = UDP.protocolToHash(answer);
-        System.out.println(arr);
         if(!answer.equals("")){
+            Map<String, String> arr = UDP.protocolToHash(answer);
             artistid = Integer.parseInt(arr.get("id"));
         } else{
             System.out.println("Error");
@@ -266,9 +271,8 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         int albumid;
         String t = "function|search;what|album;where|title='"+album+"'";
         String answer = sendMulticast(t);
-        Map<String, String> arr = UDP.protocolToHash(answer);
-        System.out.println(arr);
         if(!answer.equals("")){
+            Map<String, String> arr = UDP.protocolToHash(answer);
             albumid = Integer.parseInt(arr.get("id"));
         } else{
             System.out.println("Error");
@@ -280,27 +284,34 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
-    public ArrayList<String> search(String word, String whereSearch) {
-
-        ArrayList<String> output = new ArrayList<>();
-
-        switch (whereSearch.toLowerCase()) {
-        case "album":
-            /*
-             * Search Database on table Album for any parameter equal to WORD Return them
-             * all to UDP->Object convertion Return them here and fill the Arraylist<String>
-             * of options
-             */
-            break;
-        case "artist":
-            break;
-        case "music":
-            break;
-        case "user":
-            break;
+    public ArrayList<Album> searchAlbum(String word) {
+        String t = "function|search;what|album;where|title='" + word + "'";
+        String answer = sendMulticast(t);
+        ArrayList<Album> albuns = new ArrayList<>();
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for(int i=0; i < objects.length; i++){
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"));
+                albuns.add(temp);
+            }
         }
-
-        return output;
+        t = "function|search;what|artist;where|name='" + word + "'";
+        answer = sendMulticast(t);
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            Map<String, String> artist = UDP.protocolToHash(answer);
+            t = "function|search;what|album;where|artist_id=" + artist.get("id");
+            answer = sendMulticast(t);
+            if (answer != "" && !answer.equalsIgnoreCase("nothing")) {
+                String objects[] = answer.split("\\*\\*");
+                for (int i = 0; i < objects.length; i++) {
+                    Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                    Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"));
+                    albuns.add(temp);
+                }
+            }
+        }
+        return albuns;
     }
 
     public String askIP(){

@@ -76,7 +76,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
 
                     case "/register":
-                        if(parts.size() == 5 && !parts.get(4).matches(".*\\d+.*") && stringContain(input)){
+                        if(parts.size() == 5 && !parts.get(4).matches(".*\\d+.*") && stringContain(input) && userStatus(user)){
                             String username=parts.get(1);
                             String pass=parts.get(2);
                             String email=parts.get(3);
@@ -142,7 +142,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                             while(true){
                                                 System.out.println("Title:");
                                                 String title = sc.nextLine();
-                                                System.out.println("ReleaseDate:");
+                                                System.out.println("ReleaseDate (yyyy-mm-dd):");
                                                 String releaseDate = sc.nextLine();
                                                 System.out.println("Description:");
                                                 String description = sc.nextLine();
@@ -219,9 +219,23 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         break;
 
                     case "/search":
-                        if (parts.size() == 4 && !userStatus(user)) {
-                            switch (parts.get(2)){
+                        if (parts.size() == 3 && !userStatus(user)) {
+                            switch (parts.get(1)){
                                 case "album":
+                                    ArrayList<Album> album = i.searchAlbum(parts.get(2));
+                                    for (int j=0; j<album.size(); j++){
+                                        System.out.println("title: " + album.get(j).title);
+                                        System.out.println("releasedate: " + album.get(j).releaseDate);
+                                        System.out.println("description: " + album.get(j).description);
+                                    }
+                                    //Display all and chosen one already has ID
+                                    //reviews = i.searchReviews(albumID)
+                                    //musics = i.searchMusics(albumID)
+                                    //sout()
+                                    break;
+                                case "music":
+                                    break;
+                                case "artist":
                                     break;
                                 default:
                                     System.out.println("Not an available option");

@@ -10,6 +10,7 @@ public class MulticastServer {
     private static int RMI_PORT = 4000;
     private static int TCP_PORT = 3900;
     private int id;
+    private String ip;
 
     public static void main(String[] args) {
         // argumentos da linha de comando: id do server
@@ -24,6 +25,14 @@ public class MulticastServer {
         this.id = 1;
         MulticastSocket receiveSocket = null;
         MulticastSocket senderSocket = null;
+        try(final DatagramSocket socket = new DatagramSocket()){
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            this.ip = socket.getLocalAddress().getHostAddress();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         int numThreads = 0;
         System.out.println("Starting...");
         ServerTCP tcp = new ServerTCP(TCP_PORT);
@@ -40,7 +49,7 @@ public class MulticastServer {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 receiveSocket.receive(packet);
                 // creates thread to handle the work
-                HandleWork thread = new HandleWork(packet, senderSocket);
+                HandleWork thread = new HandleWork(packet, senderSocket, this.ip);
                 thread.start();
                 numThreads++;
             }
@@ -64,11 +73,12 @@ public class MulticastServer {
         // Needed objects
         private MulticastSocket socket = null;
         private DatagramPacket packet = null;
-        private String udp;
+        private String ip;
 
-        public HandleWork(DatagramPacket packet, MulticastSocket socket){
+        public HandleWork(DatagramPacket packet, MulticastSocket socket, String ip){
             this.packet = packet;
             this.socket = socket;
+            this.ip = ip;
         }
 
 
@@ -79,7 +89,7 @@ public class MulticastServer {
             String output = "";
             switch (hash.get("function")){
                 case"getIP":
-                    output = this.socket.getLocalAddress().getHostAddress() + "|" + Integer.toString(TCP_PORT);
+                    output = this.ip + "|" + Integer.toString(TCP_PORT);
                     break;
                 case "download":
                     SendFile thread = new SendFile(hash.get("ip"), Integer.parseInt(hash.get("port")), "Path is missing");
@@ -102,7 +112,7 @@ public class MulticastServer {
 
             // Send information from database to multicast
             if(output==null){
-                output="Nothing on Db";
+                output="nothing";
             }
 
             byte [] b = output.getBytes();
@@ -235,6 +245,7 @@ public class MulticastServer {
             Connection conn = null;
             Statement stmt = null;
             String output="";
+            Boolean foundSomething = false;
             try{
                 //STEP 2: Register JDBC driver
                 Class.forName("com.mysql.jdbc.Driver");
@@ -250,9 +261,7 @@ public class MulticastServer {
                 ResultSet rs = stmt.executeQuery(sql);
 
                 while(rs.next()) {
-                    if(output.equals("")){
-                        output = "Selected | " + type + " ; ";
-                    }
+                    foundSomething = true;
                     try {
                         ResultSetMetaData rsmd = rs.getMetaData();
                         int columnCount = rsmd.getColumnCount();
@@ -260,11 +269,16 @@ public class MulticastServer {
                         for (int i = 1; i <= columnCount; i++) {
                             output += rsmd.getColumnName(i) + " | " + rs.getString(i) + " ; ";
                         }
+                        output = output.substring(0,output.length()-2);
+                        output += "**";
 
                     } catch (SQLException sqle) {
                         System.out.println(sqle);
                     }
 
+                }
+                if(foundSomething){
+                    output = output.substring(0,output.length()-2);
                 }
                 return output;
 

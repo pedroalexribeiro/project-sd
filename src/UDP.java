@@ -16,8 +16,8 @@ public class UDP {
         user.put("email","string");
         user.put("name","string");
         user.put("personalinfo","string");
-        user.put("edit","boolean");
-        notification.put("notificationid","int");
+        user.put("editor","boolean");
+        notification.put("id","int");
         notification.put("text","string");
         notification.put("user_username","string");
         playlist.put("title","string");
@@ -65,17 +65,22 @@ public class UDP {
     }
 
     private static String insertToSQL(Map<String, String> str){
-        String output = "INSERT INTO " +str.get("what")+" VALUES (";
+        String column_names = "(";
+        String values = "(";
         Map<String,String> hash = hashmaps.get(str.get("what"));
         for (Map.Entry<String,String> entry : hash.entrySet()) {
             if(entry.getValue().equalsIgnoreCase("string")){
-                output += "'" + str.get(entry.getKey()) + "', " ;
+                values += "'" + str.get(entry.getKey()) + "', " ;
             }else{
-                output += str.get(entry.getKey()) + "', ";
+                values += str.get(entry.getKey()) + ", ";
             }
+            column_names += entry.getKey() + ", ";
         }
-        output = output.substring(0, output.length() - 2);
-        output += ");";
+        column_names = column_names.substring(0, column_names.length() - 2);
+        values = values.substring(0, values.length() - 2);
+        column_names += ")";
+        values += ")";
+        String output = "INSERT INTO " +str.get("what")+ " " + column_names + " VALUES " + values + ";";
         return output;
     }
 
@@ -98,7 +103,7 @@ public class UDP {
         String[] secondSplit;
         for(int i=0; i < firstSplit.length; i++){
             secondSplit = firstSplit[i].split("\\|");
-            hash.put(secondSplit[0], secondSplit[1]);
+            hash.put(secondSplit[0].trim(), secondSplit[1].trim());
         }
         return hash;
     }

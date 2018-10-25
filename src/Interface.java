@@ -33,7 +33,7 @@ public interface Interface extends Remote {
     String addMusic(String name,String genre,String length,String album) throws RemoteException;
 
         //Search Method
-    ArrayList<String> search(String word,String whereSearch) throws RemoteException;
+    ArrayList<Album> searchAlbum(String word)throws RemoteException;
 
 
     Boolean isAlive() throws RemoteException;
