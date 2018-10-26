@@ -1,0 +1,111 @@
+Authentication system to use!!
+Only Users with AdminRights podem acrescentar ou alterar infos do sistema
+
+Qualquer utilizador pode:
+    -Escrever critica a um album -> Pontuacao + Justificacao Textual
+    -Criar Playlist com musicas que escolha -> Podem ser privadas/publicas
+    -Transferir Ficheiro musical(AAC,MP3,etc) que fica associado a propria conta
+    e pode ser partilhado com outros utilizadores(opcional)
+    
+
+Informacoes:
+    -Musicos
+    -Grupos musicais
+    -historia
+    -periodos do Grupo
+    -musicais
+    -editoras
+    -compositores(podem ser musicos)
+    -quem compos cada musicais
+    -concertos
+    -outros
+
+Ao consultar um album
+    -Lista musicas 
+    -informacoes relevantes
+    -criticas escritas por utilizadores
+    -informacoes gerais sobre genero musica e data lancamento
+
+
+
+FUNCIONALIDADES
+
+    -Registar Pessoas
+        -Username/Password
+        -Outras informacoes(em edit profile)
+
+    -Gerir Artistas/Albuns/musicas
+        -Editores podem inserir/alterar/remover dados relativos a estas entidades
+        -Normal Users podem apenas ler info existente
+
+    -Pesquisar musicas
+        -User pode pesquisar por Albuns/Artistas/genero musica
+
+    -Consultar detalhes sobre album e so Artistas
+        -Descricao/Lista musicas/criticas/pontuacao media
+        -lista musicas -> titulo/compositor/duracao
+        -Detalhes de cada Artista
+
+    -Escrever critica a um album
+        -Pontuacao + texto(lim 300 palavras)
+        -todas criticas aparecem listed ao consultar detalhes album
+
+    -Dar Privilegios de editor a um utilizador
+        -Editores podem dar Privilegios a outros utilizadores
+
+    -Notificacao imediata de privilegios de editor
+        -se user tiver Online devera receber notificacao real time de que ficou editor
+
+    -Notificacao imediata de re-edicao de descricao textual
+        -Sempre que um editor altere descricao, notificar todos os editores anteriores online
+        Exemplo -> um editor que altere a descrição de um álbum será notificado sempre 
+        que essa mesma descrição seja novamente alterada por outro editor qualquer.
+
+    -Entrega Posterior de notificacoes a utilizadores desligados
+        -Utilizadores que deveriam ter recebido notificacao imediata devem 
+        quando ficar online, receber as notificacoes
+
+    -Transferencia de musicas para o Servidor
+        -
+
+    -Partilha de ficheiros musicais
+        -User pode escolher outros users para partilhar os seus ficheiros
+    
+    -Transferencia musicas do servidor para Users
+        -Ao partilhar o ficheiro, o outro user pode transferir o ficheiro do servidor
+
+
+
+ARQUITECTURA
+
+    -Servidor Multicast -> Onde toda a informacao esta armazenada
+        -Varias replicas que contem mesma info <- serve para manter sistema a funcionar
+        enquanto existir pelo menos 1 replica
+
+
+
+    -Servidor RMI -> 2 servidores 
+        -Pega no metodo invocado e traduz isso num datagrama UDP que e enviado por 
+        multicast para servidores multicast e espera pela resposta
+    
+    
+    -Client RMI -> User normal com interface simples
+        -> TCP diretamente com servidor multicast -> Transferencia ficheiros
+        Quando um utilizador faz upload ou download de um ficheiro, o cliente RMI pede um endereço
+        IP de um único servidor Multicast e a transferência é realizada diretamente entre cliente
+        RMI e servidor Multicast
+
+
+
+PROTCOLO UDP Multicast 
+
+
+Tratamento exceções
+
+FailOver
+
+
+
+Parte nao funcional
+
+

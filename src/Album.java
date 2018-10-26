@@ -7,6 +7,7 @@ public class Album implements Serializable {
     public String releaseDate;
     public String description;
     public String artist;
+    public int id;
     public ArrayList<Music> songs = new ArrayList<>();
     public ArrayList<Review> reviews = new ArrayList<>();
     public ArrayList<User> editors = new ArrayList<>();
@@ -17,6 +18,29 @@ public class Album implements Serializable {
         this.description=description;
         this.artist = artist;
         this.AvgRating = 0;
+    }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public double getAvgRating() {
+        return AvgRating;
+    }
+
+    public String getReleaseDate() {
+        return releaseDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public int getId() {
+        return id;
     }
 }

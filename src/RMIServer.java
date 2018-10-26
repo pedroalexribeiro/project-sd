@@ -90,12 +90,12 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
         //Send through Multicast
         String user = sendMulticast(t);
-        Map<String, String> answer = UDP.protocolToHash(user);
-        Boolean editor = true;
         if(user.equalsIgnoreCase("Error") || user.equals("")){
             tempUser =  null;
         }
         else{
+            Map<String, String> answer = UDP.protocolToHash(user);
+            Boolean editor = true;
             System.out.println(answer.get("editor"));
             if(answer.get("editor").equals("0")) editor = false;
             tempUser =  new User(answer.get("username"),answer.get("password"),answer.get("email"),answer.get("name"),editor);
@@ -280,6 +280,17 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }
 
         t = "function|create;what|music;id|null;name|"+name+";genre|"+genre+";length|"+length + ";album_id| "+albumid;
+        answer = sendMulticast(t);
+        return answer;
+    }
+
+    public String addReview(Review review,Boolean isCreate){
+        String t,answer;
+        if(isCreate){
+            t = "function|create;what|review;id|null;text|"+review.getText()+";datee|CURRENT_TIME();album_id|"+review.getAlbum_id()+";user_username|"+review.getUsername();
+        }else{
+            t = "function|update;what|review;set|text='"+review.getText()+"';datee=CURRENT_TIME();where|album_id="+review.getAlbum_id()+" AND "+"user_username="+review.getUsername();
+        }
         answer = sendMulticast(t);
         return answer;
     }
