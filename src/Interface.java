@@ -32,6 +32,8 @@ public interface Interface extends Remote {
 
     String addMusic(String name,String genre,String length,String album) throws RemoteException;
 
+    String addReview(Review review,Boolean isCreated) throws RemoteException;
+
         //Search Method
     ArrayList<Album> searchAlbum(String word)throws RemoteException;
     ArrayList<Music> searchMusic(String word)throws RemoteException;

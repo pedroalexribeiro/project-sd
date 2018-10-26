@@ -186,7 +186,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                 }
                            }
                         }
-
                             break;
 
                     case "/editor": // Turns another user into an editor
@@ -203,6 +202,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         break;
 
 
+
+
+
+
+
+
                     case "/playlist":
                         if (!userStatus(user)) {
                             if (2 < parts.size() && parts.size() < 5) {
@@ -217,6 +222,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         break;
+
+
+
+
+
+
 
                     case "/search":
                         if (parts.size() == 3 && !userStatus(user)) {
@@ -253,6 +264,36 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         break;
+
+                    case "/review":
+                        if(parts.size()==1 && !userStatus(user) ) {
+                            //Can only review after searching an album
+                            Album album = new Album("","","","");
+                            Boolean isCreated = true;
+                            String txt;
+                            int score;
+                            //i.searchReview(user.username,album.id);
+                            //if("exists") sout(Do u wanna override?) <--isCreated = false
+
+                            while (true) {
+                                System.out.println("Score (1-5)");
+                                try {
+                                    score = Integer.parseInt(sc.nextLine());
+                                    System.out.println("Review");
+                                    txt = sc.nextLine();
+                                    if (txt.length() < 300 && stringContain(txt) && score > 0 && score < 6) break;
+                                } catch (NumberFormatException nfe) {
+                                    System.out.println("Input valid Score");
+                                }
+                            }
+
+                            Review review = new Review(user.username, album.getId(), txt, score ,"now");
+                            i.addReview(review,isCreated);
+                        }
+                        break;
+
+
+
                     case "/teste":
                         String smth = i.askIP();
                         String arr[] = smth.split("\\|");
@@ -271,6 +312,11 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         }
                         System.out.println("Successful");
                         break;
+
+
+
+
+
                     case "/exit":
                         isRunning = false;
                         break;

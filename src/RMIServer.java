@@ -283,6 +283,17 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
+    public String addReview(Review review,Boolean isCreate){
+        String t,answer;
+        if(isCreate){
+            t = "function|create;what|review;id|null;text|"+review.getText()+";datee|CURRENT_TIME();album_id|"+review.getAlbum_id()+";user_username|"+review.getUsername();
+        }else{
+            t = "function|update;what|review;set|text='"+review.getText()+"';datee=CURRENT_TIME();where|album_id="+review.getAlbum_id()+" AND "+"user_username="+review.getUsername();
+        }
+        answer = sendMulticast(t);
+        return answer;
+    }
+
     public ArrayList<Album> searchAlbum(String word) {
         String t = "function|search;what|album;where|title='" + word + "'";
         String answer = sendMulticast(t);
