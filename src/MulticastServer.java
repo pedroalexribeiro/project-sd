@@ -14,11 +14,6 @@ public class MulticastServer {
     private String ip;
 
     public static void main(String[] args) {
-        // argumentos da linha de comando: id do server
-        /*if(args.length == 0){
-            System.out.println("id of server needs to be an argument");
-            System.exit(0);
-        }*/
         new MulticastServer();
     }
 

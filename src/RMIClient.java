@@ -11,10 +11,17 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class RMIClient extends UnicastRemoteObject implements clientInterface {
+    private static String rmi_ip;
     public RMIClient() throws RemoteException {
         super();
     }
     public static void main(String args[]) throws RemoteException {
+        // argumentos da linha de comando: id do server
+        if(args.length == 0){
+            System.out.println("id of server needs to be an argument");
+            System.exit(0);
+        }
+        rmi_ip = args[0];
         run(false, "");
     }
 
@@ -46,7 +53,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     System.out.println("\nInput:");
                     input = sc.nextLine();
                 }
-                i = (Interface) LocateRegistry.getRegistry(7000).lookup("Server");
+                i = (Interface) LocateRegistry.getRegistry(rmi_ip, 7000).lookup("Server");
 
                 // Splits input into arraylist for latter use
                 ArrayList<String> parts = new ArrayList<>();
