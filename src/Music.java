@@ -12,4 +12,8 @@ public class Music implements Serializable {
         this.length=length;
         this.album_id=album_id;
     }
+
+    public String toString() {
+        return name+" "+type+" "+ length;
+    }
 }

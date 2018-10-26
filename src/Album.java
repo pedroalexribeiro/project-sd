@@ -8,17 +8,16 @@ public class Album implements Serializable {
     public String description;
     public String artist;
     public int id;
-    public ArrayList<Music> songs = new ArrayList<>();
-    public ArrayList<Review> reviews = new ArrayList<>();
-    public ArrayList<User> editors = new ArrayList<>();
-
-    public Album(String name,String rel,String description,String artist) {
+    public Album(String name,String rel,String description,String artist,int id) {
         this.title = name;
         this.releaseDate=rel;
         this.description=description;
         this.artist = artist;
         this.AvgRating = 0;
+        this.id=id;
     }
+
+
 
     public String getTitle() {
         return title;
@@ -42,5 +41,9 @@ public class Album implements Serializable {
 
     public int getId() {
         return id;
+    }
+
+    public String toString(){
+        return title+" "+releaseDate +" "+description+" "+artist;
     }
 }

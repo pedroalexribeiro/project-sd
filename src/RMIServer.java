@@ -40,16 +40,37 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     public String sendMulticast(String message){
         // Send it to multicast servers
+
         try {
             byte[] sendBuffer = message.getBytes();
             InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
             DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, group, MULTICAST_PORT);
             this.senderSocket.send(packet);
 
+
+
+
             // Waits for multicast servers to respond
             byte[] receiveBuffer = new byte[1000];
             DatagramPacket request = new DatagramPacket(receiveBuffer, receiveBuffer.length);
             this.receiverSocket.receive(request);
+
+/*
+            //THIS IS THE NEW SHIIIIT
+            if(message.contains("broadcast")){
+                while(true){
+                    this.receiverSocket.receive(request);
+                    String answer = new String(request.getData(), 0, request.getLength());
+                    //Split answer
+                    for(String ip : Multicast_IPs){
+                        if (answer.equalsIgnoreCase(ip)){continue;}
+                    }
+                    Multicast_IPs.add(answer);
+                }
+            }
+*/
+
+
             return (new String(request.getData(), 0, request.getLength()));
         }catch(UnknownHostException ue){
             System.out.println(ue);
@@ -288,7 +309,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         if(isCreate){
             t = "function|create;what|review;id|null;text|"+review.getText()+";datee|CURRENT_TIME();album_id|"+review.getAlbum_id()+";user_username|"+review.getUsername();
         }else{
-            t = "function|update;what|review;set|text='"+review.getText()+"';datee=CURRENT_TIME();where|album_id="+review.getAlbum_id()+" AND "+"user_username="+review.getUsername();
+            t = "function|update;what|review;set|text='"+review.getText()+"',datee=CURRENT_TIME();where|album_id="+review.getAlbum_id()+" AND user_username='"+review.getUsername()+"'";
         }
         answer = sendMulticast(t);
         return answer;
@@ -302,7 +323,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for(int i=0; i < objects.length; i++){
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"));
+                Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"),Integer.parseInt(arr.get("id")));
                 albuns.add(temp);
             }
         }
@@ -316,7 +337,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 String objects[] = answer.split("\\*\\*");
                 for (int i = 0; i < objects.length; i++) {
                     Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                    Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"));
+                    Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"),Integer.parseInt(arr.get("id")));
                     albuns.add(temp);
                 }
             }
@@ -369,19 +390,18 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return reviews;
     }
 
-    public ArrayList<Review> searchReview(String username, int album_id) {
+    public Review searchReview(String username, int album_id) {
         String t = "function|search;what|review;where|album_id=" + album_id + " AND user_username='" + username +"'";
         String answer = sendMulticast(t);
-        ArrayList<Review> reviews = new ArrayList<>();
+        Review review=null;
         if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
             String objects[] = answer.split("\\*\\*");
             for(int i=0; i < objects.length; i++){
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Review temp = new Review(arr.get("user_username"), Integer.parseInt(arr.get("album_id")),arr.get("text"), Integer.parseInt(arr.get("rating")), arr.get("datee"));
-                reviews.add(temp);
+                review = new Review(arr.get("user_username"), Integer.parseInt(arr.get("album_id")),arr.get("text"), Integer.parseInt(arr.get("rating")), arr.get("datee"));
             }
         }
-        return reviews;
+        return review;
     }
 
     public ArrayList<Artist> searchArtist(String word) {
@@ -506,5 +526,5 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             System.out.println("Exception in RMIServer.main" + re);
         }
     }
-
 }
+

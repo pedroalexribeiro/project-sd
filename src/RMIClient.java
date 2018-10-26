@@ -203,11 +203,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
 
 
-
-
-
-
-
                     case "/playlist":
                         if (!userStatus(user)) {
                             if (2 < parts.size() && parts.size() < 5) {
@@ -225,35 +220,145 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
 
 
-
-
-
-
                     case "/search":
-                        if (parts.size() == 3 && !userStatus(user)) {
+                        if (parts.size() == 2 && !userStatus(user)) {
+                            String iput;
+                            while(true){
+                                System.out.println("What:");
+                                iput = sc.nextLine();
+                                if(stringContain(iput)){
+                                    break;
+                                }
+                            }
                             switch (parts.get(1)){
                                 case "album":
-                                    ArrayList<Album> album = i.searchAlbum(parts.get(2));
-                                    for (int j=0; j<album.size(); j++){
-                                        System.out.println("title: " + album.get(j).title);
-                                        System.out.println("releasedate: " + album.get(j).releaseDate);
-                                        System.out.println("description: " + album.get(j).description);
+                                    ArrayList<Album> album = i.searchAlbum(iput);
+
+                                    int choice=0;
+                                    if(album.size()>0) {
+                                        if(album.size()>1){
+                                            while(true){
+                                                for (int j=0; j<album.size(); j++){
+                                                    System.out.println("title: " + album.get(j).title+" releasedate: " + album.get(j).releaseDate+" description: " + album.get(j).description);
+                                                }
+                                                System.out.println("Chose from 1-"+album.size());
+                                                try{
+                                                    String oput=sc.nextLine();
+                                                    choice = Integer.parseInt(oput) - 1 ;
+                                                    if (Integer.parseInt(oput) >= 1 && Integer.parseInt(oput)<= album.size()) break;
+
+                                                }catch(NumberFormatException nfe){
+                                                    System.out.println("Try again->Invalid input");
+                                                }
+                                            }
+                                        }
+                                        ArrayList<Review> reviews = i.searchReview(album.get(choice).getId());
+                                        ArrayList<Music> musics = i.searchMusic(album.get(choice).getId());
+                                        int count = 0,avgRating=0;
+
+                                        if(reviews.size()>0) {
+                                            for (Review r : reviews) {
+                                                count += r.getRating();
+                                            }
+                                            avgRating = count/reviews.size();
+                                        }
+                                        System.out.println(album.get(choice).toString() +" Rating:"+ avgRating);
+
+
+                                        System.out.println("\nMusics:");
+                                        for(Music m : musics){
+                                            System.out.println(m.toString());
+                                        }
+                                        System.out.println("\nReviews:");
+                                        for(Review r : reviews){
+                                            System.out.println(r.toString());
+                                        }
+                                    }else{
+                                        System.out.println("Nothing found");
                                     }
-                                    //Display all and chosen one already has ID
-                                    //reviews = i.searchReviews(albumID)
-                                    //musics = i.searchMusics(albumID)
-                                    //sout()
+
+                                    while(true){
+                                        System.out.println("/review\n/exit");
+                                        String str = sc.nextLine();
+                                        if(str.equalsIgnoreCase("/review")){
+                                            Boolean isCreated = true;
+                                            Boolean flag = false;
+                                            String txt;
+                                            int score;
+                                            Review r = i.searchReview(user.username,album.get(choice).getId());
+                                            if(r != null){
+                                                System.out.println("Review already Exists, change it? y/n");
+                                                while(true){
+                                                    String x = sc.nextLine();
+                                                    if(x.equalsIgnoreCase("n")) {
+                                                        flag = false;
+                                                        break;
+                                                    }
+                                                    else if(x.equalsIgnoreCase("y")){
+                                                        flag=true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if(r==null || flag){
+                                                while (true) {
+                                                    System.out.println("Score (1-5)");
+                                                    try {
+                                                        score = Integer.parseInt(sc.nextLine());
+                                                        System.out.println("Review");
+                                                        txt = sc.nextLine();
+                                                        if (txt.length() < 300 && stringContain(txt) && score > 0 && score < 6) break;
+                                                    } catch (NumberFormatException nfe) {
+                                                        System.out.println("Input valid Score");
+                                                    }
+                                                }
+                                            Review review = new Review(user.username, album.get(choice).getId(), txt, score ,"now");
+                                            i.addReview(review,!isCreated);
+                                            break;
+                                            }
+                                        }
+
+                                        else if(str.equalsIgnoreCase("/exit")){break;}
+                                        }
+
+
+
                                     break;
+
                                 case "music":
-                                    ArrayList<Music> music = i.searchMusic(parts.get(2));
-                                    for (int j=0; j<music.size(); j++){
-                                        System.out.println("name: " + music.get(j).name);
-                                        System.out.println("genre: " + music.get(j).type);
-                                        System.out.println("length: " + music.get(j).length);
+                                    ArrayList<Music> music = i.searchMusic(iput);
+                                    choice=0;
+                                    if(music.size()>0){
+                                    while(true){
+                                        for (int j=0; j<music.size(); j++){
+                                            System.out.println("name: " + music.get(j).name);
+                                            System.out.println("genre: " + music.get(j).type);
+                                            System.out.println("length: " + music.get(j).length);
+                                        }
+                                        if(music.size()>1){
+                                            System.out.println("Chose from 1-"+music.size());
+                                            try{
+                                                String oput =sc.nextLine();
+                                                choice = Integer.parseInt(oput) - 1 ;
+                                                if (Integer.parseInt(oput) >= 1 && Integer.parseInt(oput)<= music.size()) break;
+                                            }catch(NumberFormatException nfe){
+                                                System.out.println("Try again->Invalid input");
+                                                }
+                                        }
+                                        else{
+                                            break;
+                                            }
+                                        }
+                                        System.out.println("Music:\nname: " + music.get(choice).name);
+                                        System.out.println("genre: " + music.get(choice).type);
+                                        System.out.println("length: " + music.get(choice).length);
+                                    }
+                                    else{
+                                        System.out.println("Not found");
                                     }
                                     break;
                                 case "artist":
-                                    ArrayList<Artist> artists = i.searchArtist(parts.get(2));
+                                    ArrayList<Artist> artists = i.searchArtist(iput);
                                     for (int j=0; j<artists.size(); j++){
                                         System.out.println("name: " + artists.get(j).name);
                                         System.out.println("details: " + artists.get(j).details);
@@ -264,36 +369,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         break;
-
-                    case "/review":
-                        if(parts.size()==1 && !userStatus(user) ) {
-                            //Can only review after searching an album
-                            Album album = new Album("","","","");
-                            Boolean isCreated = true;
-                            String txt;
-                            int score;
-                            //i.searchReview(user.username,album.id);
-                            //if("exists") sout(Do u wanna override?) <--isCreated = false
-
-                            while (true) {
-                                System.out.println("Score (1-5)");
-                                try {
-                                    score = Integer.parseInt(sc.nextLine());
-                                    System.out.println("Review");
-                                    txt = sc.nextLine();
-                                    if (txt.length() < 300 && stringContain(txt) && score > 0 && score < 6) break;
-                                } catch (NumberFormatException nfe) {
-                                    System.out.println("Input valid Score");
-                                }
-                            }
-
-                            Review review = new Review(user.username, album.getId(), txt, score ,"now");
-                            i.addReview(review,isCreated);
-                        }
-                        break;
-
-
-
+                        
                     case "/teste":
                         String smth = i.askIP();
                         String arr[] = smth.split("\\|");

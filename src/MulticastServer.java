@@ -266,6 +266,7 @@ public class MulticastServer {
                         ResultSetMetaData rsmd = rs.getMetaData();
                         int columnCount = rsmd.getColumnCount();
                         // The column count starts from 1
+
                         for (int i = 1; i <= columnCount; i++) {
                             output += rsmd.getColumnName(i) + " | " + rs.getString(i) + " ; ";
                         }
