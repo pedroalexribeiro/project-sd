@@ -34,4 +34,8 @@ public class Review implements Serializable {
     public String getDate() {
         return date;
     }
+
+    public String toString(){
+        return username +"  Rated:"+ rating+" date:"+date+ "\n"+text;
+    }
 }
