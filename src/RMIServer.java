@@ -1,8 +1,5 @@
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -11,14 +8,18 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RMIServer extends UnicastRemoteObject implements Interface {
 
     private static final long serialVersionUID = 1L;
 
     private static CopyOnWriteArrayList<User> onlineUsers = new CopyOnWriteArrayList<>();
-    private static User tempUser;
+    private static CopyOnWriteArrayList<String> idsMulticast = new CopyOnWriteArrayList<>();
+
+    private AtomicInteger messageID = new AtomicInteger(1000);
 
     private static String MULTICAST_ADDRESS = "224.1.1.1";
     private static int MULTICAST_PORT = 4100;
@@ -31,6 +32,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         try {
             this.receiverSocket = new MulticastSocket(RMI_PORT);  // create socket and bind it
             this.senderSocket = new MulticastSocket(); // create socket and doesn't bind it
+            sendBroadcast();
         } catch (IOException e) {
             e.printStackTrace();
             this.receiverSocket.close();
@@ -41,6 +43,11 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     public String sendMulticast(String message){
         // Send it to multicast servers
         try {
+            int serverIdIndex = ThreadLocalRandom.current().nextInt(0, idsMulticast.size());
+            String serverID = idsMulticast.get(serverIdIndex);
+            message += ";serverID|"+serverID;
+            int id = messageID.getAndAdd(2);
+            message += ";messageID|" + Integer.toString(id);
             byte[] sendBuffer = message.getBytes();
             InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
             DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, group, MULTICAST_PORT);
@@ -49,14 +56,56 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             // Waits for multicast servers to respond
             byte[] receiveBuffer = new byte[1000];
             DatagramPacket request = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-            this.receiverSocket.receive(request);
-            return (new String(request.getData(), 0, request.getLength()));
+            do{
+                this.receiverSocket.receive(request);
+            }while (!checkMessageID(id, request));
+            String response = new String(request.getData(), 0, request.getLength());
+            int i;
+            for(i = response.length()-1; i >= 0; i-- ){
+                if(response.charAt(i) == ';'){
+                    break;
+                }
+            }
+            response = response.substring(0, i);
+            System.out.println(response);
+            return response;
         }catch(UnknownHostException ue){
             System.out.println(ue);
             return "error";
         }catch(IOException e){
             System.out.println(e);
             return "error";
+        }
+    }
+
+    public void sendBroadcast(){
+        DatagramSocket s;
+        String message = "function|broadcast";
+        try {
+            s = new DatagramSocket(20000);
+            byte[] sendBuffer = message.getBytes();
+            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
+            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, group, MULTICAST_PORT);
+            s.send(packet);
+
+            // Waits for multicast servers to respond
+            byte[] receiveBuffer = new byte[1000];
+            DatagramPacket request = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+            s.setSoTimeout(5000);
+            while(true){
+                try {
+                    s.receive(request);
+                    idsMulticast.add(new String(request.getData(), 0, request.getLength()));
+                }catch (SocketTimeoutException e) {
+                    // timeout exception.
+                    s.close();
+                    break;
+                }
+            }
+        }catch(UnknownHostException ue){
+            System.out.println(ue);
+        }catch(IOException e){
+            System.out.println(e);
         }
     }
 
@@ -86,7 +135,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }
 
         String t = "function|search;what|user;where|username='"+username+"' AND password='"+pass+"'";
-
+        User tempUser;
         //Send through Multicast
         String user = sendMulticast(t);
         if(user.equalsIgnoreCase("Error") || user.equals("")){
@@ -401,6 +450,22 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     public String askIP(){
         return sendMulticast("function|getIP");
+    }
+
+    public boolean checkMessageID(int id, DatagramPacket request){
+        String receive = new String(request.getData(), 0, request.getLength());
+        if(receive.equals("")){
+            return false;
+        }
+        int i;
+        for(i = receive.length()-1; i >= 0; i-- ){
+            if(receive.charAt(i) == ';'){
+                break;
+            }
+        }
+        receive = receive.substring(i);
+        String parts[] = receive.split("\\|");
+        return Integer.toString(id+1).equals(parts[1].trim());
     }
 
     public Boolean isAlive() throws RemoteException {

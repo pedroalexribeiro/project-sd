@@ -200,14 +200,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         break;
-
-
-
-
-
-
-
-
                     case "/playlist":
                         if (!userStatus(user)) {
                             if (2 < parts.size() && parts.size() < 5) {
@@ -222,12 +214,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         break;
-
-
-
-
-
-
 
                     case "/search":
                         if (parts.size() == 3 && !userStatus(user)) {
@@ -292,9 +278,11 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         }
                         break;
 
-
-
-                    case "/teste":
+                    case "/download":
+                        System.out.println("Music:");
+                        String music_name = sc.nextLine();
+                        System.out.println("Filepath:");
+                        String filepath = sc.nextLine();
                         String smth = i.askIP();
                         String arr[] = smth.split("\\|");
                         Socket sck = new Socket(arr[0], Integer.parseInt(arr[1]));
@@ -312,11 +300,8 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         }
                         System.out.println("Successful");
                         break;
-
-
-
-
-
+                    case "/teste":
+                        break;
                     case "/exit":
                         isRunning = false;
                         break;

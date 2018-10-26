@@ -3,6 +3,7 @@ import java.net.*;
 import java.nio.file.Files;
 import java.sql.*;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MulticastServer {
     private static String MULTICAST_ADDRESS = "224.1.1.1";
@@ -22,7 +23,8 @@ public class MulticastServer {
     }
 
     public MulticastServer(){
-        this.id = 1;
+        int randomNum = ThreadLocalRandom.current().nextInt(1, 200 + 1);
+        this.id = randomNum;
         MulticastSocket receiveSocket = null;
         MulticastSocket senderSocket = null;
         try(final DatagramSocket socket = new DatagramSocket()){
@@ -33,9 +35,8 @@ public class MulticastServer {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        int numThreads = 0;
         System.out.println("Starting...");
-        ServerTCP tcp = new ServerTCP(TCP_PORT);
+        ServerTCP tcp = new ServerTCP(TCP_PORT+this.id);
         tcp.start();
         try {
             receiveSocket = new MulticastSocket(MULTICAST_PORT);  // create socket and bind it
@@ -49,9 +50,8 @@ public class MulticastServer {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 receiveSocket.receive(packet);
                 // creates thread to handle the work
-                HandleWork thread = new HandleWork(packet, senderSocket, this.ip);
+                HandleWork thread = new HandleWork(packet, senderSocket, this.ip, this.id);
                 thread.start();
-                numThreads++;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -73,12 +73,14 @@ public class MulticastServer {
         // Needed objects
         private MulticastSocket socket = null;
         private DatagramPacket packet = null;
+        private String id;
         private String ip;
 
-        public HandleWork(DatagramPacket packet, MulticastSocket socket, String ip){
+        public HandleWork(DatagramPacket packet, MulticastSocket socket, String ip, int id){
             this.packet = packet;
             this.socket = socket;
             this.ip = ip;
+            this.id = Integer.toString(id);
         }
 
 
@@ -88,6 +90,9 @@ public class MulticastServer {
             String sql = UDP.menuToSQL(hash);
             String output = "";
             switch (hash.get("function")){
+                case "broadcast":
+                    output = this.id;
+                    break;
                 case"getIP":
                     output = this.ip + "|" + Integer.toString(TCP_PORT);
                     break;
@@ -106,21 +111,35 @@ public class MulticastServer {
                     output = updateDB(sql);
                     break;
                 case"search":
-                    output = selectDB(sql,hash.get("what"));
+                    if(this.id.equals(hash.get("serverID"))){
+                        output = selectDB(sql,hash.get("what"));
+                    }
                     break;
             }
 
             // Send information from database to multicast
-            if(output==null){
-                output="nothing";
+            if(hash.get("function").equals("broadcast")){
+                byte [] b = output.getBytes();
+                DatagramPacket reply  = new DatagramPacket(b, b.length, this.packet.getAddress(), this.packet.getPort());
+                try{
+                    this.socket.send(reply);
+                }catch(IOException ie){
+                    System.out.println(ie);
+                }
+                return;
             }
-
-            byte [] b = output.getBytes();
-            DatagramPacket reply = new DatagramPacket(b, b.length, this.packet.getAddress(), RMI_PORT);
-            try{
-                this.socket.send(reply);
-            }catch(IOException ie){
-                System.out.println(ie);
+            if(this.id.equals(hash.get("serverID"))){
+                if(output==null || output.equals("")){
+                    output="nothing";
+                }
+                output += ";messageID|" + Integer.toString(Integer.parseInt(hash.get("messageID"))+1);
+                byte [] b = output.getBytes();
+                DatagramPacket reply = new DatagramPacket(b, b.length, this.packet.getAddress(), RMI_PORT);
+                try{
+                    this.socket.send(reply);
+                }catch(IOException ie){
+                    System.out.println(ie);
+                }
             }
         }
 
