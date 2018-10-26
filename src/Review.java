@@ -1,17 +1,17 @@
 import java.io.Serializable;
 
 public class Review implements Serializable {
-    public User user;
-    public Album album ;
+    public String username;
+    public int album_id ;
     public String text;
-    public double avgRating;
+    public int score;
     public String date;
 
-    public Review(User user,Album album,String text,double avgRating,String date) {
-        this.user=user;
-        this.album=album;
+    public Review(String username,int album_id,String text,int score,String date) {
+        this.username=username;
+        this.album_id=album_id;
         this.text=text;
-        this.avgRating=avgRating;
+        this.score=score;
         this.date=date;
     }
 }

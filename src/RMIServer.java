@@ -25,7 +25,6 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     private static int RMI_PORT = 4000;
     private MulticastSocket senderSocket = null;
     private MulticastSocket receiverSocket = null;
-    private UDP udp;
 
     public RMIServer() throws RemoteException {
         super();
@@ -90,12 +89,12 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
         //Send through Multicast
         String user = sendMulticast(t);
-        Map<String, String> answer = UDP.protocolToHash(user);
-        Boolean editor = true;
         if(user.equalsIgnoreCase("Error") || user.equals("")){
             tempUser =  null;
         }
         else{
+            Map<String, String> answer = UDP.protocolToHash(user);
+            Boolean editor = true;
             System.out.println(answer.get("editor"));
             if(answer.get("editor").equals("0")) editor = false;
             tempUser =  new User(answer.get("username"),answer.get("password"),answer.get("email"),answer.get("name"),editor);
@@ -312,6 +311,81 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             }
         }
         return albuns;
+    }
+
+    public ArrayList<Music> searchMusic(String word) {
+        String t = "function|search;what|music;where|name='" + word + "' OR genre='" + word + "'";
+        String answer = sendMulticast(t);
+        ArrayList<Music> musics = new ArrayList<>();
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for(int i=0; i < objects.length; i++){
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),Integer.parseInt(arr.get("album_id")));
+                musics.add(temp);
+            }
+        }
+        return musics;
+    }
+
+    public ArrayList<Music> searchMusic(int album_id) {
+        String t = "function|search;what|music;where|album_id=" + album_id;
+        String answer = sendMulticast(t);
+        ArrayList<Music> musics = new ArrayList<>();
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for(int i=0; i < objects.length; i++){
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),Integer.parseInt(arr.get("album_id")));
+                musics.add(temp);
+            }
+        }
+        return musics;
+    }
+
+    public ArrayList<Review> searchReview(int album_id) {
+        String t = "function|search;what|review;where|album_id=" + album_id;
+        String answer = sendMulticast(t);
+        ArrayList<Review> reviews = new ArrayList<>();
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for(int i=0; i < objects.length; i++){
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Review temp = new Review(arr.get("user_username"), Integer.parseInt(arr.get("album_id")),arr.get("text"), Integer.parseInt(arr.get("rating")), arr.get("datee"));
+                reviews.add(temp);
+            }
+        }
+        return reviews;
+    }
+
+    public ArrayList<Review> searchReview(String username, int album_id) {
+        String t = "function|search;what|review;where|album_id=" + album_id + " AND user_username='" + username +"'";
+        String answer = sendMulticast(t);
+        ArrayList<Review> reviews = new ArrayList<>();
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for(int i=0; i < objects.length; i++){
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Review temp = new Review(arr.get("user_username"), Integer.parseInt(arr.get("album_id")),arr.get("text"), Integer.parseInt(arr.get("rating")), arr.get("datee"));
+                reviews.add(temp);
+            }
+        }
+        return reviews;
+    }
+
+    public ArrayList<Artist> searchArtist(String word) {
+        String t = "function|search;what|artist;where|name='" + word + "'";
+        String answer = sendMulticast(t);
+        ArrayList<Artist> artists = new ArrayList<>();
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for(int i=0; i < objects.length; i++){
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Artist temp = new Artist(arr.get("name"), arr.get("details"));
+                artists.add(temp);
+            }
+        }
+        return artists;
     }
 
     public String askIP(){

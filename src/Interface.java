@@ -34,7 +34,11 @@ public interface Interface extends Remote {
 
         //Search Method
     ArrayList<Album> searchAlbum(String word)throws RemoteException;
-
+    ArrayList<Music> searchMusic(String word)throws RemoteException;
+    ArrayList<Music> searchMusic(int album_id)throws RemoteException;
+    ArrayList<Artist> searchArtist(String word)throws RemoteException;
+    ArrayList<Review> searchReview(String username, int album_id)throws RemoteException;
+    ArrayList<Review> searchReview(int album_id)throws RemoteException;
 
     Boolean isAlive() throws RemoteException;
 

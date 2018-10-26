@@ -234,8 +234,19 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                     //sout()
                                     break;
                                 case "music":
+                                    ArrayList<Music> music = i.searchMusic(parts.get(2));
+                                    for (int j=0; j<music.size(); j++){
+                                        System.out.println("name: " + music.get(j).name);
+                                        System.out.println("genre: " + music.get(j).type);
+                                        System.out.println("length: " + music.get(j).length);
+                                    }
                                     break;
                                 case "artist":
+                                    ArrayList<Artist> artists = i.searchArtist(parts.get(2));
+                                    for (int j=0; j<artists.size(); j++){
+                                        System.out.println("name: " + artists.get(j).name);
+                                        System.out.println("details: " + artists.get(j).details);
+                                    }
                                     break;
                                 default:
                                     System.out.println("Not an available option");
