@@ -326,7 +326,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         int albumid;
         String t = "function|search;what|album;where|title='"+album+"'";
         String answer = sendMulticast(t);
-        if(!answer.equals("")){
+        if(!answer.equals("nothing")){
             Map<String, String> arr = UDP.protocolToHash(answer);
             albumid = Integer.parseInt(arr.get("id"));
         } else{
@@ -352,6 +352,16 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     public String updateAlbum(Album album){
         String t = "function|update;what|album;set|title='"+ album.title+"',releasedate='"+album.releaseDate+"',description='"+album.description+"';where|id="+album.id;
+        String answer = sendMulticast(t);
+        return answer;
+    }
+    public String updateArtist(Artist artist){
+        String t = "function|update;what|artist;set|name='"+ artist.name+"',details='"+artist.details+"';where|id="+artist.id;
+        String answer = sendMulticast(t);
+        return answer;
+    }
+    public String updateMusic(Music music){
+        String t = "function|update;what|music;set|name='"+ music.name+"',genre='"+music.type+"',length='"+music.length+"';where|id="+music.id;
         String answer = sendMulticast(t);
         return answer;
     }

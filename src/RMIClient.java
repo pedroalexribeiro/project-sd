@@ -133,14 +133,13 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         break;
                     case "/help":
                         System.out.println("Commands:" +
-                                "\n/helloworld" +
                                 "\n/register user pass email name" +
                                 "\n/login user pass" +
                                 "\n/logout" +
                                 "\n/add type" +
+                                "\n/search type" +
                                 "\n/editor user" +
-                                "\n/playlist method title music" +
-                                "\n/search type text" +
+
                                 "\n/exit");
                         break;
 
@@ -422,8 +421,43 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                         System.out.println("Music:\nname: " + music.get(choice).name);
                                         System.out.println("genre: " + music.get(choice).type);
                                         System.out.println("length: " + music.get(choice).length);
-                                    }
-                                    else{
+
+
+
+                                        while(true){
+                                            System.out.println("/edit \n /exit");
+                                            String str = sc.nextLine();
+                                            if(str.equalsIgnoreCase("/edit") && !userStatus(user)){
+                                                System.out.println("Want to Change:\n n ->Doesnt Change\n Write Anything else -> Changes");
+                                                Music a = music.get(choice);
+
+                                                String answer = askInfo("Name",sc);
+                                                if (!answer.equals("n")) a.name = answer;
+
+                                                answer = askInfo("genre : ",sc);
+                                                if (!answer.equals("n")) a.type = answer;
+
+                                                answer = askInfo("length : ",sc);
+                                                while(true){
+                                                    System.out.println("length: ");
+                                                    String output = sc.nextLine();
+                                                    if(output.equalsIgnoreCase("n")){
+                                                        break;
+                                                    }else{
+                                                        try{
+                                                            int len = Integer.parseInt(output);
+                                                            if(len > 0 && len < 2000) break;
+                                                        }catch(NumberFormatException nfe){
+                                                            System.out.println("Try a valid number");
+                                                        }
+                                                    }
+                                                }
+                                                answer = i.updateMusic(a);
+                                                System.out.println(answer);
+                                            }
+                                            else if(str.equalsIgnoreCase("/exit")){break;}
+                                        }
+                                    }else{
                                         System.out.println("Not found");
                                     }
                                     break;
@@ -445,6 +479,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                                 if(choice != -1)break;
                                             }
                                         }
+                                        System.out.println(artists.get(choice).toString());
                                         ArrayList<Album> albums = i.searchAlbum(artists.get(choice).name);
                                         for(Album a : albums){
                                             System.out.println(a.toString());
@@ -452,6 +487,26 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                             for(Music m : musics){
                                                 System.out.println("     "+m.toString());
                                             }
+                                        }
+
+
+                                        while(true){
+                                            System.out.println("/edit \n /exit");
+                                            String str = sc.nextLine();
+                                            if(str.equalsIgnoreCase("/edit") && !userStatus(user)){
+                                                System.out.println("Want to Change:\n n ->Doesnt Change\n Write Anything else -> Changes");
+                                                Artist a = artists.get(choice);
+
+                                                String answer = askInfo("Name",sc);
+                                                if (!answer.equals("n")) a.name = answer;
+
+                                                answer = askInfo("Details : ",sc);
+                                                if (!answer.equals("n")) a.details = answer;
+
+                                                answer = i.updateArtist(a);
+                                                System.out.println(answer);
+                                            }
+                                            else if(str.equalsIgnoreCase("/exit")){break;}
                                         }
                                     }else{
                                         System.out.println("Nothing found");
@@ -462,6 +517,9 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         break;
+
+
+
                     case "/upload": {
                         System.out.println("Music:");
                         String musicName = sc.nextLine();
