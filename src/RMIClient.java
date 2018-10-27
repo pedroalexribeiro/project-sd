@@ -40,7 +40,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
             System.exit(0);
         }
         rmi_ip = args[0];*/
-        rmi_ip = "127.0.0.1";
+        rmi_ip = "192.168.1.9";
         run(false, "");
     }
 
@@ -139,6 +139,8 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                 "\n/add type" +
                                 "\n/search type" +
                                 "\n/editor user" +
+                                "\n/upload" +
+                                "\n/download" +
 
                                 "\n/exit");
                         break;
