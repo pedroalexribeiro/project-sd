@@ -45,5 +45,11 @@ public interface Interface extends Remote {
 
     Boolean isAlive() throws RemoteException;
 
+    String shareFile(String username, int music_id, int file_id) throws RemoteException;
+    int searchFile(String username, int music_id) throws RemoteException;
+    int searchUser(String username) throws RemoteException;
+    int searchUserFile(String username, int music_id) throws RemoteException;
+    String downloadFile(String username, int music_id, String ip, int port) throws RemoteException;
     String askIP() throws RemoteException;
+
 }

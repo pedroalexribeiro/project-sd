@@ -9,6 +9,8 @@ public class UDP {
     private static final Map<String,String> album = new HashMap<>();
     private static final Map<String,String> artist = new HashMap<>();
     private static final Map<String,String> music = new HashMap<>();
+    private static final Map<String,String> file = new HashMap<>();
+    private static final Map<String,String> user_file = new HashMap<>();
     private static final Map<String, Map<String,String>> hashmaps = new HashMap<>();
     static {
         user.put("username","string");
@@ -37,6 +39,12 @@ public class UDP {
         music.put("genre","string");
         music.put("length","int");
         music.put("album_id","int");
+        file.put("filepath", "string");
+        file.put("user_username", "string");
+        file.put("music_id", "int");
+        user_file.put("file_id", "int");
+        user_file.put("user_username", "string");
+        user_file.put("music_id", "int");
         hashmaps.put("user", user);
         hashmaps.put("notification", notification);
         hashmaps.put("playlist", playlist);
@@ -44,6 +52,8 @@ public class UDP {
         hashmaps.put("album", album);
         hashmaps.put("artist", artist);
         hashmaps.put("music", music);
+        hashmaps.put("file", file);
+        hashmaps.put("user_file", user_file);
     }
 
     public static String menuToSQL(Map<String, String> str){

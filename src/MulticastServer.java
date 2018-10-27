@@ -6,6 +6,13 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MulticastServer {
+    // JDBC driver name and database URL
+    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    static final String DB_URL = "jdbc:mysql://localhost/SDProject";
+
+    //  Database credentials
+    static final String USER = "root";
+    static final String PASS = "password";
     private static String MULTICAST_ADDRESS = "224.1.1.1";
     private static int MULTICAST_PORT = 4100;
     private static int RMI_PORT = 4000;
@@ -20,6 +27,7 @@ public class MulticastServer {
     public MulticastServer(){
         int randomNum = ThreadLocalRandom.current().nextInt(1, 200 + 1);
         this.id = randomNum;
+        System.out.println(this.id);
         MulticastSocket receiveSocket = null;
         MulticastSocket senderSocket = null;
         try(final DatagramSocket socket = new DatagramSocket()){
@@ -57,14 +65,6 @@ public class MulticastServer {
     }
 
     private class HandleWork extends Thread {
-        // JDBC driver name and database URL
-        static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-        static final String DB_URL = "jdbc:mysql://localhost/SDProject";
-
-        //  Database credentials
-        static final String USER = "root";
-        static final String PASS = "password";
-
         // Needed objects
         private MulticastSocket socket = null;
         private DatagramPacket packet = null;
@@ -88,15 +88,13 @@ public class MulticastServer {
                 case "broadcast":
                     output = this.id;
                     break;
-                case"getIP":
-                    output = this.ip + "|" + Integer.toString(TCP_PORT);
+                case "askIP":
+                    output = this.ip + "|" + Integer.toString(TCP_PORT + Integer.parseInt(this.id));
                     break;
                 case "download":
-                    SendFile thread = new SendFile(hash.get("ip"), Integer.parseInt(hash.get("port")), "Path is missing");
+                    SendFile thread = new SendFile(hash.get("ip"), Integer.parseInt(hash.get("port")), Integer.parseInt(hash.get("fileID")));
                     thread.start();
-                    output = "Starting download...";
-                    break;
-                case"create":
+                    break;                case"create":
                     output = insertDB(sql);
                     break;
                 case"delete":
@@ -107,7 +105,7 @@ public class MulticastServer {
                     break;
                 case"search":
                     if(this.id.equals(hash.get("serverID"))){
-                        output = selectDB(sql,hash.get("what"));
+                        output = selectDB(sql);
                     }
                     break;
             }
@@ -137,185 +135,184 @@ public class MulticastServer {
                 }
             }
         }
+    }
 
+    private String insertDB(String sql){
+        Connection conn = null;
+        Statement stmt = null;
 
-        private String insertDB(String sql){
-            Connection conn = null;
-            Statement stmt = null;
+        try{
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
 
-            try{
-                //STEP 2: Register JDBC driver
-                Class.forName("com.mysql.jdbc.Driver");
+            //STEP 3: Open a connection
+            System.out.println("Connecting to a selected database...");
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            System.out.println("Connected database successfully...");
 
-                //STEP 3: Open a connection
-                System.out.println("Connecting to a selected database...");
-                conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                System.out.println("Connected database successfully...");
+            System.out.println("Inserting records into the table...");
+            stmt = conn.createStatement();
 
-                System.out.println("Inserting records into the table...");
-                stmt = conn.createStatement();
-
-                stmt.executeUpdate(sql);
-                return "Success";
-            }catch(SQLException se){
-                return "Error";
-            }catch(Exception e){
-                e.printStackTrace(); //Handle errors for Class.forName
-            }finally{
-                //finally block used to close resources
-                try{
-                    if(stmt!=null)
-                        conn.close();
-                }catch(SQLException se){ }
-                try{
-                    if(conn!=null)
-                        conn.close();
-                }catch(SQLException se){
-                    se.printStackTrace();
-                }
-            }
+            stmt.executeUpdate(sql);
+            return "Success";
+        }catch(SQLException se){
             return "Error";
-        }
-
-        private String updateDB(String sql){
-            Connection conn = null;
-            Statement stmt = null;
-
+        }catch(Exception e){
+            e.printStackTrace(); //Handle errors for Class.forName
+        }finally{
+            //finally block used to close resources
             try{
-                //STEP 2: Register JDBC driver
-                Class.forName("com.mysql.jdbc.Driver");
-
-                //STEP 3: Open a connection
-                System.out.println("Connecting to a selected database...");
-                conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                System.out.println("Connected database successfully...");
-
-                //STEP 4
-                System.out.println("Creating statement...");
-                stmt = conn.createStatement();
-
-                stmt.executeUpdate(sql);
-                return "Sucess";
+                if(stmt!=null)
+                    conn.close();
+            }catch(SQLException se){ }
+            try{
+                if(conn!=null)
+                    conn.close();
             }catch(SQLException se){
-                return "Error";
-            }catch(Exception e){
-                e.printStackTrace(); //Handle errors for Class.forName
-            }finally{
-                //finally block used to close resources
-                try{
-                    if(stmt!=null)
-                        conn.close();
-                }catch(SQLException se){ }
-                try{
-                    if(conn!=null)
-                        conn.close();
-                }catch(SQLException se){
-                    se.printStackTrace();
-                }
+                se.printStackTrace();
             }
-            return "Error";
         }
+        return "Error";
+    }
 
-        private String deleteDB(String sql){
-            Connection conn = null;
-            Statement stmt = null;
-            System.out.println(sql);
+    private String updateDB(String sql){
+        Connection conn = null;
+        Statement stmt = null;
+
+        try{
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+
+            //STEP 3: Open a connection
+            System.out.println("Connecting to a selected database...");
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            System.out.println("Connected database successfully...");
+
+            //STEP 4
+            System.out.println("Creating statement...");
+            stmt = conn.createStatement();
+
+            stmt.executeUpdate(sql);
+            return "Sucess";
+        }catch(SQLException se){
+            return "Error";
+        }catch(Exception e){
+            e.printStackTrace(); //Handle errors for Class.forName
+        }finally{
+            //finally block used to close resources
             try{
-                //STEP 2: Register JDBC driver
-                Class.forName("com.mysql.jdbc.Driver");
-
-                //STEP 3: Open a connection
-                System.out.println("Connecting to a selected database...");
-                conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                System.out.println("Connected database successfully...");
-
-                //STEP 4:
-                System.out.println("Creating statement...");
-                stmt = conn.createStatement();
-                stmt.executeUpdate(sql);
-
-                return "Sucess";
+                if(stmt!=null)
+                    conn.close();
+            }catch(SQLException se){ }
+            try{
+                if(conn!=null)
+                    conn.close();
             }catch(SQLException se){
-                return "Error";
-            }catch(Exception e){
-                e.printStackTrace(); //Handle errors for Class.forName
-            }finally{
-                //finally block used to close resources
-                try{
-                    if(stmt!=null)
-                        conn.close();
-                }catch(SQLException se){ }
-                try{
-                    if(conn!=null)
-                        conn.close();
-                }catch(SQLException se){
-                    se.printStackTrace();
-                }
+                se.printStackTrace();
             }
-            return "Error";
         }
+        return "Error";
+    }
 
-        private String selectDB(String sql,String type){
-            Connection conn = null;
-            Statement stmt = null;
-            String output="";
-            Boolean foundSomething = false;
+    private String deleteDB(String sql){
+        Connection conn = null;
+        Statement stmt = null;
+        System.out.println(sql);
+        try{
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+
+            //STEP 3: Open a connection
+            System.out.println("Connecting to a selected database...");
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            System.out.println("Connected database successfully...");
+
+            //STEP 4:
+            System.out.println("Creating statement...");
+            stmt = conn.createStatement();
+            stmt.executeUpdate(sql);
+
+            return "Sucess";
+        }catch(SQLException se){
+            return "Error";
+        }catch(Exception e){
+            e.printStackTrace(); //Handle errors for Class.forName
+        }finally{
+            //finally block used to close resources
             try{
-                //STEP 2: Register JDBC driver
-                Class.forName("com.mysql.jdbc.Driver");
+                if(stmt!=null)
+                    conn.close();
+            }catch(SQLException se){ }
+            try{
+                if(conn!=null)
+                    conn.close();
+            }catch(SQLException se){
+                se.printStackTrace();
+            }
+        }
+        return "Error";
+    }
 
-                //STEP 3: Open a connection
-                System.out.println("Connecting to a selected database...");
-                conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                System.out.println("Connected database successfully...");
-                //STEP 4: Execute a query
-                System.out.println("Creating statement...");
-                stmt = conn.createStatement();
+    private String selectDB(String sql){
+        Connection conn = null;
+        Statement stmt = null;
+        String output="";
+        Boolean foundSomething = false;
+        try{
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
 
-                ResultSet rs = stmt.executeQuery(sql);
+            //STEP 3: Open a connection
+            System.out.println("Connecting to a selected database...");
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            System.out.println("Connected database successfully...");
+            //STEP 4: Execute a query
+            System.out.println("Creating statement...");
+            stmt = conn.createStatement();
 
-                while(rs.next()) {
-                    foundSomething = true;
-                    try {
-                        ResultSetMetaData rsmd = rs.getMetaData();
-                        int columnCount = rsmd.getColumnCount();
-                        // The column count starts from 1
+            ResultSet rs = stmt.executeQuery(sql);
 
-                        for (int i = 1; i <= columnCount; i++) {
-                            output += rsmd.getColumnName(i) + " | " + rs.getString(i) + " ; ";
-                        }
-                        output = output.substring(0,output.length()-2);
-                        output += "**";
+            while(rs.next()) {
+                foundSomething = true;
+                try {
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    int columnCount = rsmd.getColumnCount();
+                    // The column count starts from 1
 
-                    } catch (SQLException sqle) {
-                        System.out.println(sqle);
+                    for (int i = 1; i <= columnCount; i++) {
+                        output += rsmd.getColumnName(i) + " | " + rs.getString(i) + " ; ";
                     }
-
-                }
-                if(foundSomething){
                     output = output.substring(0,output.length()-2);
-                }
-                return output;
+                    output += "**";
 
-            }catch(SQLException se){
-                se.printStackTrace();  //Handle errors for JDBC
-            }catch(Exception e){
-                e.printStackTrace(); //Handle errors for Class.forName
-            }finally{
-                //finally block used to close resources
-                try{
-                    if(stmt!=null)
-                        conn.close();
-                }catch(SQLException se){ }
-                try{
-                    if(conn!=null)
-                        conn.close();
-                }catch(SQLException se){
-                    se.printStackTrace();
+                } catch (SQLException sqle) {
+                    System.out.println(sqle);
                 }
+
             }
-            return null;
+            if(foundSomething){
+                output = output.substring(0,output.length()-2);
+            }
+            return output;
+
+        }catch(SQLException se){
+            se.printStackTrace();  //Handle errors for JDBC
+        }catch(Exception e){
+            e.printStackTrace(); //Handle errors for Class.forName
+        }finally{
+            //finally block used to close resources
+            try{
+                if(stmt!=null)
+                    conn.close();
+            }catch(SQLException se){ }
+            try{
+                if(conn!=null)
+                    conn.close();
+            }catch(SQLException se){
+                se.printStackTrace();
+            }
         }
+        return null;
     }
 
     private class ServerTCP extends Thread {
@@ -356,9 +353,25 @@ public class MulticastServer {
             if (this.socket.isConnected()) {
                 InputStream in = null;
                 OutputStream out = null;
+                DataInputStream inInfo;
                 try {
+                    inInfo = new DataInputStream(this.socket.getInputStream());
+                    String info = inInfo.readUTF();
+                    System.out.println(info);
+                    Map<String, String> hash = UDP.protocolToHash(info);
+                    String filepath = "musics" + File.separator + hash.get("music_name") + File.separator + hash.get("username") + ".mp3";
+                    String check = selectDB("SELECT * FROM file WHERE user_username='" + hash.get("username") + "' AND music_id=" + hash.get("music_id"));
+                    if(check.equals("")){
+                        Map<String, String> createFile = UDP.protocolToHash("function|create;what|file;filepath|"+filepath+";user_username|"+hash.get("username")+";music_id|"+hash.get("music_id"));
+                        String sql = UDP.menuToSQL(createFile);
+                        insertDB(sql);
+                    }
+                    File f = new File(filepath);
+                    f.getParentFile().getParentFile().mkdirs();
+                    f.getParentFile().mkdirs();
+                    f.createNewFile();
                     in = new BufferedInputStream(socket.getInputStream());
-                    out = new FileOutputStream(new File("teste222.mp3"));
+                    out = new FileOutputStream(f);
                     int read = 0;
                     byte[] buffer = new byte[1024];
                     while ((read = in.read(buffer)) != -1){
@@ -367,6 +380,7 @@ public class MulticastServer {
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
+
                     e.printStackTrace();
                 }
             }
@@ -375,30 +389,34 @@ public class MulticastServer {
 
     private class SendFile extends Thread {
         Socket socket = null;
-        String path = null;
+        int fileID;
 
-        public SendFile(String host, int port, String path) {
+        public SendFile(String host, int port, int fileID) {
             try {
                 this.socket = new Socket(host, port);
-                this.path = path;
+                this.fileID = fileID;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         public void run() {
-            File soundFile = new File(path);
-            if (!soundFile.exists() || !soundFile.isFile()) {
-                System.out.println("not a file: " + soundFile);
-                return;
-            }
-            try {
-                byte[] buffer = Files.readAllBytes(soundFile.toPath());
-                OutputStream out = this.socket.getOutputStream();
-                out.write(buffer, 0, buffer.length);
-                this.socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            String info = selectDB("SELECT * FROM file WHERE id=" + Integer.toString(fileID));
+            if(!info.equals("")){
+                Map<String, String> hash = UDP.protocolToHash(info);
+                File soundFile = new File(hash.get("filepath"));
+                if (!soundFile.exists() || !soundFile.isFile()) {
+                    System.out.println("not a file: " + soundFile);
+                    return;
+                }
+                try {
+                    byte[] buffer = Files.readAllBytes(soundFile.toPath());
+                    OutputStream out = this.socket.getOutputStream();
+                    out.write(buffer, 0, buffer.length);
+                    this.socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
-import java.io.File;
-import java.io.OutputStream;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 import java.nio.file.Files;
 import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
@@ -9,23 +8,39 @@ import java.rmi.server.UnicastRemoteObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RMIClient extends UnicastRemoteObject implements clientInterface {
     private static String rmi_ip;
+    private static String my_ip;
+    private static int my_port;
     public RMIClient() throws RemoteException {
         super();
+        int randomNum = ThreadLocalRandom.current().nextInt(5000, 10000 + 1);
+        my_port = randomNum;
+        try(final DatagramSocket socket = new DatagramSocket()){
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10005 + randomNum);
+            my_ip = socket.getLocalAddress().getHostAddress();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
+
     public static void main(String args[]) throws RemoteException {
         // argumentos da linha de comando: id do server
         /*if(args.length == 0){
             System.out.println("id of server needs to be an argument");
             System.exit(0);
-        }*/
-        rmi_ip = "localhost";
+        }
+        rmi_ip = args[0];*/
+        rmi_ip = "127.0.0.1";
         run(false, "");
     }
 
@@ -159,7 +174,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             user = i.login(username, pass);
                             if (user != null) {
                                 try {
-                                    clientInterface ci =  new RMIClient(); //For some reason not working...
+                                    clientInterface ci = new RMIClient();
                                     i.subscribe(username, ci); //Function that saves clientInterface and puts User.online true
                                     System.out.println("Log in Successful");
 
@@ -250,12 +265,16 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     case "/editor": // Turns another user into an editor
                         if(parts.size() == 2 && !userStatus(user) && stringContain(input)){
                             String username = parts.get(1);
-                            if(user.isEditor()) {
-                                Notification note = new Notification(username,"You are now an Editor");
-                                i.sendNotifcation(note, username);
-                            }
-                            else{
-                                System.out.println("Not an Editor/Chose another editor");
+                            if(i.searchUser(username) == 1){
+                                if(user.isEditor()) {
+                                    Notification note = new Notification(username,"You are now an Editor");
+                                    i.sendNotifcation(note, username);
+                                }
+                                else{
+                                    System.out.println("Not an Editor/Chose another editor");
+                                }
+                            }else{
+                                System.out.println("The username you wrote doesn't belong to anyone");
                             }
                         }
                         break;
@@ -443,33 +462,114 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         break;
-
-
-
-                    case "/download":
+                    case "/upload": {
                         System.out.println("Music:");
-                        String music_name = sc.nextLine();
+                        String musicName = sc.nextLine();
+                        ArrayList<Music> musicList = i.searchMusic(musicName);
+                        if (musicList.size() == 0) {
+                            System.out.println("No music found with that name");
+                            break;
+                        }
+                        int index = 0;
+                        if(musicList.size() > 1){
+                            for(int j = 0; j<musicList.size(); j++){
+                                System.out.println("name: " + musicList.get(j).name);
+                                System.out.println("genre: " + musicList.get(j).type);
+                                System.out.println("length: " + musicList.get(j).length);
+                            }
+                            System.out.println("Choose one from 1 to" + musicList.size());
+                            do{
+                                String oput =sc.nextLine();
+                                index = Integer.parseInt(oput) - 1 ;
+                            }while(index < 1 || index > musicList.size());
+                        }
                         System.out.println("Filepath:");
                         String filepath = sc.nextLine();
-                        String smth = i.askIP();
-                        String arr[] = smth.split("\\|");
-                        Socket sck = new Socket(arr[0], Integer.parseInt(arr[1]));
-                        File soundFile = new File(parts.get(1));
-                        if (!soundFile.exists() || !soundFile.isFile()){
+                        File soundFile = new File(filepath);
+                        if (!soundFile.exists() || !soundFile.isFile()) {
                             System.out.println("not a file: " + soundFile);
                             break;
                         }
+                        String smth = i.askIP();
+                        String arr[] = smth.split("\\|");
+                        Socket sck = new Socket(arr[0], Integer.parseInt(arr[1]));
+                        String fileInfo = "username|" + user.username + ";music_name|" + musicList.get(index).name + ";music_id|" + musicList.get(index).id;
+                        DataOutputStream outInfo = new DataOutputStream(sck.getOutputStream());
+                        outInfo.writeUTF(fileInfo);
                         byte[] buffer = Files.readAllBytes(soundFile.toPath());
-                        try{
+                        try {
                             OutputStream out = sck.getOutputStream();
                             out.write(buffer, 0, buffer.length);
-                        }finally{
+                        } finally {
                             sck.close();
                         }
                         System.out.println("Successful");
                         break;
-                    case "/teste":
+                    }
+                    case "/download": {
+                        System.out.println("Music:");
+                        String musicName = sc.nextLine();
+                        ArrayList<Music> musicList = i.searchMusic(musicName);
+                        if (musicList.size() == 0) {
+                            System.out.println("No music found with that name");
+                            break;
+                        }
+                        int index = 0;
+                        if(musicList.size() > 1){
+                            for(int j = 0; j<musicList.size(); j++){
+                                System.out.println("name: " + musicList.get(j).name);
+                                System.out.println("genre: " + musicList.get(j).type);
+                                System.out.println("length: " + musicList.get(j).length);
+                            }
+                            System.out.println("Choose one from 1 to" + musicList.size());
+                            do{
+                                String oput =sc.nextLine();
+                                index = Integer.parseInt(oput) - 1 ;
+                            }while(index < 1 || index > musicList.size());
+                        }
+                        System.out.println("download starting....");
+                        DownloadFile thread = new DownloadFile(my_port, "downloads" + File.separator + musicList.get(index).name + ".mp3");
+                        thread.start();
+                        String status = i.downloadFile(user.username, musicList.get(index).id, my_ip, my_port);
+                        System.out.println(status);
                         break;
+                    }
+                    case "/share": {
+                        System.out.println("Music:");
+                        String name = sc.nextLine();
+                        ArrayList<Music> list = i.searchMusic(name);
+                        if (list.size() == 0) {
+                            System.out.println("No music found with that name");
+                            break;
+                        }
+                        int index = 0;
+                        if(list.size() > 1){
+                            for(int j = 0; j<list.size(); j++){
+                                System.out.println("name: " + list.get(j).name);
+                                System.out.println("genre: " + list.get(j).type);
+                                System.out.println("length: " + list.get(j).length);
+                            }
+                            System.out.println("Choose one from 1 to" + list.size());
+                            do{
+                                String oput =sc.nextLine();
+                                index = Integer.parseInt(oput) - 1 ;
+                            }while(index < 1 || index > list.size());
+                        }
+                        int file_id = i.searchFile(user.username, list.get(index).id);
+                        if(file_id == -1){
+                            System.out.println("You have no file uploaded to that music");
+                            break;
+                        }
+                        System.out.println("With: ");
+                        String username = sc.nextLine();
+                        if(i.searchUser(username) < 0){
+                            System.out.println("Enter a valid username");
+                            break;
+                        }
+                        i.shareFile(username, list.get(index).id, file_id);
+                        System.out.println("Successful");
+                        break;
+                    }
                     case "/exit":
                         isRunning = false;
                         break;
