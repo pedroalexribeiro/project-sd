@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.rmi.NotBoundException;
+import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -103,6 +104,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 }catch (SocketTimeoutException e) {
                     // timeout exception.
                     s.close();
+                    System.out.println(idsMulticast);
                     break;
                 }
             }
@@ -142,7 +144,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         User tempUser;
         //Send through Multicast
         String user = sendMulticast(t);
-        if(user.equalsIgnoreCase("Error") || user.equals("")){
+        if(user.equalsIgnoreCase("Error") || user.equals("nothing")){
             tempUser =  null;
         }
         else{
@@ -177,7 +179,11 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     public void sendNotifcation(Notification note, String username) throws RemoteException {
         for(User temp : onlineUsers){
-            if (temp.username.equalsIgnoreCase(username) && !temp.isEditor()){
+            if (temp.username.equalsIgnoreCase(username)){
+                if(temp.isEditor()) {
+                    System.out.println("This user is already an editor");
+                    return;
+                }
                 temp.editor=true;
                 String t = "function|update;what|user;set|editor=1;where|username='"+username+"'";
                 String answer = sendMulticast(t);
@@ -186,6 +192,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 return;
             }
         }
+
         String t = "function|update;what|user;set|editor=1;where|username='"+username+"'";
         String answer = sendMulticast(t);
         System.out.println(answer);
@@ -300,7 +307,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         int artistid;
         String t = "function|search;what|artist;where|name='"+artist+"'";
         String answer = sendMulticast(t);
-        if(!answer.equals("")){
+        if(!answer.equals("nothing")){
             Map<String, String> arr = UDP.protocolToHash(answer);
             artistid = Integer.parseInt(arr.get("id"));
         } else{
@@ -339,11 +346,17 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     public String addReview(Review review,Boolean isCreate){
         String t,answer;
         if(isCreate){
-            t = "function|create;what|review;id|null;text|"+review.getText()+";datee|CURRENT_TIME();album_id|"+review.getAlbum_id()+";user_username|"+review.getUsername();
+            t = "function|create;what|review;id|null;text|"+review.getText()+";rating|"+review.getRating()+";datee|CURRENT_TIME();album_id|"+review.getAlbum_id()+";user_username|"+review.getUsername();
         }else{
-            t = "function|update;what|review;set|text='"+review.getText()+"',datee=CURRENT_TIME();where|album_id="+review.getAlbum_id()+" AND user_username='"+review.getUsername()+"'";
+            t = "function|update;what|review;set|text='"+review.getText()+"'"+",rating="+review.getRating()+",datee=CURRENT_TIME();where|album_id="+review.getAlbum_id()+" AND user_username='"+review.getUsername()+"'";
         }
         answer = sendMulticast(t);
+        return answer;
+    }
+
+    public String updateAlbum(Album album){
+        String t = "function|update;what|album;set|title='"+ album.title+"',releasedate='"+album.releaseDate+"',description='"+album.description+"';where|id="+album.id;
+        String answer = sendMulticast(t);
         return answer;
     }
 
@@ -507,7 +520,9 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     public static void main(String args[]) {
         try { // First checks if registry is created
             //Network net = new Network();
-            //System.setProperty("java.rmi.server.hostname", net.RIP());
+            System.getProperties().put("java.security.policy", "java.policy.applet");
+            System.setSecurityManager(new RMISecurityManager());
+            System.setProperty("java.rmi.server.hostname","localhost");
             Registry r = LocateRegistry.createRegistry(7000);
 
         } catch (Exception e) {
