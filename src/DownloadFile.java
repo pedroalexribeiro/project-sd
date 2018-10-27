@@ -43,6 +43,13 @@ public class DownloadFile extends Thread{
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            }finally {
+                try {
+                    client.close();
+                    this.socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

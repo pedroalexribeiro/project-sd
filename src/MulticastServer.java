@@ -30,14 +30,7 @@ public class MulticastServer {
         System.out.println(this.id);
         MulticastSocket receiveSocket = null;
         MulticastSocket senderSocket = null;
-        try(final DatagramSocket socket = new DatagramSocket()){
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            this.ip = socket.getLocalAddress().getHostAddress();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        this.ip = Network.getIP();
         System.out.println("Starting...");
         ServerTCP tcp = new ServerTCP(TCP_PORT+this.id);
         tcp.start();
@@ -94,7 +87,8 @@ public class MulticastServer {
                 case "download":
                     SendFile thread = new SendFile(hash.get("ip"), Integer.parseInt(hash.get("port")), Integer.parseInt(hash.get("fileID")));
                     thread.start();
-                    break;                case"create":
+                    break;
+                case"create":
                     output = insertDB(sql);
                     break;
                 case"delete":
