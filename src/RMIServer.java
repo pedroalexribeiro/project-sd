@@ -53,10 +53,6 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
             DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, group, MULTICAST_PORT);
             this.senderSocket.send(packet);
-
-
-
-
             // Waits for multicast servers to respond
             byte[] receiveBuffer = new byte[1000];
             DatagramPacket request = new DatagramPacket(receiveBuffer, receiveBuffer.length);
@@ -103,6 +99,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 }catch (SocketTimeoutException e) {
                     // timeout exception.
                     s.close();
+                    System.out.println(idsMulticast);
                     break;
                 }
             }
@@ -142,7 +139,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         User tempUser;
         //Send through Multicast
         String user = sendMulticast(t);
-        if(user.equalsIgnoreCase("Error") || user.equals("")){
+        if(user.equalsIgnoreCase("Error") || user.equals("nothing")){
             tempUser =  null;
         }
         else{
@@ -385,7 +382,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for(int i=0; i < objects.length; i++){
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),Integer.parseInt(arr.get("album_id")));
+                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),Integer.parseInt(arr.get("album_id")), Integer.parseInt(arr.get("id")));
                 musics.add(temp);
             }
         }
@@ -400,7 +397,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for(int i=0; i < objects.length; i++){
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),Integer.parseInt(arr.get("album_id")));
+                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),Integer.parseInt(arr.get("album_id")), Integer.parseInt(arr.get("id")));
                 musics.add(temp);
             }
         }
@@ -451,8 +448,57 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return artists;
     }
 
+    public int searchFile(String username, int music_id){
+        String t = "function|search;what|file;where|user_username='"+username+"' AND music_id=" + music_id;
+        String answer = sendMulticast(t);
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+                Map<String, String> arr = UDP.protocolToHash(answer);
+                return Integer.parseInt(arr.get("id"));
+        }
+        return -1;
+    }
+
+    public int searchUserFile(String username, int music_id){
+        String t = "function|search;what|user_file;where|user_username='"+username+"' AND music_id=" + music_id;
+        String answer = sendMulticast(t);
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            Map<String, String> arr = UDP.protocolToHash(answer);
+            return Integer.parseInt(arr.get("file_id"));
+        }
+        return -1;
+    }
+
+    public int searchUser(String username){
+        String t = "function|search;what|user;where|username='"+username+"'";
+        String answer = sendMulticast(t);
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            return 1;
+        }
+        return -1;
+    }
+
+    public String shareFile(String username, int music_id, int file_id){
+        return sendMulticast("function|create;what|user_file;user_username|"+username+";music_id|" + music_id + ";file_id|" + file_id);
+    }
+
+    public String downloadFile(String username, int music_id, String ip, int port){
+        int fileId = searchFile(username, music_id);
+        if(fileId > 0) {
+            sendMulticast("function|download;ip|"+ip+";port|"+Integer.toString(port)+";fileID|"+Integer.toString(fileId));
+            return "Success";
+        }else{
+            fileId = searchUserFile(username, music_id);
+            if(fileId < 0){
+                return "You can't download that music";
+            }else{
+                sendMulticast("function|download;ip|"+ip+";port|"+Integer.toString(port)+";fileID|"+Integer.toString(fileId));
+                return "Success";
+            }
+        }
+    }
+
     public String askIP(){
-        return sendMulticast("function|getIP");
+        return sendMulticast("function|askIP");
     }
 
     public boolean checkMessageID(int id, DatagramPacket request){
