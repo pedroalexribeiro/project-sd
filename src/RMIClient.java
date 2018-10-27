@@ -36,12 +36,11 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
     public static void main(String args[]) throws RemoteException {
         // argumentos da linha de comando: id do server
-        /*if(args.length == 0){
+        if(args.length == 0){
             System.out.println("id of server needs to be an argument");
             System.exit(0);
         }
-        rmi_ip = args[0];*/
-        rmi_ip = "127.0.0.1";
+        rmi_ip = args[0];
         Network newNet = new Network();
         System.setProperty("java.rmi.server.hostname", newNet.getIP());
         run(false, "");
@@ -676,7 +675,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             do{
                                 String oput =sc.nextLine();
                                 index = Integer.parseInt(oput) - 1 ;
-                            }while(index < 1 || index > musicList.size());
+                            }while(index < 0 || index > musicList.size()-1 );
                         }
                         System.out.println("Filepath:");
                         String filepath = sc.nextLine();
@@ -720,7 +719,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             do{
                                 String oput =sc.nextLine();
                                 index = Integer.parseInt(oput) - 1 ;
-                            }while(index < 1 || index > musicList.size());
+                            }while(index < 0 || index > musicList.size()-1 );
                         }
                         System.out.println("download starting....");
                         DownloadFile thread = new DownloadFile(my_port, "downloads" + File.separator + musicList.get(index).name + ".mp3");
