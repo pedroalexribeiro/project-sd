@@ -10,7 +10,11 @@ public class UDP {
     private static final Map<String,String> artist = new HashMap<>();
     private static final Map<String,String> music = new HashMap<>();
     private static final Map<String,String> file = new HashMap<>();
+    private static final Map<String,String> review = new HashMap<>();
     private static final Map<String,String> user_file = new HashMap<>();
+    private static final Map<String,String> user_album = new HashMap<>();
+    private static final Map<String,String> user_artist = new HashMap<>();
+    private static final Map<String,String> user_music = new HashMap<>();
     private static final Map<String, Map<String,String>> hashmaps = new HashMap<>();
     static {
         user.put("username","string");
@@ -24,7 +28,7 @@ public class UDP {
         notification.put("user_username","string");
         playlist.put("title","string");
         playlist.put("username","string");
-        playlist_music.put("title_id", "int");
+        playlist_music.put("playlist_id", "int");
         playlist_music.put("music_id", "int");
         album.put("id","int");
         album.put("title","string");
@@ -42,9 +46,20 @@ public class UDP {
         file.put("filepath", "string");
         file.put("user_username", "string");
         file.put("music_id", "int");
+        review.put("text", "string");
+        review.put("rating","int");
+        review.put("datee", "date");
+        review.put("album_id", "int");
+        review.put("user_username", "string");
         user_file.put("file_id", "int");
         user_file.put("user_username", "string");
         user_file.put("music_id", "int");
+        user_album.put("user_username", "string");
+        user_album.put("album_id", "int");
+        user_artist.put("user_username", "string");
+        user_artist.put("artist_id", "string");
+        user_music.put("user_username", "string");
+        user_music.put("music_id", "string");
         hashmaps.put("user", user);
         hashmaps.put("notification", notification);
         hashmaps.put("playlist", playlist);
@@ -53,6 +68,10 @@ public class UDP {
         hashmaps.put("artist", artist);
         hashmaps.put("music", music);
         hashmaps.put("file", file);
+        hashmaps.put("review", review);
+        hashmaps.put("user_album", user_album);
+        hashmaps.put("user_artist", user_artist);
+        hashmaps.put("user_music", user_music);
         hashmaps.put("user_file", user_file);
     }
 
@@ -65,7 +84,7 @@ public class UDP {
                 System.out.println("delete");
                 return deleteToSQL(str);
             case "update":
-                System.out.println("create");
+                System.out.println("update");
                 return updateToSQL(str);
             case "search":
                 System.out.println("search");
@@ -112,7 +131,7 @@ public class UDP {
         String[] firstSplit = packetInfo.split(";");
         String[] secondSplit;
         for(int i=0; i < firstSplit.length; i++){
-            secondSplit = firstSplit[i].split("\\|");
+           secondSplit = firstSplit[i].split("\\|");
             hash.put(secondSplit[0].trim(), secondSplit[1].trim());
         }
         return hash;

@@ -19,6 +19,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
     private static String rmi_ip;
     private static String my_ip;
     private static int my_port;
+
     public RMIClient() throws RemoteException {
         super();
         int randomNum = ThreadLocalRandom.current().nextInt(5000, 10000 + 1);
@@ -41,11 +42,13 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         }
         rmi_ip = args[0];*/
         rmi_ip = "127.0.0.1";
+        Network newNet = new Network();
+        System.setProperty("java.rmi.server.hostname", newNet.getIP());
         run(false, "");
     }
 
-    public void liveNotification(Notification note) throws RemoteException{
-        System.out.println(note.text);
+    public void liveNotification(String note) throws RemoteException{
+        System.out.println(note);
     }
 
     public static Boolean userStatus(User user){ // Checks if user is Online or not
@@ -280,8 +283,99 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                     case "/playlist":
                         break;
 
-
-
+                    case "/delete":{
+                        if(parts.size() == 2) {
+                            String in;
+                            while(true){
+                                System.out.println("What:");
+                                in = sc.nextLine();
+                                if(stringContain(in)){
+                                    break;
+                                }
+                            }
+                            switch (parts.get(1)){
+                                case "album":{
+                                    ArrayList<Album> album = i.searchAlbum(in);
+                                    int choice=0;
+                                    if(album.size()>0) {
+                                        if (album.size() > 1) {
+                                            while (true) {
+                                                for (int j = 0; j < album.size(); j++) {
+                                                    System.out.println("title: " + album.get(j).title + " releasedate: " + album.get(j).releaseDate + " description: " + album.get(j).description);
+                                                }
+                                                System.out.println("Chose from 1-" + album.size());
+                                                choice = inBetween(album.size(), sc);
+                                                if (choice != -1) {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        System.out.println("You sure you want to delete that album [y/N]");
+                                        in = sc.nextLine();
+                                        if (in.equalsIgnoreCase("y")) {
+                                            i.deleteAlbum(album.get(choice).id);
+                                        }
+                                        break;
+                                    }
+                                    break;
+                                }
+                                case "artist":{
+                                    ArrayList<Artist> artists = i.searchArtist(in);
+                                    int choice=0;
+                                    if(artists.size()>0) {
+                                        if (artists.size() > 1) {
+                                            while (true) {
+                                                for (int j = 0; j < artists.size(); j++) {
+                                                    System.out.println("name: " + artists.get(j).name + " details: " + artists.get(j).details);
+                                                }
+                                                System.out.println("Chose from 1-" + artists.size());
+                                                choice = inBetween(artists.size(), sc);
+                                                if (choice != -1){
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        System.out.println("You sure you want to delete that album [y/N]");
+                                        in = sc.nextLine();
+                                        if (in.equalsIgnoreCase("y")) {
+                                            i.deleteArtist(artists.get(choice).id);
+                                        }
+                                        break;
+                                    }
+                                    break;
+                                }
+                                case "music": {
+                                    ArrayList<Music> music = i.searchMusic(in);
+                                    int choice=0;
+                                    if(music.size()>0) {
+                                        while (true) {
+                                            for (int j = 0; j < music.size(); j++) {
+                                                System.out.println("name: " + music.get(j).name);
+                                                System.out.println("genre: " + music.get(j).type);
+                                                System.out.println("length: " + music.get(j).length);
+                                            }
+                                            if (music.size() > 1) {
+                                                System.out.println("Chose from 1-" + music.size());
+                                                choice = inBetween(music.size(), sc);
+                                                if (choice != -1){
+                                                    break;
+                                                }
+                                            } else {
+                                                break;
+                                            }
+                                        }
+                                        System.out.println("You sure you want to delete that album [y/N]");
+                                        in = sc.nextLine();
+                                        if(in.equalsIgnoreCase("y")){
+                                            i.deleteMusic(music.get(choice).id);
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
                     case "/search":
                         if (parts.size() == 2 ) {
                             String iput;
@@ -374,20 +468,36 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                             }
 
                                             else if(str.equalsIgnoreCase("/edit") && !userStatus(user)){
-                                                System.out.println("Want to Change:\n n ->Doesnt Change\n Write Anything else -> Changes");
-                                                Album a = album.get(choice);
+                                                if(user.editor) {
+                                                    boolean changedSmth = false;
+                                                    System.out.println("Want to Change:\n n ->Doesnt Change\n Write Anything else -> Changes");
+                                                    Album a = album.get(choice);
 
-                                                String answer = askInfo("title",sc);
-                                                if (!answer.equals("n")) a.title = answer;
+                                                    String answer = askInfo("title", sc);
+                                                    if (!answer.equals("n")) {
+                                                        a.title = answer;
+                                                        changedSmth = true;
+                                                    }
 
-                                                answer = askInfo("release Date (yyyy-mm-dd) : ",sc);
-                                                if (!answer.equals("n")) a.releaseDate = answer;
+                                                    answer = askInfo("release Date (yyyy-mm-dd) : ", sc);
+                                                    if (!answer.equals("n")) {
+                                                        a.releaseDate = answer;
+                                                        changedSmth = true;
+                                                    }
 
-                                                answer = askInfo("Description: ",sc);
-                                                if (!answer.equals("n")) a.description = answer;
+                                                    answer = askInfo("Description: ", sc);
+                                                    if (!answer.equals("n")) {
+                                                        a.description = answer;
+                                                        changedSmth = true;
+                                                    }
 
-                                                answer = i.updateAlbum(a);
-                                                System.out.println(answer);
+                                                    if (changedSmth) {
+                                                        answer = i.updateAlbum(a, user.username);
+                                                        System.out.println(answer);
+                                                    }
+                                                }else{
+                                                    System.out.println("You don't have edit rights");
+                                                }
                                             }
                                             else if(str.equalsIgnoreCase("/exit")){break;}
                                         }
@@ -428,32 +538,46 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                             System.out.println("/edit \n /exit");
                                             String str = sc.nextLine();
                                             if(str.equalsIgnoreCase("/edit") && !userStatus(user)){
-                                                System.out.println("Want to Change:\n n ->Doesnt Change\n Write Anything else -> Changes");
-                                                Music a = music.get(choice);
+                                                if(user.editor) {
+                                                    boolean changedSmth = false;
+                                                    System.out.println("Want to Change:\n n ->Doesnt Change\n Write Anything else -> Changes");
+                                                    Music a = music.get(choice);
 
-                                                String answer = askInfo("Name",sc);
-                                                if (!answer.equals("n")) a.name = answer;
+                                                    String answer = askInfo("Name", sc);
+                                                    if (!answer.equals("n")){
+                                                        a.name = answer;
+                                                        changedSmth = true;
+                                                    }
 
-                                                answer = askInfo("genre : ",sc);
-                                                if (!answer.equals("n")) a.type = answer;
+                                                    answer = askInfo("genre : ", sc);
+                                                    if (!answer.equals("n")){
+                                                        a.type = answer;
+                                                        changedSmth = true;
+                                                    }
 
-                                                answer = askInfo("length : ",sc);
-                                                while(true){
-                                                    System.out.println("length: ");
-                                                    String output = sc.nextLine();
-                                                    if(output.equalsIgnoreCase("n")){
-                                                        break;
-                                                    }else{
-                                                        try{
-                                                            int len = Integer.parseInt(output);
-                                                            if(len > 0 && len < 2000) break;
-                                                        }catch(NumberFormatException nfe){
-                                                            System.out.println("Try a valid number");
+                                                    answer = askInfo("length : ", sc);
+                                                    while (true) {
+                                                        System.out.println("length: ");
+                                                        String output = sc.nextLine();
+                                                        if (output.equalsIgnoreCase("n")) {
+                                                            break;
+                                                        } else {
+                                                            changedSmth = true;
+                                                            try {
+                                                                int len = Integer.parseInt(output);
+                                                                if (len > 0 && len < 2000) break;
+                                                            } catch (NumberFormatException nfe) {
+                                                                System.out.println("Try a valid number");
+                                                            }
                                                         }
                                                     }
+                                                    if(changedSmth){
+                                                        answer = i.updateMusic(a, user.username);
+                                                        System.out.println(answer);
+                                                    }
+                                                }else{
+                                                    System.out.println("You don't have edit rights");
                                                 }
-                                                answer = i.updateMusic(a);
-                                                System.out.println(answer);
                                             }
                                             else if(str.equalsIgnoreCase("/exit")){break;}
                                         }
@@ -494,17 +618,30 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                             System.out.println("/edit \n /exit");
                                             String str = sc.nextLine();
                                             if(str.equalsIgnoreCase("/edit") && !userStatus(user)){
-                                                System.out.println("Want to Change:\n n ->Doesnt Change\n Write Anything else -> Changes");
-                                                Artist a = artists.get(choice);
+                                                if(user.editor) {
+                                                    boolean changedSmth = false;
+                                                    System.out.println("Want to Change:\n n ->Doesnt Change\n Write Anything else -> Changes");
+                                                    Artist a = artists.get(choice);
 
-                                                String answer = askInfo("Name",sc);
-                                                if (!answer.equals("n")) a.name = answer;
+                                                    String answer = askInfo("Name", sc);
+                                                    if (!answer.equals("n")){
+                                                        a.name = answer;
+                                                        changedSmth = true;
+                                                    }
 
-                                                answer = askInfo("Details : ",sc);
-                                                if (!answer.equals("n")) a.details = answer;
+                                                    answer = askInfo("Details : ", sc);
+                                                    if (!answer.equals("n")){
+                                                        a.details = answer;
+                                                        changedSmth = true;
+                                                    }
 
-                                                answer = i.updateArtist(a);
-                                                System.out.println(answer);
+                                                    if(changedSmth){
+                                                        answer = i.updateArtist(a, user.username);
+                                                        System.out.println(answer);
+                                                    }
+                                                }else{
+                                                    System.out.println("You don't have edit rights");
+                                                }
                                             }
                                             else if(str.equalsIgnoreCase("/exit")){break;}
                                         }

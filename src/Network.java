@@ -1,16 +1,19 @@
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 class Network {
-    private InetAddress IP;
+    public static String getIP() {
 
-    public Network() {
-        try {
-            IP = InetAddress.getLocalHost();
-        } catch (java.net.UnknownHostException uhe) {
+        try(final DatagramSocket socket = new DatagramSocket()){
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            return socket.getLocalAddress().getHostAddress();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
-    }
-
-    public String RIP() {
-        return IP.getHostAddress();
+        return "";
     }
 }

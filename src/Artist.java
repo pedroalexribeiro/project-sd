@@ -6,9 +6,10 @@ public class Artist implements Serializable {
     public String details;
     public int id;
 
-    public Artist(String name,String details) {
+    public Artist(String name,String details, int id) {
         this.name = name;
         this.details = details;
+        this.id = id;
     }
 
     public String toString(){
