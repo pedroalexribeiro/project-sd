@@ -16,6 +16,6 @@ public class Music implements Serializable {
     }
 
     public String toString() {
-        return name+" "+type+" "+ length;
+        return name+" ,"+type+" ,"+ length;
     }
 }

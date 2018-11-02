@@ -44,6 +44,6 @@ public class Album implements Serializable {
     }
 
     public String toString(){
-        return title+" "+releaseDate +" "+description+" "+artist;
+        return title+" ,"+releaseDate +" ,"+description+" ,"+artist;
     }
 }
