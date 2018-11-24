@@ -29,7 +29,7 @@ public interface Interface extends Remote {
     //Add Method
     String addAlbum(String title,String releaseDate,String description,String artist) throws RemoteException;
     String addArtist(String name,String details) throws RemoteException;
-    String addMusic(String name,String genre,String length,String album) throws RemoteException;
+    String addMusic(String name,String genre,String length,String lyrics,String album) throws RemoteException;
     String addReview(Review review,Boolean isCreated) throws RemoteException;
 
     //Update Method
@@ -39,11 +39,13 @@ public interface Interface extends Remote {
 
     //Delete Method
     String deleteAlbum(int id) throws RemoteException;
-    String deleteArtist(int id) throws RemoteException;
+    String deleteArtist(int id,ArrayList<Integer> arr) throws RemoteException;
     String deleteMusic(int id) throws RemoteException;
 
     //Search Method
     ArrayList<Album> searchAlbum(String word)throws RemoteException;
+    ArrayList<Album> searchAlbum(int id)throws RemoteException;
+
     ArrayList<Music> searchMusic(String word)throws RemoteException;
     ArrayList<Music> searchMusic(int album_id)throws RemoteException;
     ArrayList<Artist> searchArtist(String word)throws RemoteException;

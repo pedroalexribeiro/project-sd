@@ -380,7 +380,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
-    public String addMusic(String name,String genre,String length,String album) throws RemoteException{
+    public String addMusic(String name,String genre,String length,String lyrics,String album) throws RemoteException{
         int albumid;
         String t = "function|search;what|album;where|title='"+album+"'";
         String answer = sendMulticast(t);
@@ -392,7 +392,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             return "Error - Album doesn't exist";
         }
 
-        t = "function|create;what|music;id|null;name|"+name+";genre|"+genre+";length|"+length + ";album_id| "+albumid;
+        t = "function|create;what|music;id|null;name|"+name+";genre|"+genre+";length|"+length + ";lyrics|"+lyrics+";album_id| "+albumid;
         answer = sendMulticast(t);
         return answer;
     }
@@ -436,20 +436,26 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String deleteAlbum(int id){
-        String t = "function|delete;what|album;where|id="+id;
-        String answer = sendMulticast(t);
-        t = "function|delete;what|music;where|album_id="+id;
+        String t = "function|delete;what|music;where|album_id="+id;
         sendMulticast(t);
+        t = "function|delete;what|album;where|id="+id;
+        String answer = sendMulticast(t);
+
         return answer;
     }
 
-    public String deleteArtist(int id){
-        String t = "function|delete;what|artist;where|id="+id;
-        String answer = sendMulticast(t);
+    public String deleteArtist(int id,ArrayList<Integer> arr){
+        String t;
+        for(int i:arr){
+            t = "function|delete;what|music;where|album_id="+i;
+            sendMulticast(t);
+        }
         t = "function|delete;what|album;where|artist_id="+id;
         sendMulticast(t);
-        t = "function|delete;what|music;where|album_id="+id;
-        sendMulticast(t);
+        t = "function|delete;what|artist;where|id="+id;
+        String answer = sendMulticast(t);
+
+
         return answer;
     }
 
@@ -483,6 +489,22 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return albuns;
     }
 
+    public ArrayList<Album> searchAlbum(int id) {
+        String t = "function|search;what|album;where|artist_id=" + id + "";
+        String answer = sendMulticast(t);
+        ArrayList<Album> albuns = new ArrayList<>();
+        if(!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for(int i=0; i < objects.length; i++){
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"),Integer.parseInt(arr.get("id")));
+                albuns.add(temp);
+            }
+        }
+        return albuns;
+    }
+
+
     public ArrayList<Music> searchMusic(String word) {
         String t = "function|search;what|music;where|name='" + word + "' OR genre='" + word + "'";
         String answer = sendMulticast(t);
@@ -491,7 +513,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for(int i=0; i < objects.length; i++){
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),Integer.parseInt(arr.get("album_id")), Integer.parseInt(arr.get("id")));
+                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),arr.get("lyrics"),Integer.parseInt(arr.get("album_id")), Integer.parseInt(arr.get("id")));
                 musics.add(temp);
             }
         }
@@ -506,7 +528,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for(int i=0; i < objects.length; i++){
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),Integer.parseInt(arr.get("album_id")), Integer.parseInt(arr.get("id")));
+                Music temp = new Music(arr.get("name"),arr.get("genre"),Integer.parseInt(arr.get("length")),arr.get("lyrics"),Integer.parseInt(arr.get("album_id")), Integer.parseInt(arr.get("id")));
                 musics.add(temp);
             }
         }

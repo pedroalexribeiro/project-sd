@@ -254,8 +254,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                             String length = sc.nextLine();
                                             System.out.println("Album:");
                                             String album = sc.nextLine();
-                                            if(stringContain(name)&&stringContain(genre)&&stringContain(length)&&stringContain(album)){
-                                                System.out.println(i.addMusic(name,genre,length,album));
+                                            System.out.println("lyrics:");
+                                            String lyrics = sc.nextLine();
+                                            if(stringContain(name)&&stringContain(genre)&&stringContain(length)&&stringContain(lyrics)&&stringContain(album)){
+                                                System.out.println(i.addMusic(name,genre,length,lyrics,album));
                                                 break;
                                             }
                                         }
@@ -341,10 +343,17 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                                 }
                                             }
                                         }
-                                        System.out.println("You sure you want to delete that album [y/N]");
+                                        System.out.println("You sure you want to delete that artist [y/N]");
                                         in = sc.nextLine();
                                         if (in.equalsIgnoreCase("y")) {
-                                            i.deleteArtist(artists.get(choice).id);
+                                            ArrayList<Integer> arr = new ArrayList<>();
+                                            ArrayList<Album> album = i.searchAlbum(artists.get(choice).id);
+                                            if(album.size() > 0){
+                                                 for(Album a : album){
+                                                    arr.add(a.getId());
+                                                }
+                                            }
+                                            i.deleteArtist(artists.get(choice).id, arr);
                                         }
                                         break;
                                     }
@@ -370,9 +379,11 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                                 break;
                                             }
                                         }
-                                        System.out.println("You sure you want to delete that album [y/N]");
+                                        System.out.println("You sure you want to delete that music [y/N]");
                                         in = sc.nextLine();
                                         if(in.equalsIgnoreCase("y")){
+
+
                                             i.deleteMusic(music.get(choice).id);
                                         }
                                     }
