@@ -85,7 +85,7 @@ public class MulticastServer {
                     output = this.ip + "|" + Integer.toString(TCP_PORT + Integer.parseInt(this.id));
                     break;
                 case "download":
-                    SendFile thread = new SendFile(hash.get("ip"), Integer.parseInt(hash.get("port")), Integer.parseInt(hash.get("fileID")));
+                    SendFile thread = new SendFile(hash.get("ip"), Integer.parseInt(hash.get("port")), Integer.parseInt(hash.get("music_id")), hash.get("username"));
                     thread.start();
                     break;
                 case"create":
@@ -384,19 +384,21 @@ public class MulticastServer {
 
     private class SendFile extends Thread {
         Socket socket = null;
-        int fileID;
+        int music_id;
+        String username;
 
-        public SendFile(String host, int port, int fileID) {
+        public SendFile(String host, int port, int music_id, String username) {
             try {
                 this.socket = new Socket(host, port);
-                this.fileID = fileID;
+                this.music_id = music_id;
+                this.username = username;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         public void run() {
-            String info = selectDB("SELECT * FROM file WHERE id=" + Integer.toString(fileID));
+            String info = selectDB("SELECT * FROM file WHERE music_id="+Integer.toString(this.music_id) + " AND user_username="+this.username);
             if(!info.equals("nothing")){
                 Map<String, String> hash = UDP.protocolToHash(info);
                 File soundFile = new File(hash.get("filepath"));

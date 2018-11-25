@@ -31,6 +31,12 @@ public interface Interface extends Remote {
     String addArtist(String name,String details) throws RemoteException;
     String addMusic(String name,String genre,String length,String lyrics,String album) throws RemoteException;
     String addReview(Review review,Boolean isCreated) throws RemoteException;
+    String addPlaylist(String name, String username);
+    String addComposed(int music_id, int artist_id);
+    String addFeatured(int music_id, int artist_id);
+    String addWroteLyrics(int music_id, int artist_id);
+    String addArtistToGroup(int artist_id, int group_id, String role);
+    String addMusicToPlaylist(int music_id, int playlist_id);
 
     //Update Method
     String updateAlbum(Album album, String username) throws RemoteException;
@@ -41,6 +47,10 @@ public interface Interface extends Remote {
     String deleteAlbum(int id) throws RemoteException;
     String deleteArtist(int id,ArrayList<Integer> arr) throws RemoteException;
     String deleteMusic(int id) throws RemoteException;
+    String deletePlaylist(int id);
+    String deleteComposed(int artist_id, int music_id);
+    String deleteFeature(int artist_id, int music_id);
+    String deleteWroteLyrics(int artist_id, int music_id);
 
     //Search Method
     ArrayList<Album> searchAlbum(String word)throws RemoteException;
@@ -51,13 +61,14 @@ public interface Interface extends Remote {
     ArrayList<Artist> searchArtist(String word)throws RemoteException;
     Review searchReview(String username, int album_id)throws RemoteException;
     ArrayList<Review> searchReview(int album_id)throws RemoteException;
+    ArrayList<Playlist> searchPlaylist(String name);
 
     Boolean isAlive() throws RemoteException;
 
-    String shareFile(String username, int music_id, int file_id) throws RemoteException;
-    int searchFile(String username, int music_id) throws RemoteException;
+    String shareFile(String username, int music_id, String file_user_username) throws RemoteException;
+    boolean searchFile(String username, int music_id) throws RemoteException;
     int searchUser(String username) throws RemoteException;
-    int searchUserFile(String username, int music_id) throws RemoteException;
+    ArrayList<String> searchUserFile(String username, int music_id) throws RemoteException;
     String downloadFile(String username, int music_id, String ip, int port) throws RemoteException;
     String askIP() throws RemoteException;
 

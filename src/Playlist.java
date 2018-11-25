@@ -2,12 +2,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Playlist implements Serializable {
-    public User user;
+    public String username;
     public String title;
     public ArrayList<Music> songs = new ArrayList<>();
 
-    public Playlist(User user,String title) {
-        this.user = user;
+    public Playlist(String user,String title) {
+        this.username = user;
         this.title = title;
     }
 
