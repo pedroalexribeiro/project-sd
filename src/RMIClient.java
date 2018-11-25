@@ -141,6 +141,8 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                 "\n/add type" +
                                 "\n/search type" +
                                 "\n/editor user" +
+                                "\n/upload" +
+                                "\n/download" +
 
                                 "\n/exit");
                         break;
@@ -261,6 +263,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                 }
                            }else{
                                 System.out.println("You are not an editor");
+
                             }
                         }
                             break;
@@ -281,8 +284,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         break;
-                    case "/playlist":
-                        break;
 
                     case "/delete":{
                         if(!user.editor){
@@ -290,6 +291,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             break;
                         }
                         if(parts.size() == 2 && !userStatus(user)) {
+                            if(!user.isEditor()){
+                                System.out.println("Not an editor");
+                                break;
+                            }
                             String in;
                             while(true){
                                 System.out.println("What:");

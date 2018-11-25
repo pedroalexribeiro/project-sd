@@ -2,11 +2,11 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class DownloadFile extends Thread{
+public class DownloadFile extends Thread {
     private ServerSocket socket;
     private String filepath;
 
-    public DownloadFile(int port, String filepath){
+    public DownloadFile(int port, String filepath) {
         try {
             this.socket = new ServerSocket(port);
             this.filepath = filepath;
@@ -15,8 +15,8 @@ public class DownloadFile extends Thread{
         }
     }
 
-    public void run(){
-        if(this.socket.isBound()){
+    public void run() {
+        if (this.socket.isBound()) {
             Socket client = null;
             try {
                 client = this.socket.accept();
@@ -32,7 +32,7 @@ public class DownloadFile extends Thread{
                         out = new FileOutputStream(f);
                         int read = 0;
                         byte[] buffer = new byte[1024];
-                        while ((read = in.read(buffer)) != -1){
+                        while ((read = in.read(buffer)) != -1) {
                             out.write(buffer, 0, read);
                         }
                     } catch (IOException e) {
@@ -44,7 +44,7 @@ public class DownloadFile extends Thread{
                 client.close();
             } catch (IOException e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 try {
                     client.close();
                 } catch (IOException e) {
