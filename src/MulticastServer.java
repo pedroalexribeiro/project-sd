@@ -396,7 +396,7 @@ public class MulticastServer {
 
         public void run() {
             String info = selectDB("SELECT * FROM file WHERE id=" + Integer.toString(fileID));
-            if(!info.equals("")){
+            if(!info.equals("nothing")){
                 Map<String, String> hash = UDP.protocolToHash(info);
                 File soundFile = new File(hash.get("filepath"));
                 if (!soundFile.exists() || !soundFile.isFile()) {

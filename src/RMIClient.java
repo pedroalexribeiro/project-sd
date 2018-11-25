@@ -259,7 +259,9 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                         }
                                         break;
                                 }
-                           }
+                           }else{
+                                System.out.println("You are not an editor");
+                            }
                         }
                             break;
 
@@ -283,7 +285,11 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         break;
 
                     case "/delete":{
-                        if(parts.size() == 2) {
+                        if(!user.editor){
+                            System.out.println("You are not an editor");
+                            break;
+                        }
+                        if(parts.size() == 2 && !userStatus(user)) {
                             String in;
                             while(true){
                                 System.out.println("What:");
@@ -722,7 +728,8 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }while(index < 0 || index > musicList.size()-1 );
                         }
                         System.out.println("download starting....");
-                        DownloadFile thread = new DownloadFile(my_port, "downloads" + File.separator + musicList.get(index).name + ".mp3");
+                        int num = ThreadLocalRandom.current().nextInt(30000, 40000 + 1);
+                        DownloadFile thread = new DownloadFile(my_port+num, "downloads" + File.separator + musicList.get(index).name + ".mp3");
                         thread.start();
                         String status = i.downloadFile(user.username, musicList.get(index).id, my_ip, my_port);
                         System.out.println(status);
@@ -780,10 +787,8 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
             System.out.println("Bye Bye");
         } catch (Exception e) {
             try {
-                e.printStackTrace();
                 TimeUnit.SECONDS.sleep(1); // sleep for a bit
-                e.printStackTrace();
-                //run(true, input);
+                run(true, input);
             } catch (InterruptedException ie) {
                 System.out.println(ie);
             }

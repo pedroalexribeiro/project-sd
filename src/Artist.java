@@ -13,7 +13,7 @@ public class Artist implements Serializable {
     }
 
     public String toString(){
-        return "Name: "+ name + " details: "+details;
+        return "Name: "+ name + ", details: "+details;
     }
 
     public void setID(int id){

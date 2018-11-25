@@ -265,10 +265,11 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                             String t = "function|create;what|notification;id|null;text|" + note + ";user_username|" + username;
                             sendMulticast(t);
                         }
+                        break;
                     }
                 }
                 if (!checkSend) {
-                    String t = "function|create;what|notification;id|null;text|" + note + ";user_username|" + username;
+                    String t = "function|create;what|notification;id|null;text|" + note + ";user_username|" + arr.get("user_username");
                     sendMulticast(t);
                 }
             }
