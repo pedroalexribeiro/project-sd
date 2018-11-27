@@ -31,12 +31,12 @@ public interface Interface extends Remote {
     String addArtist(String name,String details) throws RemoteException;
     String addMusic(String name,String genre,String length,String lyrics,String album) throws RemoteException;
     String addReview(Review review,Boolean isCreated) throws RemoteException;
-    String addPlaylist(String name, String username);
-    String addComposed(int music_id, int artist_id);
-    String addFeatured(int music_id, int artist_id);
-    String addWroteLyrics(int music_id, int artist_id);
-    String addArtistToGroup(int artist_id, int group_id, String role);
-    String addMusicToPlaylist(int music_id, int playlist_id);
+    String addPlaylist(String name, String username) throws RemoteException;
+    String addComposed(int music_id, int artist_id) throws RemoteException;
+    String addFeatured(int music_id, int artist_id) throws RemoteException;
+    String addWroteLyrics(int music_id, int artist_id) throws RemoteException;
+    String addArtistToGroup(int artist_id, int group_id, String role) throws RemoteException;
+    String addMusicToPlaylist(int music_id, int playlist_id) throws RemoteException;
 
     //Update Method
     String updateAlbum(Album album, String username) throws RemoteException;
@@ -47,10 +47,12 @@ public interface Interface extends Remote {
     String deleteAlbum(int id) throws RemoteException;
     String deleteArtist(int id,ArrayList<Integer> arr) throws RemoteException;
     String deleteMusic(int id) throws RemoteException;
-    String deletePlaylist(int id);
-    String deleteComposed(int artist_id, int music_id);
-    String deleteFeature(int artist_id, int music_id);
-    String deleteWroteLyrics(int artist_id, int music_id);
+    String deletePlaylist(int id) throws RemoteException;
+    String deleteComposed(int artist_id, int music_id) throws RemoteException;
+    String deleteFeature(int artist_id, int music_id) throws RemoteException;
+    String deleteWroteLyrics(int artist_id, int music_id) throws RemoteException;
+    String deleteMusicPlaylist(int music_id, int playlist_id) throws RemoteException;
+    String removeArtistFromGroup(int artist_id, int group_id) throws RemoteException;
 
     //Search Method
     ArrayList<Album> searchAlbum(String word)throws RemoteException;
@@ -61,7 +63,13 @@ public interface Interface extends Remote {
     ArrayList<Artist> searchArtist(String word)throws RemoteException;
     Review searchReview(String username, int album_id)throws RemoteException;
     ArrayList<Review> searchReview(int album_id)throws RemoteException;
-    ArrayList<Playlist> searchPlaylist(String name);
+    ArrayList<Playlist> searchPlaylist(String name, String username) throws RemoteException;
+    ArrayList<Music> searchMusicPlaylist(int playlist_id) throws RemoteException;
+    ArrayList<Artist> searchSpecificArtist(String artist, boolean solo) throws RemoteException;
+    ArrayList<Artist> searchArtistsFromGroup(int group_id) throws RemoteException;
+    ArrayList<Artist> searchComposed(int music_id) throws RemoteException;
+    ArrayList<Artist> searchFeatured(int music_id) throws RemoteException;
+    ArrayList<Artist> searchWroteLyrics(int music_id) throws RemoteException;
 
     Boolean isAlive() throws RemoteException;
 

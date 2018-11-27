@@ -1,3 +1,4 @@
+import java.awt.print.PrinterGraphics;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.*;
@@ -398,7 +399,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
-    public String addReview(Review review, Boolean isCreate) {
+    public String addReview(Review review, Boolean isCreate) throws RemoteException {
         String t, answer;
         if (isCreate) {
             t = "function|create;what|review;id|null;text|" + review.getText() + ";rating|" + review.getRating() + ";datee|CURRENT_TIME();album_id|" + review.getAlbum_id() + ";user_username|" + review.getUsername();
@@ -409,37 +410,43 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
-    public String addPlaylist(String name, String username){
+    public String addPlaylist(String name, String username) throws RemoteException{
         String t = "function|create;what|playlist;id|null;name|"+name+";user_username|"+username;
         String answer = sendMulticast(t);
         return answer;
     }
 
-    public String addMusicToPlaylist(int music_id, int playlist_id){
-        String t = "function|create;what|playlist;music_id|"+music_id+";playlist_id|"+playlist_id;
+    public String addMusicToPlaylist(int music_id, int playlist_id) throws RemoteException{
+        String t = "function|search;what|music_playlist;where|music_id="+music_id+" AND playlist_id="+playlist_id;
         String answer = sendMulticast(t);
-        return answer;
+        if(answer.equalsIgnoreCase("nothing")) {
+            t = "function|create;what|playlist;music_id|" + music_id + ";playlist_id|" + playlist_id;
+            answer = sendMulticast(t);
+            return answer;
+        }else{
+            return "That music is already on the playlist";
+        }
     }
 
-    public String addComposed(int music_id, int artist_id){
+    public String addComposed(int music_id, int artist_id) throws RemoteException{
         String t = "function|create;what|composed;artist_id|"+artist_id+";music_id|"+music_id;
         String answer = sendMulticast(t);
         return answer;
     }
 
-    public String addFeatured(int music_id, int artist_id){
+    public String addFeatured(int music_id, int artist_id) throws RemoteException{
         String t = "function|create;what|featured;artist_id|"+artist_id+";music_id|"+music_id;
         String answer = sendMulticast(t);
         return answer;
     }
 
-    public String addWroteLyrics(int music_id, int artist_id){
+    public String addWroteLyrics(int music_id, int artist_id) throws RemoteException{
         String t = "function|create;what|wrote_lyrics;artist_id|"+artist_id+";music_id|"+music_id;
         String answer = sendMulticast(t);
         return answer;
     }
 
-    public String addArtistToGroup(int artist_id, int group_id, String role){
+    public String addArtistToGroup(int artist_id, int group_id, String role) throws RemoteException{
         String t = "function|create;what|role;role|"+role+";artist_id|"+artist_id+";group_id|"+group_id;
         String answer = sendMulticast(t);
         return answer;
@@ -447,21 +454,21 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     // Update functions
 
-    public String updateAlbum(Album album, String username) {
+    public String updateAlbum(Album album, String username) throws RemoteException{
         String t = "function|update;what|album;set|title='" + album.title + "',releasedate='" + album.releaseDate + "',description='" + album.description + "';where|id=" + album.id;
         String answer = sendMulticast(t);
         sendNotifcationEdits("album", album.id, username);
         return answer;
     }
 
-    public String updateArtist(Artist artist, String username) {
+    public String updateArtist(Artist artist, String username) throws RemoteException{
         String t = "function|update;what|artist;set|name='" + artist.name + "',details='" + artist.details + "';where|id=" + artist.id;
         String answer = sendMulticast(t);
         sendNotifcationEdits("artist", artist.id, username);
         return answer;
     }
 
-    public String updateMusic(Music music, String username) {
+    public String updateMusic(Music music, String username) throws RemoteException{
         String t = "function|update;what|music;set|name='" + music.name + "',genre='" + music.type + "',length='" + music.length + "';where|id=" + music.id;
         String answer = sendMulticast(t);
         sendNotifcationEdits("music", music.id, username);
@@ -470,7 +477,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     // Delete functions
 
-    public String deleteMusic(int id) {
+    public String deleteMusic(int id) throws RemoteException{
         String t = "function|delete;what|music_playlist;where|music_id="+id;
         sendMulticast(t);
         t = "function|delete;what|featured;where|music_id="+id;
@@ -490,7 +497,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
-    public String deleteAlbum(int id) {
+    public String deleteAlbum(int id) throws RemoteException{
         String t = "function|delete;what|music;where|album_id=" + id;
         sendMulticast(t);
         t = "function|delete;what|user_editor_album;album_id="+id;
@@ -501,7 +508,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
-    public String deleteArtist(int id, ArrayList<Integer> arr) {
+    public String deleteArtist(int id, ArrayList<Integer> arr) throws RemoteException{
         String t;
         for (int i : arr) {
             t = "function|delete;what|music;where|album_id=" + i;
@@ -520,7 +527,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
-    public String deletePlaylist(int id){
+    public String deletePlaylist(int id) throws RemoteException{
         String t = "function|delete;what|music_playlist;where|playlist_id=" + id;
         String answer = sendMulticast(t);
         t = "function|delete;what|playlist;where|id="+id;
@@ -528,27 +535,39 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
-    public String deleteComposed(int artist_id, int music_id){
+    public String deleteComposed(int artist_id, int music_id) throws RemoteException{
         String t = "function|delete;what|composed;where|artist_id="+artist_id+" AND music_id=" + music_id;
         String answer = sendMulticast(t);
         return answer;
     }
 
-    public String deleteFeature(int artist_id, int music_id){
+    public String deleteFeature(int artist_id, int music_id) throws RemoteException{
         String t = "function|delete;what|feature;where|artist_id="+artist_id+" AND music_id=" + music_id;
         String answer = sendMulticast(t);
         return answer;
     }
 
-    public String deleteWroteLyrics(int artist_id, int music_id){
+    public String deleteWroteLyrics(int artist_id, int music_id) throws RemoteException{
         String t = "function|delete;what|wrote_lyrics;where|artist_id="+artist_id+" AND music_id=" + music_id;
+        String answer = sendMulticast(t);
+        return answer;
+    }
+
+    public String deleteMusicPlaylist(int music_id, int playlist_id) throws RemoteException{
+        String t = "function|delete;what|music_playlist;where|music_id="+music_id+" AND playlist_id="+playlist_id;
+        String answer = sendMulticast(t);
+        return answer;
+    }
+
+    public String removeArtistFromGroup(int artist_id, int group_id) throws RemoteException{
+        String t = "function|delete;what|role;where|artist_id="+artist_id+" AND group_id" + group_id;
         String answer = sendMulticast(t);
         return answer;
     }
 
     // Search functions
 
-    public ArrayList<Album> searchAlbum(String word) {
+    public ArrayList<Album> searchAlbum(String word) throws RemoteException{
         String t = "function|search;what|album;where|title='" + word + "'";
         String answer = sendMulticast(t);
         ArrayList<Album> albuns = new ArrayList<>();
@@ -578,7 +597,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return albuns;
     }
 
-    public ArrayList<Album> searchAlbum(int id) {
+    public ArrayList<Album> searchAlbum(int id) throws RemoteException{
         String t = "function|search;what|album;where|artist_id=" + id + "";
         String answer = sendMulticast(t);
         ArrayList<Album> albuns = new ArrayList<>();
@@ -593,7 +612,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return albuns;
     }
 
-    public ArrayList<Music> searchMusic(String word) {
+    public ArrayList<Music> searchMusic(String word) throws RemoteException{
         String t = "function|search;what|music;where|name='" + word + "' OR genre='" + word + "'";
         String answer = sendMulticast(t);
         ArrayList<Music> musics = new ArrayList<>();
@@ -605,10 +624,23 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 musics.add(temp);
             }
         }
+        ArrayList<Album> albums = searchAlbum(word);
+        for (Album album : albums){
+            t = "function|search;what|music;where|album_id="+album.getId();
+            answer = sendMulticast(t);
+            if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+                String objects[] = answer.split("\\*\\*");
+                for (int i = 0; i < objects.length; i++) {
+                    Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                    Music temp = new Music(arr.get("name"), arr.get("genre"), Integer.parseInt(arr.get("length")), arr.get("lyrics"), Integer.parseInt(arr.get("album_id")), Integer.parseInt(arr.get("id")));
+                    musics.add(temp);
+                }
+            }
+        }
         return musics;
     }
 
-    public ArrayList<Music> searchMusic(int album_id) {
+    public ArrayList<Music> searchMusic(int album_id) throws RemoteException{
         String t = "function|search;what|music;where|album_id=" + album_id;
         String answer = sendMulticast(t);
         ArrayList<Music> musics = new ArrayList<>();
@@ -623,7 +655,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return musics;
     }
 
-    public ArrayList<Review> searchReview(int album_id) {
+    public ArrayList<Review> searchReview(int album_id) throws RemoteException{
         String t = "function|search;what|review;where|album_id=" + album_id;
         String answer = sendMulticast(t);
         ArrayList<Review> reviews = new ArrayList<>();
@@ -638,7 +670,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return reviews;
     }
 
-    public Review searchReview(String username, int album_id) {
+    public Review searchReview(String username, int album_id) throws RemoteException{
         String t = "function|search;what|review;where|album_id=" + album_id + " AND user_username='" + username + "'";
         String answer = sendMulticast(t);
         Review review = null;
@@ -652,7 +684,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return review;
     }
 
-    public ArrayList<Artist> searchArtist(String word) {
+    public ArrayList<Artist> searchArtist(String word) throws RemoteException{
         String t = "function|search;what|artist;where|name='" + word + "'";
         String answer = sendMulticast(t);
         ArrayList<Artist> artists = new ArrayList<>();
@@ -660,14 +692,14 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Artist temp = new Artist(arr.get("name"), arr.get("details"), Integer.parseInt(arr.get("id")));
+                Artist temp = new Artist(arr.get("name"), arr.get("details"), Boolean.parseBoolean(arr.get("solo")), Integer.parseInt(arr.get("id")));
                 artists.add(temp);
             }
         }
         return artists;
     }
 
-    public boolean searchFile(String username, int music_id) {
+    public boolean searchFile(String username, int music_id) throws RemoteException{
         String t = "function|search;what|file;where|user_username='" + username + "' AND music_id=" + music_id;
         String answer = sendMulticast(t);
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
@@ -676,7 +708,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return false;
     }
 
-    public ArrayList<String> searchUserFile(String username, int music_id) {
+    public ArrayList<String> searchUserFile(String username, int music_id) throws RemoteException{
         String t = "function|search;what|file_user;where|user_username='" + username + "' AND file_music_id=" + music_id;
         String answer = sendMulticast(t);
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
@@ -691,7 +723,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return null;
     }
 
-    public int searchUser(String username) {
+    public int searchUser(String username) throws RemoteException{
         String t = "function|search;what|user;where|username='" + username + "'";
         String answer = sendMulticast(t);
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
@@ -700,26 +732,213 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return -1;
     }
 
-    public ArrayList<Playlist> searchPlaylist(String name){
-        String t = "function|search;what|playlist;where|name='" + name + "'";
+    public ArrayList<Playlist> searchPlaylist(String name, String username) throws RemoteException{
+        String t = "function|search;what|playlist;where|name='" + name + "' AND user_username='" + username + "'";
         String answer = sendMulticast(t);
         ArrayList<Playlist> playlists = new ArrayList<>();
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
             String objects[] = answer.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Playlist temp = new Playlist(arr.get("user_username"), arr.get("name"));
+                Playlist temp = new Playlist(Integer.parseInt(arr.get("id")), arr.get("user_username"), arr.get("name"));
                 playlists.add(temp);
             }
         }
         return playlists;
     }
 
-    public String shareFile(String username, int music_id, String file_user_username) {
+    public ArrayList<Music> searchMusicPlaylist(int playlist_id) throws RemoteException{
+        String t = "function|search;what|music_playlist;where|playlist_id="+playlist_id;
+        String answer = sendMulticast(t);
+        ArrayList<Integer> music_ids = new ArrayList<>();
+        ArrayList<Music> musics = new ArrayList<>();
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                int temp = Integer.parseInt(arr.get("music_id"));
+                music_ids.add(temp);
+            }
+        }else{
+            return musics;
+        }
+        t =  "function|search;what|music;where|id=" + music_ids.get(0);
+        for (int i=1; i<music_ids.size(); i++){
+            t += " OR id=" + music_ids.get(i);
+        }
+        answer = sendMulticast(t);
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Music temp = new Music(arr.get("name"), arr.get("genre"), Integer.parseInt(arr.get("length")), arr.get("lyrics"), Integer.parseInt(arr.get("album_id")), Integer.parseInt(arr.get("id")));
+                musics.add(temp);
+            }
+        }
+        return musics;
+    }
+
+    public ArrayList<Artist> searchSpecificArtist(String artist, boolean solo) throws RemoteException{
+        ArrayList<Artist> artists = new ArrayList<>();
+        if(solo){
+            String t = "function|search;what|artist;where|name='"+ artist + "' AND solo=" + true;
+            String answer = sendMulticast(t);
+            if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+                String objects[] = answer.split("\\*\\*");
+                for (int i = 0; i < objects.length; i++) {
+                    Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                    Artist temp = new Artist(arr.get("name"), arr.get("details"), Boolean.parseBoolean(arr.get("solo")), Integer.parseInt(arr.get("id")));
+                    artists.add(temp);
+                }
+            }
+        }
+        else{
+            String t = "function|search;what|artist;where|name='"+ artist + "' AND solo=" + false;
+            String answer = sendMulticast(t);
+            if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+                String objects[] = answer.split("\\*\\*");
+                for (int i = 0; i < objects.length; i++) {
+                    Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                    Artist temp = new Artist(arr.get("name"), arr.get("details"), Boolean.parseBoolean(arr.get("solo")), Integer.parseInt(arr.get("id")));
+                    artists.add(temp);
+                }
+            }
+        }
+        return artists;
+    }
+
+    public ArrayList<Artist> searchArtistsFromGroup(int group_id) throws RemoteException{
+        ArrayList<Artist> artists = new ArrayList<>();
+        ArrayList<Integer> artist_ids = new ArrayList<>();
+        String t = "function|search;what|role;where|group_id="+group_id;
+        String answer = sendMulticast(t);
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                int temp = Integer.parseInt(arr.get("artist_id"));
+                artist_ids.add(temp);
+            }
+        }else{
+            return artists;
+        }
+        t =  "function|search;what|artist;where|id=" + artist_ids.get(0);
+        for (int i=1; i<artist_ids.size(); i++){
+            t += " OR id=" + artist_ids.get(i);
+        }
+        answer = sendMulticast(t);
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Artist temp = new Artist(arr.get("name"), arr.get("details"), Boolean.parseBoolean(arr.get("solo")), Integer.parseInt(arr.get("id")));
+                artists.add(temp);
+            }
+        }
+        return artists;
+    }
+
+    public ArrayList<Artist> searchComposed(int music_id) throws RemoteException{
+        String t = "function|search;what|composed;where|music_id="+music_id;
+        String answer = sendMulticast(t);
+        ArrayList<Integer> artist_ids = new ArrayList<>();
+        ArrayList<Artist> artists = new ArrayList<>();
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                int temp = Integer.parseInt(arr.get("music_id"));
+                artist_ids.add(temp);
+            }
+        }else{
+            return artists;
+        }
+        t =  "function|search;what|artist;where|id=" + artist_ids.get(0);
+        for (int i=1; i<artist_ids.size(); i++){
+            t += " OR id=" + artist_ids.get(i);
+        }
+        answer = sendMulticast(t);
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Artist temp = new Artist(arr.get("name"), arr.get("details"), Boolean.parseBoolean(arr.get("solo")), Integer.parseInt(arr.get("id")));
+                artists.add(temp);
+            }
+        }
+        return artists;
+
+    }
+
+    public ArrayList<Artist> searchFeatured(int music_id) throws RemoteException{
+        String t = "function|search;what|featured;where|music_id="+music_id;
+        String answer = sendMulticast(t);
+        ArrayList<Integer> artist_ids = new ArrayList<>();
+        ArrayList<Artist> artists = new ArrayList<>();
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                int temp = Integer.parseInt(arr.get("music_id"));
+                artist_ids.add(temp);
+            }
+        }else{
+            return artists;
+        }
+        t =  "function|search;what|artist;where|id=" + artist_ids.get(0);
+        for (int i=1; i<artist_ids.size(); i++){
+            t += " OR id=" + artist_ids.get(i);
+        }
+        answer = sendMulticast(t);
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Artist temp = new Artist(arr.get("name"), arr.get("details"), Boolean.parseBoolean(arr.get("solo")), Integer.parseInt(arr.get("id")));
+                artists.add(temp);
+            }
+        }
+        return artists;
+
+    }
+
+    public ArrayList<Artist> searchWroteLyrics(int music_id) throws RemoteException{
+        String t = "function|search;what|wrote_lyrics;where|music_id="+music_id;
+        String answer = sendMulticast(t);
+        ArrayList<Integer> artist_ids = new ArrayList<>();
+        ArrayList<Artist> artists = new ArrayList<>();
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                int temp = Integer.parseInt(arr.get("music_id"));
+                artist_ids.add(temp);
+            }
+        }else{
+            return artists;
+        }
+        t =  "function|search;what|artist;where|id=" + artist_ids.get(0);
+        for (int i=1; i<artist_ids.size(); i++){
+            t += " OR id=" + artist_ids.get(i);
+        }
+        answer = sendMulticast(t);
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Artist temp = new Artist(arr.get("name"), arr.get("details"), Boolean.parseBoolean(arr.get("solo")), Integer.parseInt(arr.get("id")));
+                artists.add(temp);
+            }
+        }
+        return artists;
+
+    }
+
+    public String shareFile(String username, int music_id, String file_user_username) throws RemoteException{
         return sendMulticast("function|create;what|file_user;user_username|" + username + ";music_id|" + music_id + ";file_user_username|" + file_user_username);
     }
 
-    public String downloadFile(String username, int music_id, String ip, int port) {
+    public String downloadFile(String username, int music_id, String ip, int port) throws RemoteException{
         boolean file = searchFile(username, music_id);
         if (file) {
             sendMulticast("function|download;ip|" + ip + ";port|" + Integer.toString(port) + ";username|" + username + ";music_id|"+music_id);
@@ -735,7 +954,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }
     }
 
-    public String askIP() {
+    public String askIP()throws RemoteException {
         return sendMulticast("function|askIP");
     }
 

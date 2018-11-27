@@ -15,10 +15,10 @@
         <property name="yearIsDateType" value="false" />
       </driver-properties>
     </data-source>
-    <data-source source="LOCAL" name="bd" uuid="061d60d5-9040-4ad9-aa62-c19d22ce3f2d">
+    <data-source source="LOCAL" name="bddb" uuid="8844cbc5-9bae-4acb-88fe-9893d33f2885">
       <driver-ref>mysql</driver-ref>
       <synchronize>true</synchronize>
-      <remarks>memememe</remarks>
+      <remarks>lol</remarks>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/bdbranch</jdbc-url>
       <driver-properties>

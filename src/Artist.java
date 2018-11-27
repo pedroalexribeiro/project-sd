@@ -5,10 +5,12 @@ public class Artist implements Serializable {
     public String name;
     public String details;
     public int id;
+    public boolean solo;
 
-    public Artist(String name,String details, int id) {
+    public Artist(String name,String details, boolean solo, int id) {
         this.name = name;
         this.details = details;
+        this.solo = solo;
         this.id = id;
     }
 
