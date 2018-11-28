@@ -119,7 +119,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String register(String username, String pass, String email, String name, Boolean edit) {
-        String t = "function|create;what|user;username|" + username + ";password|" + pass + ";email|" + email + ";name|" + name + ";personalinfo|empty;editor|0";
+        String t = "function|create;what|user;username|" + username + ";password|" + pass + ";email|" + email + ";name|" + name + ";personal_info|empty;editor|0";
         String answer = sendMulticast(t);
         if (answer.equalsIgnoreCase("Error")) {
             return "Error";
@@ -291,7 +291,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         String t = "function|search;what|notification;where|user_username='" + username + "'";
         String notifications = sendMulticast(t);
         ArrayList<Notification> notes = new ArrayList<>();
-        if (notifications != "") {
+        if (!!notifications.equals("") && !notifications.equalsIgnoreCase("nothing")) {
             String objects[] = notifications.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);

@@ -25,7 +25,7 @@ public class UDP {
         user.put("password","string");
         user.put("email","string");
         user.put("name","string");
-        user.put("personalinfo","string");
+        user.put("personal_info","string");
         user.put("editor","boolean");
         notification.put("id","int");
         notification.put("text","string");
