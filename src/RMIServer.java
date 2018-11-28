@@ -278,7 +278,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public void clearDatabaseNotifications(String username) throws RemoteException {
-        String t = "function|delete;what|notification;where|user_username='" + username + "'";
+        String t = "function|delete;what|notification;where|user_username=" + username;
         String answer = sendMulticast(t);
         if (answer.equalsIgnoreCase("Error")) {
             System.out.println("Error");
@@ -291,7 +291,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         String t = "function|search;what|notification;where|user_username='" + username + "'";
         String notifications = sendMulticast(t);
         ArrayList<Notification> notes = new ArrayList<>();
-        if (!!notifications.equals("") && !notifications.equalsIgnoreCase("nothing")) {
+        if (!notifications.equals("") && !notifications.equalsIgnoreCase("nothing")) {
             String objects[] = notifications.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
@@ -371,7 +371,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             return "Error - Artist doesn't exist";
         }
 
-        t = "function|create;what|album;id|null;title|" + title + ";releasedate|" + releaseDate + ";description|" + description + ";artist_id|" + artistid;
+        t = "function|create;what|album;id|null;title|" + title + ";release_date|" + releaseDate + ";description|" + description + ";artist_id|" + artistid;
         answer = sendMulticast(t);
         return answer;
     }
@@ -401,7 +401,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     public String addReview(Review review, Boolean isCreate) throws RemoteException {
         String t, answer;
-        if (isCreate) {
+        if (!isCreate) {
             t = "function|create;what|review;id|null;text|" + review.getText() + ";rating|" + review.getRating() + ";datee|CURRENT_TIME();album_id|" + review.getAlbum_id() + ";user_username|" + review.getUsername();
         } else {
             t = "function|update;what|review;set|text='" + review.getText() + "'" + ",rating=" + review.getRating() + ",datee=CURRENT_TIME();where|album_id=" + review.getAlbum_id() + " AND user_username='" + review.getUsername() + "'";
@@ -420,7 +420,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         String t = "function|search;what|music_playlist;where|music_id="+music_id+" AND playlist_id="+playlist_id;
         String answer = sendMulticast(t);
         if(answer.equalsIgnoreCase("nothing")) {
-            t = "function|create;what|playlist;music_id|" + music_id + ";playlist_id|" + playlist_id;
+            t = "function|create;what|music_playlist;music_id|" + music_id + ";playlist_id|" + playlist_id;
             answer = sendMulticast(t);
             return answer;
         }else{
@@ -455,7 +455,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     // Update functions
 
     public String updateAlbum(Album album, String username) throws RemoteException{
-        String t = "function|update;what|album;set|title='" + album.title + "',releasedate='" + album.releaseDate + "',description='" + album.description + "';where|id=" + album.id;
+        String t = "function|update;what|album;set|title='" + album.title + "',release_date='" + album.releaseDate + "',description='" + album.description + "';where|id=" + album.id;
         String answer = sendMulticast(t);
         sendNotifcationEdits("album", album.id, username);
         return answer;
@@ -542,7 +542,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String deleteFeature(int artist_id, int music_id) throws RemoteException{
-        String t = "function|delete;what|feature;where|artist_id="+artist_id+" AND music_id=" + music_id;
+        String t = "function|delete;what|featured;where|artist_id="+artist_id+" AND music_id=" + music_id;
         String answer = sendMulticast(t);
         return answer;
     }
@@ -560,7 +560,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String removeArtistFromGroup(int artist_id, int group_id) throws RemoteException{
-        String t = "function|delete;what|role;where|artist_id="+artist_id+" AND group_id" + group_id;
+        String t = "function|delete;what|role;where|artist_id="+artist_id+" AND group_id=" + group_id;
         String answer = sendMulticast(t);
         return answer;
     }
@@ -575,7 +575,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"), Integer.parseInt(arr.get("id")));
+                Album temp = new Album(arr.get("title"), arr.get("release_date"), arr.get("description"), arr.get("artist_id"), Integer.parseInt(arr.get("id")));
                 albuns.add(temp);
             }
         }
@@ -589,7 +589,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 String objects[] = answer.split("\\*\\*");
                 for (int i = 0; i < objects.length; i++) {
                     Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                    Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"), Integer.parseInt(arr.get("id")));
+                    Album temp = new Album(arr.get("title"), arr.get("release_date"), arr.get("description"), arr.get("artist_id"), Integer.parseInt(arr.get("id")));
                     albuns.add(temp);
                 }
             }
@@ -605,7 +605,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                Album temp = new Album(arr.get("title"), arr.get("releasedate"), arr.get("description"), arr.get("artist_id"), Integer.parseInt(arr.get("id")));
+                Album temp = new Album(arr.get("title"), arr.get("release_date"), arr.get("description"), arr.get("artist_id"), Integer.parseInt(arr.get("id")));
                 albuns.add(temp);
             }
         }
@@ -847,7 +847,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                int temp = Integer.parseInt(arr.get("music_id"));
+                int temp = Integer.parseInt(arr.get("artist_id"));
                 artist_ids.add(temp);
             }
         }else{
@@ -879,7 +879,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                int temp = Integer.parseInt(arr.get("music_id"));
+                int temp = Integer.parseInt(arr.get("artist_id"));
                 artist_ids.add(temp);
             }
         }else{
@@ -911,7 +911,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             String objects[] = answer.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                int temp = Integer.parseInt(arr.get("music_id"));
+                int temp = Integer.parseInt(arr.get("artist_id"));
                 artist_ids.add(temp);
             }
         }else{

@@ -41,7 +41,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
             System.exit(0);
         }
         rmi_ip = args[0];*/
-        rmi_ip = "10.16.2.37";
+        rmi_ip = "192.168.1.8";
         Network newNet = new Network();
         System.setProperty("java.rmi.server.hostname", newNet.getIP());
         run(false, "");
@@ -108,8 +108,32 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                 "\n/register user pass email name" +
                 "\n/login user pass" +
                 "\n/logout" +
-                "\n/add type" +
-                "\n/search type" +
+                "\n/add" +
+                "\n     /add album" +
+                "\n     /add artist" +
+                "\n     /add music" +
+                "\n     /add composed" +
+                "\n     /add featured" +
+                "\n     /add wroteLyrics" +
+                "\n     /add toGroup" +
+                "\n/search" +
+                "\n     /search music" +
+                "\n     /search album" +
+                "\n     /search artist" +
+                "\n     /search playlist" +
+                "\n/playlist" +
+                "\n     /playlist addMusic" +
+                "\n     /playlist removeMusic" +
+                "\n     /playlist delete" +
+                "\n     /playlist create" +
+                "\n/delete" +
+                "\n     /delete album" +
+                "\n     /delete artist" +
+                "\n     /delete music" +
+                "\n     /delete composed" +
+                "\n     /delete featured" +
+                "\n     /delete wroteLyrics" +
+                "\n     /delete fromGroup" +
                 "\n/editor user" +
                 "\n/upload" +
                 "\n/download" +
@@ -385,6 +409,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                 break;
                             }
                             else if(x.equalsIgnoreCase("y")){
+                                isCreated = true;
                                 flag=true;
                                 break;
                             }
@@ -398,7 +423,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                 System.out.println("Review");
                                 txt = sc.nextLine();
                                 if (txt.length() < 300 && stringContain(txt) && score > 0 && score < 6) {
-                                    isCreated = true;
                                     break;
                                 }
                             } catch (NumberFormatException nfe) {
@@ -406,7 +430,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                             }
                         }
                         Review review = new Review(user.username, album.get(choice).getId(), txt, score ,"now");
-                        i.addReview(review,isCreated);
+                        i.addReview(review, isCreated);
                         break;
                     }
                 }
@@ -517,12 +541,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         boolean choseMusic = false;
         if(music.size()>0){
             while(true){
-                for (int j=0; j<music.size(); j++){
-                    System.out.println("name: " + music.get(j).name);
-                    System.out.println("genre: " + music.get(j).type);
-                    System.out.println("length: " + music.get(j).length);
-                }
                 if(music.size()>1){
+                    for (int j=0; j<music.size(); j++){
+                        System.out.println("name: " + music.get(j).name);
+                        System.out.println("genre: " + music.get(j).type);
+                        System.out.println("length: " + music.get(j).length);
+                    }
                     System.out.println("Chose from 1-"+music.size());
                     choice = inBetween(music.size(),sc);
                     if(choice != -1)break;
@@ -595,6 +619,38 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         }
     }
 
+    public static void searchPlaylist(Scanner sc, Interface i, User user) throws RemoteException{
+        System.out.println("Name of the playlist");
+        String output = sc.nextLine();
+        ArrayList<Playlist> playlists = i.searchPlaylist(output, user.username);
+        int choiceP = 0;
+        if(playlists.size()>0){
+            while(true){
+                if(playlists.size()>1){
+                    for (int j=0; j<playlists.size(); j++){
+                        System.out.println("name: " + playlists.get(j).title);
+                    }
+                    System.out.println("Chose from 1-"+playlists.size());
+                    choiceP = inBetween(playlists.size(),sc);
+                    if(choiceP != -1)break;
+                }
+                else{
+                    break;
+                }
+            }
+            System.out.println("Playlist:\nname: " + playlists.get(choiceP).title);
+        }else{
+            System.out.println("No playlists found");
+            return;
+        }
+        ArrayList<Music> musics = i.searchMusicPlaylist(playlists.get(choiceP).id);
+        System.out.println("\nMusics:");
+        for(Music m : musics){
+            System.out.println(m.toString());
+        }
+        return;
+    }
+
     public static void createPlaylist(Scanner sc, Interface i, User user) throws RemoteException {
         System.out.println("Name of the playlist");
         String output = sc.nextLine();
@@ -611,12 +667,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choice=0;
         if(musics.size()>0){
             while(true){
-                for (int j=0; j<musics.size(); j++){
-                    System.out.println("name: " + musics.get(j).name);
-                    System.out.println("genre: " + musics.get(j).type);
-                    System.out.println("length: " + musics.get(j).length);
-                }
                 if(musics.size()>1){
+                    for (int j=0; j<musics.size(); j++){
+                        System.out.println("name: " + musics.get(j).name);
+                        System.out.println("genre: " + musics.get(j).type);
+                        System.out.println("length: " + musics.get(j).length);
+                    }
                     System.out.println("Chose from 1-"+musics.size());
                     choice = inBetween(musics.size(),sc);
                     if(choice != -1)break;
@@ -638,10 +694,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(playlists.size()>0){
             while(true){
-                for (int j=0; j<playlists.size(); j++){
-                    System.out.println("name: " + playlists.get(j).title);
-                }
                 if(playlists.size()>1){
+                    for (int j=0; j<playlists.size(); j++){
+                        System.out.println("name: " + playlists.get(j).title);
+                    }
                     System.out.println("Chose from 1-"+playlists.size());
                     choiceP = inBetween(playlists.size(),sc);
                     if(choiceP != -1)break;
@@ -665,10 +721,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(playlists.size()>0){
             while(true){
-                for (int j=0; j<playlists.size(); j++){
-                    System.out.println("name: " + playlists.get(j).title);
-                }
                 if(playlists.size()>1){
+                    for (int j=0; j<playlists.size(); j++){
+                        System.out.println("name: " + playlists.get(j).title);
+                    }
                     System.out.println("Chose from 1-"+playlists.size());
                     choiceP = inBetween(playlists.size(),sc);
                     if(choiceP != -1)break;
@@ -686,10 +742,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceM = 0;
         if(musics.size()>0){
             while(true){
-                for (int j=0; j<musics.size(); j++){
-                    System.out.println("name: " + musics.get(j).name);
-                }
                 if(musics.size()>1){
+                    for (int j=0; j<musics.size(); j++){
+                        System.out.println("name: " + musics.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+musics.size());
                     choiceM = inBetween(musics.size(),sc);
                     if(choiceM != -1)break;
@@ -713,10 +769,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(playlists.size()>0){
             while(true){
-                for (int j=0; j<playlists.size(); j++){
-                    System.out.println("name: " + playlists.get(j).title);
-                }
                 if(playlists.size()>1){
+                    for (int j=0; j<playlists.size(); j++){
+                        System.out.println("name: " + playlists.get(j).title);
+                    }
                     System.out.println("Chose from 1-"+playlists.size());
                     choiceP = inBetween(playlists.size(),sc);
                     if(choiceP != -1)break;
@@ -741,12 +797,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         boolean choseMusic = false;
         if(music.size()>0) {
             while (true) {
-                for (int j = 0; j < music.size(); j++) {
-                    System.out.println("name: " + music.get(j).name);
-                    System.out.println("genre: " + music.get(j).type);
-                    System.out.println("length: " + music.get(j).length);
-                }
                 if (music.size() > 1) {
+                    for (int j = 0; j < music.size(); j++) {
+                        System.out.println("name: " + music.get(j).name);
+                        System.out.println("genre: " + music.get(j).type);
+                        System.out.println("length: " + music.get(j).length);
+                    }
                     System.out.println("Chose from 1-" + music.size());
                     choice = inBetween(music.size(), sc);
                     if (choice != -1) break;
@@ -774,10 +830,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(artists.size()>0){
             while(true){
-                for (int j=0; j<artists.size(); j++){
-                    System.out.println("name: " + artists.get(j).name);
-                }
                 if(artists.size()>1){
+                    for (int j=0; j<artists.size(); j++){
+                        System.out.println("name: " + artists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+artists.size());
                     choiceP = inBetween(artists.size(),sc);
                     if(choiceP != -1)break;
@@ -804,12 +860,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         boolean choseMusic = false;
         if(music.size()>0) {
             while (true) {
-                for (int j = 0; j < music.size(); j++) {
-                    System.out.println("name: " + music.get(j).name);
-                    System.out.println("genre: " + music.get(j).type);
-                    System.out.println("length: " + music.get(j).length);
-                }
                 if (music.size() > 1) {
+                    for (int j = 0; j < music.size(); j++) {
+                        System.out.println("name: " + music.get(j).name);
+                        System.out.println("genre: " + music.get(j).type);
+                        System.out.println("length: " + music.get(j).length);
+                    }
                     System.out.println("Chose from 1-" + music.size());
                     choice = inBetween(music.size(), sc);
                     if (choice != -1) break;
@@ -837,10 +893,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(artists.size()>0){
             while(true){
-                for (int j=0; j<artists.size(); j++){
-                    System.out.println("name: " + artists.get(j).name);
-                }
                 if(artists.size()>1){
+                    for (int j=0; j<artists.size(); j++){
+                        System.out.println("name: " + artists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+artists.size());
                     choiceP = inBetween(artists.size(),sc);
                     if(choiceP != -1)break;
@@ -866,12 +922,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         boolean choseMusic = false;
         if(music.size()>0) {
             while (true) {
-                for (int j = 0; j < music.size(); j++) {
-                    System.out.println("name: " + music.get(j).name);
-                    System.out.println("genre: " + music.get(j).type);
-                    System.out.println("length: " + music.get(j).length);
-                }
                 if (music.size() > 1) {
+                    for (int j = 0; j < music.size(); j++) {
+                        System.out.println("name: " + music.get(j).name);
+                        System.out.println("genre: " + music.get(j).type);
+                        System.out.println("length: " + music.get(j).length);
+                    }
                     System.out.println("Chose from 1-" + music.size());
                     choice = inBetween(music.size(), sc);
                     if (choice != -1) break;
@@ -899,10 +955,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(artists.size()>0){
             while(true){
-                for (int j=0; j<artists.size(); j++){
-                    System.out.println("name: " + artists.get(j).name);
-                }
                 if(artists.size()>1){
+                    for (int j=0; j<artists.size(); j++){
+                        System.out.println("name: " + artists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+artists.size());
                     choiceP = inBetween(artists.size(),sc);
                     if(choiceP != -1)break;
@@ -928,12 +984,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         boolean choseMusic = false;
         if(music.size()>0) {
             while (true) {
-                for (int j = 0; j < music.size(); j++) {
-                    System.out.println("name: " + music.get(j).name);
-                    System.out.println("genre: " + music.get(j).type);
-                    System.out.println("length: " + music.get(j).length);
-                }
                 if (music.size() > 1) {
+                    for (int j = 0; j < music.size(); j++) {
+                        System.out.println("name: " + music.get(j).name);
+                        System.out.println("genre: " + music.get(j).type);
+                        System.out.println("length: " + music.get(j).length);
+                    }
                     System.out.println("Chose from 1-" + music.size());
                     choice = inBetween(music.size(), sc);
                     if (choice != -1) break;
@@ -959,10 +1015,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(artists.size()>0){
             while(true){
-                for (int j=0; j<artists.size(); j++){
-                    System.out.println("name: " + artists.get(j).name);
-                }
                 if(artists.size()>1){
+                    for (int j=0; j<artists.size(); j++){
+                        System.out.println("name: " + artists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+artists.size());
                     choiceP = inBetween(artists.size(),sc);
                     if(choiceP != -1)break;
@@ -988,12 +1044,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         boolean choseMusic = false;
         if(music.size()>0) {
             while (true) {
-                for (int j = 0; j < music.size(); j++) {
-                    System.out.println("name: " + music.get(j).name);
-                    System.out.println("genre: " + music.get(j).type);
-                    System.out.println("length: " + music.get(j).length);
-                }
                 if (music.size() > 1) {
+                    for (int j = 0; j < music.size(); j++) {
+                        System.out.println("name: " + music.get(j).name);
+                        System.out.println("genre: " + music.get(j).type);
+                        System.out.println("length: " + music.get(j).length);
+                    }
                     System.out.println("Chose from 1-" + music.size());
                     choice = inBetween(music.size(), sc);
                     if (choice != -1) break;
@@ -1019,10 +1075,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(artists.size()>0){
             while(true){
-                for (int j=0; j<artists.size(); j++){
-                    System.out.println("name: " + artists.get(j).name);
-                }
                 if(artists.size()>1){
+                    for (int j=0; j<artists.size(); j++){
+                        System.out.println("name: " + artists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+artists.size());
                     choiceP = inBetween(artists.size(),sc);
                     if(choiceP != -1)break;
@@ -1048,12 +1104,12 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         boolean choseMusic = false;
         if(music.size()>0) {
             while (true) {
-                for (int j = 0; j < music.size(); j++) {
-                    System.out.println("name: " + music.get(j).name);
-                    System.out.println("genre: " + music.get(j).type);
-                    System.out.println("length: " + music.get(j).length);
-                }
                 if (music.size() > 1) {
+                    for (int j = 0; j < music.size(); j++) {
+                        System.out.println("name: " + music.get(j).name);
+                        System.out.println("genre: " + music.get(j).type);
+                        System.out.println("length: " + music.get(j).length);
+                    }
                     System.out.println("Chose from 1-" + music.size());
                     choice = inBetween(music.size(), sc);
                     if (choice != -1) break;
@@ -1079,10 +1135,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(artists.size()>0){
             while(true){
-                for (int j=0; j<artists.size(); j++){
-                    System.out.println("name: " + artists.get(j).name);
-                }
                 if(artists.size()>1){
+                    for (int j=0; j<artists.size(); j++){
+                        System.out.println("name: " + artists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+artists.size());
                     choiceP = inBetween(artists.size(),sc);
                     if(choiceP != -1)break;
@@ -1107,10 +1163,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(artists.size()>0){
             while(true){
-                for (int j=0; j<artists.size(); j++){
-                    System.out.println("name: " + artists.get(j).name);
-                }
                 if(artists.size()>1){
+                    for (int j=0; j<artists.size(); j++){
+                        System.out.println("name: " + artists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+artists.size());
                     choiceP = inBetween(artists.size(),sc);
                     if(choiceP != -1)break;
@@ -1130,10 +1186,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choice = 0;
         if(soloArtists.size()>0){
             while(true){
-                for (int j=0; j<soloArtists.size(); j++){
-                    System.out.println("name: " + soloArtists.get(j).name);
-                }
                 if(soloArtists.size()>1){
+                    for (int j=0; j<soloArtists.size(); j++){
+                        System.out.println("name: " + soloArtists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+soloArtists.size());
                     choice = inBetween(soloArtists.size(),sc);
                     if(choice != -1)break;
@@ -1159,10 +1215,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choiceP = 0;
         if(artists.size()>0){
             while(true){
-                for (int j=0; j<artists.size(); j++){
-                    System.out.println("name: " + artists.get(j).name);
-                }
                 if(artists.size()>1){
+                    for (int j=0; j<artists.size(); j++){
+                        System.out.println("name: " + artists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+artists.size());
                     choiceP = inBetween(artists.size(),sc);
                     if(choiceP != -1)break;
@@ -1180,10 +1236,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
         int choice = 0;
         if(soloArtists.size()>0){
             while(true){
-                for (int j=0; j<soloArtists.size(); j++){
-                    System.out.println("name: " + soloArtists.get(j).name);
-                }
                 if(soloArtists.size()>1){
+                    for (int j=0; j<soloArtists.size(); j++){
+                        System.out.println("name: " + soloArtists.get(j).name);
+                    }
                     System.out.println("Chose from 1-"+soloArtists.size());
                     choice = inBetween(soloArtists.size(),sc);
                     if(choice != -1)break;
@@ -1197,8 +1253,6 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
             System.out.println("No artists found");
             return;
         }
-        System.out.println("Name of the role of the artist:");
-        input = sc.nextLine();
         System.out.println(i.removeArtistFromGroup(soloArtists.get(choice).id, artists.get(choiceP).id));
     }
 
@@ -1259,7 +1313,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                         break;
 
                     case "/playlist":{
-                        if(parts.size() == 2 && stringContain(input) && userStatus(user)){
+                        if(parts.size() == 2 && stringContain(input) && !userStatus(user)){
                             switch(parts.get(1)) {
                                 case "addMusic":{
                                     addMusicPlaylist(sc, i, user);
@@ -1307,10 +1361,10 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                     case "featured":
                                         addArtistToFeatured(sc, i, user);
                                         break;
-                                    case "wrote lyrics":
+                                    case "wroteLyrics":
                                         addArtistToWroteLyrics(sc, i, user);
                                         break;
-                                    case "to group":
+                                    case "toGroup":
                                         addArtistToGroup(sc, i, user);
                                         break;
                                     default:
@@ -1338,24 +1392,40 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                 System.out.println("Not an editor");
                                 break;
                             }
-                            String in;
-                            while(true){
-                                System.out.println("What:");
-                                in = sc.nextLine();
-                                if(stringContain(in)){
-                                    break;
-                                }
-                            }
                             switch (parts.get(1)){
                                 case "album":{
+                                    String in;
+                                    while(true){
+                                        System.out.println("What:");
+                                        in = sc.nextLine();
+                                        if(stringContain(in)){
+                                            break;
+                                        }
+                                    }
                                     deleteAlbum(sc, i, in);
                                     break;
                                 }
                                 case "artist":{
+                                    String in;
+                                    while(true){
+                                        System.out.println("What:");
+                                        in = sc.nextLine();
+                                        if(stringContain(in)){
+                                            break;
+                                        }
+                                    }
                                     deleteArtist(sc, i, in);
                                     break;
                                 }
                                 case "music": {
+                                    String in;
+                                    while(true){
+                                        System.out.println("What:");
+                                        in = sc.nextLine();
+                                        if(stringContain(in)){
+                                            break;
+                                        }
+                                    }
                                     deleteMusic(sc, i, in);
                                     break;
                                 }
@@ -1367,11 +1437,11 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
                                     removeArtistFromFeatured(sc, i, user);
                                     break;
                                 }
-                                case "wrote lyrics":{
+                                case "wroteLyrics":{
                                     removeArtistFromWroteLyrics(sc, i, user);
                                     break;
                                 }
-                                case "from group":{
+                                case "fromGroup":{
                                     removeArtistFromGroup(sc, i, user);
                                     break;
                                 }
@@ -1385,28 +1455,45 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
                     case "/search":{
                         if (parts.size() == 2 ) {
-                            String iput;
-                            while(true){
-                                System.out.println("What:");
-                                input = sc.nextLine();
-                                if(stringContain(input)){
-                                    break;
-                                }
-                            }
                             switch (parts.get(1)){
                                 case "album":
+                                    while(true){
+                                        System.out.println("What:");
+                                        input = sc.nextLine();
+                                        if(stringContain(input)){
+                                            break;
+                                        }
+                                    }
                                     searchAlbum(sc, i, user, input);
                                     break;
 
                                 case "music":
+                                    while(true){
+                                        System.out.println("What:");
+                                        input = sc.nextLine();
+                                        if(stringContain(input)){
+                                            break;
+                                        }
+                                    }
                                     searchMusic(sc, i, user, input);
                                     break;
 
                                 case "artist":
+                                    while(true){
+                                        System.out.println("What:");
+                                        input = sc.nextLine();
+                                        if(stringContain(input)){
+                                            break;
+                                        }
+                                    }
                                     searchArtist(sc, i, user, input);
+                                    break;
+                                case "playlist":
+                                    searchPlaylist(sc, i, user);
                                     break;
                                 default:
                                     System.out.println("Not an available option");
+                                    break;
                             }
                         }
                         break;
