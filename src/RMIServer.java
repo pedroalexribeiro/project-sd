@@ -568,7 +568,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     // Search functions
 
     public ArrayList<Album> searchAlbum(String word) throws RemoteException{
-        String t = "function|search;what|album;where|title='" + word + "'";
+        String t = "function|search;what|album;where|title LIKE '" + "%" + word + "%" + "'";
         String answer = sendMulticast(t);
         ArrayList<Album> albuns = new ArrayList<>();
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
@@ -579,7 +579,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 albuns.add(temp);
             }
         }
-        t = "function|search;what|artist;where|name='" + word + "'";
+        t = "function|search;what|artist;where|name LIKE '" + "%" + word + "%" + "'";
         answer = sendMulticast(t);
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
             Map<String, String> artist = UDP.protocolToHash(answer);
@@ -613,7 +613,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public ArrayList<Music> searchMusic(String word) throws RemoteException{
-        String t = "function|search;what|music;where|name='" + word + "' OR genre='" + word + "'";
+        String t = "function|search;what|music;where|name LIKE '" + "%" + word + "%" + "' OR genre LIKE'" + "%" + word + "%" + "'";
         String answer = sendMulticast(t);
         ArrayList<Music> musics = new ArrayList<>();
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
@@ -685,7 +685,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public ArrayList<Artist> searchArtist(String word) throws RemoteException{
-        String t = "function|search;what|artist;where|name='" + word + "'";
+        String t = "function|search;what|artist;where|name LIKE '" + "%" + word + "%" + "'";
         String answer = sendMulticast(t);
         ArrayList<Artist> artists = new ArrayList<>();
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
@@ -733,7 +733,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public ArrayList<Playlist> searchPlaylist(String name, String username) throws RemoteException{
-        String t = "function|search;what|playlist;where|name='" + name + "' AND user_username='" + username + "'";
+        String t = "function|search;what|playlist;where|name LIKE '" + "%" + name + "%" + "' AND user_username='" + username + "'";
         String answer = sendMulticast(t);
         ArrayList<Playlist> playlists = new ArrayList<>();
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
@@ -781,7 +781,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     public ArrayList<Artist> searchSpecificArtist(String artist, boolean solo) throws RemoteException{
         ArrayList<Artist> artists = new ArrayList<>();
         if(solo){
-            String t = "function|search;what|artist;where|name='"+ artist + "' AND solo=" + true;
+            String t = "function|search;what|artist;where|name LIKE '"+ "%" + artist + "%" + "' AND solo=" + true;
             String answer = sendMulticast(t);
             if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
                 String objects[] = answer.split("\\*\\*");
@@ -793,7 +793,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             }
         }
         else{
-            String t = "function|search;what|artist;where|name='"+ artist + "' AND solo=" + false;
+            String t = "function|search;what|artist;where|name LIKE '" + "%" + artist + "%" + "' AND solo=" + false;
             String answer = sendMulticast(t);
             if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
                 String objects[] = answer.split("\\*\\*");
