@@ -41,7 +41,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
             System.exit(0);
         }
         rmi_ip = args[0];*/
-        rmi_ip = "192.84.13.61";
+        rmi_ip = "10.16.2.37";
         Network newNet = new Network();
         System.setProperty("java.rmi.server.hostname", newNet.getIP());
         run(false, "");
@@ -143,7 +143,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
             String pass = parts.get(2);
 
             user = i.login(username, pass);
-            if (user == null) {
+            if (user != null) {
                 try {
                     clientInterface ci = new RMIClient();
                     i.subscribe(username, ci); //Function that saves clientInterface and puts User.online true
