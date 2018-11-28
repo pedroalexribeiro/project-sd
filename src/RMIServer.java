@@ -376,8 +376,8 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return answer;
     }
 
-    public String addArtist(String name, String details) throws RemoteException {
-        String t = "function|create;what|artist;id|null;name|" + name + ";details|" + details;
+    public String addArtist(String name, String details, int solo) throws RemoteException {
+        String t = "function|create;what|artist;id|null;name|" + name + ";details|" + details +";solo|"+solo;
         String answer = sendMulticast(t);
         return answer;
     }

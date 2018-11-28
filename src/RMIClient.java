@@ -193,12 +193,18 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
     public static void addArtist(Scanner sc, Interface i) throws RemoteException {
         while(true){
+            int solo = 0;
             System.out.println("Name:");
             String name = sc.nextLine();
             System.out.println("Details:");
             String details = sc.nextLine();
+            System.out.println("Solo artist [y/n]:");
+            String s = sc.nextLine();
+            if(s.equalsIgnoreCase("y")){
+                solo = 1;
+            }
             if(stringContain(name)&&stringContain(details)){
-                System.out.println(i.addArtist(name,details));
+                System.out.println(i.addArtist(name,details, solo));
                 break;
             }
         }

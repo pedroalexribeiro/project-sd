@@ -28,7 +28,7 @@ public interface Interface extends Remote {
 
     //Add Method
     String addAlbum(String title,String releaseDate,String description,String artist) throws RemoteException;
-    String addArtist(String name,String details) throws RemoteException;
+    String addArtist(String name, String details, int solo) throws RemoteException;
     String addMusic(String name,String genre,String length,String lyrics,String album) throws RemoteException;
     String addReview(Review review,Boolean isCreated) throws RemoteException;
     String addPlaylist(String name, String username) throws RemoteException;
