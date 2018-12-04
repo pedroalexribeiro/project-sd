@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../WebSD/WebSD.iml" filepath="$PROJECT_DIR$/../WebSD/WebSD.iml" />
       <module fileurl="file://$PROJECT_DIR$/project-sd.iml" filepath="$PROJECT_DIR$/project-sd.iml" />
     </modules>
   </component>
