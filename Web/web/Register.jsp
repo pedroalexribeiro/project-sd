@@ -6,15 +6,17 @@
 
 <html>
 <head>
-    <title>Login</title>
+    <title>Register</title>
 </head>
 
 <body>
-<h1>Login</h1>
-<s:form action="login" method="post">
+<h1>Register</h1>
+<s:form action="register" method="post">
     <s:textfield name="username" label="Username"/><br>
-    <s:textfield name="password" label="Password"/><br>
-    <s:submit />
+    <s:textfield name="password"  label="Password"/><br>
+    <s:textfield name="email"  label="Email"/><br>
+    <s:textfield name="name" label="Name"/><br>
+    <s:submit/>
 </s:form>
 </body>
 </html>

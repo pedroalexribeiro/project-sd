@@ -1020,7 +1020,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     public static void main(String args[]) {
         try { // First checks if registry is created
-            System.getProperties().put("java.security.policy", "/home/pedro/workspace/project-sd/RMIServer/java.policy.applet");
+            System.getProperties().put("java.security.policy", "RMIServer/java.policy.applet");
             System.setSecurityManager(new RMISecurityManager());
             Network newNet = new Network();
             System.setProperty("java.rmi.server.hostname", newNet.getIP());

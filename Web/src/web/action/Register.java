@@ -1,38 +1,43 @@
 package web.action;
 
-import web.model.User;
 import web.model.UserBean;
 import com.opensymphony.xwork2.ActionSupport;
 import org.apache.struts2.interceptor.SessionAware;
 import java.util.Map;
 
-public class Login extends ActionSupport implements SessionAware {
+public class Register extends ActionSupport implements SessionAware {
     private static final long serialVersionUID = 4L;
     private Map<String, Object> session;
-    private String username = null, password = null;
-
+    private String username = null, password = null, email=null, name=null;
     @Override
     public String execute() throws Exception{
-        if(this.username != null && this.password != null && !username.equals("") && !password.equals("")) {
+        if(this.username != null && this.password != null && this.email != null && this.name != null && !username.equals("") && !password.equals("") && !email.equals("") && !name.equals("")) {
 
-            User user = getUserBean().Login(username,password);
-            if(user != null){
-                session.put("user",user);
-                session.put("LoggedIn",true);
-                /*Notifications*/
+            String answer = getUserBean().Register(username,password,email,name,false);
+            if(answer.equalsIgnoreCase("Error")){
+                return ERROR;
+            }else{
                 return SUCCESS;
             }
         }
-        return LOGIN;
+        return ERROR;
     }
 
 
     public void setUsername(String username) {
-        this.username = username; // will you sanitize this input? maybe use a prepared statement?
+        this.username = username;
     }
 
     public void setPassword(String password) {
-        this.password = password; // what about this input?
+        this.password = password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
 
@@ -45,7 +50,6 @@ public class Login extends ActionSupport implements SessionAware {
     public void setUserBean(UserBean userBean) {
         this.session.put("userBean", userBean);
     }
-
 
     @Override
     public void setSession(Map<String, Object> session) {

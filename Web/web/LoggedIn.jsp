@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <p>Username: ${session.username}</p>
-    <p>Password: ${session.password}</p>
+    <p>Username: ${session.user.username}</p>
+    <p>Password: ${session.user.password}</p>
 </body>
 </html>
