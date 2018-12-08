@@ -9,6 +9,7 @@
         <element id="directory" name="lib">
           <element id="library" level="project" name="javassist:javassist:3.12.1.GA" />
           <element id="library" level="project" name="lib" />
+          <element id="library" level="project" name="javax.servlet:jstl:1.2" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="Web/web/Web" />

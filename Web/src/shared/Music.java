@@ -1,8 +1,9 @@
-package web.model;
+package shared;
 
 import java.io.Serializable;
 
 public class Music implements Serializable {
+    static final long serialVersionUID = 42L;
     public String name;
     public String type;
     public int length;

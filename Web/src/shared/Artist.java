@@ -1,8 +1,9 @@
-package web.model;
+package shared;
 
 import java.io.Serializable;
 
 public class Artist implements Serializable {
+    static final long serialVersionUID = 42L;
     public String name;
     public String details;
     public int id;

@@ -2,6 +2,7 @@ package shared;
 import java.io.Serializable;
 
 public class Review implements Serializable {
+    static final long serialVersionUID = 42L;
     private String username;
     private int album_id ;
     private String text;

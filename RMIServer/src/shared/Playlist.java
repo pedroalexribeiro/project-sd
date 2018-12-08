@@ -3,6 +3,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Playlist implements Serializable {
+    static final long serialVersionUID = 42L;
     public int id;
     public String username;
     public String title;

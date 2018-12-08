@@ -1,9 +1,9 @@
 package web.model;
 
 import rmiserver.Interface;
+import shared.User;
 
 import java.rmi.NotBoundException;
-import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 
@@ -12,7 +12,7 @@ public class UserBean {
 
     public UserBean() {
         try {
-            server = (Interface) LocateRegistry.getRegistry("192.84.13.39", 7000).lookup("Server");
+            server = (Interface) LocateRegistry.getRegistry("192.168.1.13", 7000).lookup("Server");
         }
         catch(NotBoundException|RemoteException e) {
             e.printStackTrace();
@@ -24,7 +24,7 @@ public class UserBean {
         return server.helloWorld();
     }
 
-    public User Login(String username,String password) throws RemoteException {
+    public User Login(String username, String password) throws RemoteException {
         return server.login(username,password);
     }
     public String Register(String username, String pass, String email, String name, Boolean edit) throws RemoteException {

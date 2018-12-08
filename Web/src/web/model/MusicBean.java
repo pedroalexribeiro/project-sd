@@ -1,6 +1,9 @@
 package web.model;
 
 import rmiserver.Interface;
+import shared.Album;
+import shared.Artist;
+import shared.Music;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -32,14 +35,14 @@ public class MusicBean {
 
 
 
-    public String updateMuic(Music music,String username) throws RemoteException {
+    public String updateMuic(Music music, String username) throws RemoteException {
         return server.updateMusic(music,username);
     }
 
-    public String updateAlbum(Album album,String username) throws RemoteException {
+    public String updateAlbum(Album album, String username) throws RemoteException {
         return server.updateAlbum(album,username);
     }
-    public String updateArtist(Artist artist,String username) throws RemoteException {
+    public String updateArtist(Artist artist, String username) throws RemoteException {
         return server.updateArtist(artist,username);
     }
 
