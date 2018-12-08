@@ -15,7 +15,7 @@
         <action name = "login"
                 class = "web.action.Login"
                 method = "execute">
-            <result name = "success">/LoggedIn.jsp</result>
+            <result name = "success">/Menu.jsp</result>
             <result name="login">/index.jsp</result>
 
         </action>
