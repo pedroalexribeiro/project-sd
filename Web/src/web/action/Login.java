@@ -1,6 +1,6 @@
 package web.action;
 
-import web.model.User;
+import shared.User;
 import web.model.UserBean;
 import com.opensymphony.xwork2.ActionSupport;
 import org.apache.struts2.interceptor.SessionAware;
@@ -14,12 +14,9 @@ public class Login extends ActionSupport implements SessionAware {
     @Override
     public String execute() throws Exception{
         if(this.username != null && this.password != null && !username.equals("") && !password.equals("")) {
-
             User user = getUserBean().Login(username,password);
             if(user != null){
-                session.put("user",user);
-                session.put("LoggedIn",true);
-                /*Notifications*/
+                session.put("user", user);
                 return SUCCESS;
             }
         }

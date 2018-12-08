@@ -2,6 +2,7 @@ package shared;
 import java.io.Serializable;
 
 public class Album implements Serializable {
+    static final long serialVersionUID = 42L;
     public String title;
     public double AvgRating;
     public String releaseDate;

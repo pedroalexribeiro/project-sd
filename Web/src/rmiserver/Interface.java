@@ -1,12 +1,6 @@
 package rmiserver;
 
-import web.model.Album;
-import web.model.Artist;
-import web.model.Music;
-import web.model.Review;
-import web.model.Notification;
-import web.model.Playlist;
-import web.model.User;
+import shared.*;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

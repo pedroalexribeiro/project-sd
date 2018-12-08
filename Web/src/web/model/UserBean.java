@@ -1,9 +1,9 @@
 package web.model;
 
 import rmiserver.Interface;
+import shared.User;
 
 import java.rmi.NotBoundException;
-import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 
