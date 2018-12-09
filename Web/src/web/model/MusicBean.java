@@ -15,7 +15,7 @@ public class MusicBean {
 
     public MusicBean() {
         try {
-            server = (Interface) LocateRegistry.getRegistry("192.84.13.39", 7000).lookup("Server");
+            server = (Interface) LocateRegistry.getRegistry("192.168.1.12", 7000).lookup("Server");
         }
         catch(NotBoundException|RemoteException e) {
             e.printStackTrace(); // what happens *after* we reach this line?
@@ -57,5 +57,16 @@ public class MusicBean {
     public String deleteArtist(int id, ArrayList<Integer> arr) throws RemoteException{
         return server.deleteArtist(id,arr);
 
+    }
+
+
+    public ArrayList<Artist> searchArtist(String str) throws RemoteException{
+        return server.searchArtist(str);
+    }
+    public ArrayList<Album> searchAlbum(String str) throws RemoteException{
+        return server.searchAlbum(str);
+    }
+    public ArrayList<Music> searchMusic(String str) throws RemoteException{
+        return server.searchMusic(str);
     }
 }

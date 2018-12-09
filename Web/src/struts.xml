@@ -8,23 +8,51 @@
     <constant name = "struts.devMode" value = "true" />
     <package name = "helloworld" extends = "struts-default">
 
+        <interceptors>
+            <interceptor name="LoginInterceptor" class="Interceptor.LoginInterceptor" />
+            <interceptor-stack name="loginStack">
+                <interceptor-ref name="LoginInterceptor" />
+                <interceptor-ref name="defaultStack" />
+            </interceptor-stack>
+        </interceptors>
+
+        <default-interceptor-ref name="loginStack" />
+
+
+
         <action name = "index">
             <result >/index.jsp</result>
         </action>
+
 
         <action name = "login"
                 class = "web.action.Login"
                 method = "execute">
             <result name = "success">/Menu.jsp</result>
             <result name="login">/index.jsp</result>
-
         </action>
+
+
+        <action name = "logout"
+                class = "web.action.Login"
+                method = "logout">
+            <result name = "success">/index.jsp</result>
+        </action>
+
+
         <action name = "register"
                 class = "web.action.Register"
                 method = "execute">
             <result name = "error">/Register.jsp</result>
             <result name="success">/index.jsp</result>
+        </action>
 
+
+        <action name = "search"
+                class = "web.action.Search"
+                method = "execute">
+            <result name = "success">/Search.jsp</result>
+            <result name="error">/Menu.jsp</result>
         </action>
     </package>
 </struts>
