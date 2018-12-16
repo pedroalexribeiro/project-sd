@@ -16,6 +16,22 @@
     <s:textfield name="password" label="Password"/><br>
     <s:submit />
 </s:form>
-<p><a href="<s:url action="login-dropbox" />">Login with dropbox</a></p>
+    <s:if test="hasActionErrors()">
+       <div class="errors">
+            <s:actionerror />
+        </div>
+    </s:if>
+    <s:if test="hasActionMessages()">
+        <div class="messages">
+            <s:actionmessage />
+        </div>
+    </s:if>
+        <s:form action="login" method="post">
+        <s:textfield name="username" label="Username"/><br>
+        <s:password name="password" label="Password"/><br>
+        <s:submit />
+    </s:form>
+
+    <p><a href="<s:url action="login-dropbox" />">Login with dropbox</a></p>
 </body>
 </html>

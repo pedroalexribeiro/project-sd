@@ -58,4 +58,15 @@ public class MusicBean {
         return server.deleteArtist(id,arr);
 
     }
+
+
+    public ArrayList<Artist> searchArtist(String str) throws RemoteException{
+        return server.searchArtist(str);
+    }
+    public ArrayList<Album> searchAlbum(String str) throws RemoteException{
+        return server.searchAlbum(str);
+    }
+    public ArrayList<Music> searchMusic(String str) throws RemoteException{
+        return server.searchMusic(str);
+    }
 }
