@@ -6,6 +6,7 @@ import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.interceptor.Interceptor;
 import shared.User;
 import web.action.Login;
+import web.action.LoginDrop;
 import web.action.Register;
 
 public class LoginInterceptor implements Interceptor {
@@ -16,7 +17,7 @@ public class LoginInterceptor implements Interceptor {
         Map<String, Object> session = invocation.getInvocationContext().getSession();
         User user = (User)session.get("user");
         if(user == null) { // If user is trying to login
-            if (invocation.getAction().getClass().equals(Login.class) || invocation.getAction().getClass().equals(Register.class)) {
+            if (invocation.getAction().getClass().equals(Login.class) || invocation.getAction().getClass().equals(Register.class) || invocation.getAction().getClass().equals(LoginDrop.class)) {
                 return invocation.invoke();
             }
             return ActionSupport.LOGIN;

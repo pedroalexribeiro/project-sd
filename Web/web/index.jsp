@@ -45,6 +45,7 @@
             <div class="row" align="center">
                 <div class="col">
                     <a href="Register.jsp">Register</a>
+                    <a href="<s:url action="login-dropbox"/>">Dropbox login</a>
                 </div>
             </div>
         </div>

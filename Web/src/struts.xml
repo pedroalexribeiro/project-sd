@@ -65,6 +65,8 @@
         <action name = "add_music"
                 class = "web.action.AddMusic"
                 method = "execute">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayMusic.jsp</result>
             <result name ="success">/Menu.jsp</result>
             <result name="error">/error.jsp</result>
         </action>
@@ -72,6 +74,8 @@
         <action name = "add_artist"
                 class = "web.action.AddArtist"
                 method = "execute">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayMusic.jsp</result>
             <result name ="success">/Menu.jsp</result>
             <result name="error">/error.jsp</result>
         </action>
@@ -79,6 +83,8 @@
         <action name = "add_album"
                 class = "web.action.AddAlbum"
                 method = "execute">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayMusic.jsp</result>
             <result name ="success">/Menu.jsp</result>
             <result name="error">/error.jsp</result>
         </action>

@@ -1,5 +1,6 @@
 package rmiserver;
 
+import rmiclient.clientInterface;
 import shared.*;
 
 import java.rmi.Remote;

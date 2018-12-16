@@ -15,7 +15,7 @@
 <s:form action="add_artist" method="post">
     <s:textfield name="name" label="name"/><br>
     <s:textfield name="details" label="details"/><br>
-    <s:checkbox name="solo" fieldValue="false" label="Is the artist solo, is so check the box."/>
+    <s:checkbox name="solo" fieldValue="false" label="Is the artist solo, if so check the box."/>
     <s:submit />
 </s:form>
 </body>

@@ -119,3 +119,7 @@ hs_err_pid*
 \.idea/artifacts/unnamed\.xml
 
 Web/Web\.iml
+
+onlineUsers\.ser
+
+\.idea/dataSources\.xml
