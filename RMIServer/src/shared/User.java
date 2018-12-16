@@ -31,6 +31,10 @@ public class User implements Serializable {
         this.online = false;
     }
 
+    public void setPersonalInfo(String personalInfo) {
+        this.personalInfo = personalInfo;
+    }
+
     public String getUsername() {
         return username;
     }

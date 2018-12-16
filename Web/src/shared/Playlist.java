@@ -16,5 +16,15 @@ public class Playlist implements Serializable {
         this.title = title;
     }
 
+    public int getId() {
+        return id;
+    }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public String getTitle() {
+        return title;
+    }
 }

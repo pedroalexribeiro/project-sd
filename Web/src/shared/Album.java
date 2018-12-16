@@ -10,6 +10,7 @@ public class Album implements Serializable {
     public String description;
     public String artist;
     public int id;
+    public String artistName;
 
     public Album(String name,String rel,String description,String artist,int id) {
         this.title = name;
@@ -18,9 +19,20 @@ public class Album implements Serializable {
         this.artist = artist;
         this.AvgRating = 0;
         this.id=id;
+
     }
 
+    public String getArtistName() {
+        return artistName;
+    }
 
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
+    }
+
+    public void setAvgRating(double avgRating) {
+        AvgRating = avgRating;
+    }
 
     public String getTitle() {
         return title;

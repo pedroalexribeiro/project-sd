@@ -16,11 +16,19 @@ public class Artist implements Serializable {
         this.id = id;
     }
 
-    public String toString(){
-        return "Name: "+ name + " details: "+details;
+    public String getName() {
+        return name;
     }
 
-    public void setID(int id){
-        this.id=id;
+    public String getDetails() {
+        return details;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String toString(){
+        return "Name: "+ name + " details: "+details;
     }
 }

@@ -6,6 +6,7 @@
 
 <struts>
     <constant name = "struts.devMode" value = "true" />
+    <constant name="struts.action.excludePattern" value="/ws"/>
     <package name = "helloworld" extends = "struts-default">
 
         <interceptors>
@@ -14,45 +15,173 @@
                 <interceptor-ref name="LoginInterceptor" />
                 <interceptor-ref name="defaultStack" />
             </interceptor-stack>
+
+
+            <interceptor name="EditorInterceptor" class="Interceptor.EditorInterceptor" />
+            <interceptor-stack name="editStack">
+                <interceptor-ref name="EditorInterceptor" />
+                <interceptor-ref name="defaultStack" />
+            </interceptor-stack>
         </interceptors>
+
 
         <default-interceptor-ref name="loginStack" />
 
+
+        <!--<global-results>
+            <result name="error">/error.jsp</result>
+        </global-results>
+
+        <global-exception-mappings>
+            <exception-mapping exception="java.lang.Exception" result="error" />
+        </global-exception-mappings>-->
 
 
         <action name = "index">
             <result >/index.jsp</result>
         </action>
 
+        <action name = "register"
+                class = "web.action.Register"
+                method = "execute">
+            <result name ="success">/index.jsp</result>
+            <result name = "error">/Register.jsp</result>
+        </action>
 
         <action name = "login"
                 class = "web.action.Login"
                 method = "execute">
             <result name = "success">/Menu.jsp</result>
-            <result name="login">/index.jsp</result>
+            <result name ="login">/index.jsp</result>
         </action>
 
 
         <action name = "logout"
-                class = "web.action.Login"
-                method = "logout">
+                class = "web.action.Logout"
+                method = "execute">
             <result name = "success">/index.jsp</result>
         </action>
-
-
-        <action name = "register"
-                class = "web.action.Register"
-                method = "execute">
-            <result name = "error">/Register.jsp</result>
-            <result name="success">/index.jsp</result>
-        </action>
-
 
         <action name = "search"
                 class = "web.action.Search"
                 method = "execute">
             <result name = "success">/Search.jsp</result>
             <result name="error">/Menu.jsp</result>
+        </action>
+
+        <action name = "displayAlbum"
+                class = "web.action.AlbumAction"
+                method = "displayAlbum">
+            <result name = "success">/displayAlbum.jsp</result>
+        </action>
+
+        <action name = "displayArtist"
+                class = "web.action.ArtistAction"
+                method = "displayArtist">
+            <result name = "success">/displayArtist.jsp</result>
+        </action>
+
+        <action name = "displayMusic"
+                class = "web.action.MusicAction"
+                method = "displayMusic">
+            <result name = "success">/displayMusic.jsp</result>
+        </action>
+
+        <action name = "displayUser"
+                class = "web.action.DisplayUser"
+                method = "execute">
+            <result name = "success">/displayUser.jsp</result>
+        </action>
+
+        <action name = "makeEditor"
+                class = "web.action.MakeEditor"
+                method = "execute">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayUser.jsp</result>
+            <result name = "success">/displayUser.jsp</result>
+        </action>
+
+        <action name = "musicEdit"
+                class = "web.action.MusicAction"
+                method = "editMusic">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayMusic.jsp</result>
+            <result name = "success">/displayMusic.jsp</result>
+            <result name = "error">/musicEdit.jsp</result>
+        </action>
+
+        <action name = "albumEdit"
+                class = "web.action.AlbumAction"
+                method = "editAlbum">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayAlbum.jsp</result>
+            <result name = "success">/displayAlbum.jsp</result>
+            <result name = "error">/albumEdit.jsp</result>
+        </action>
+
+        <action name = "artistEdit"
+                class = "web.action.ArtistAction"
+                method = "editArtist">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayArtist.jsp</result>
+            <result name = "success">/displayArtist.jsp</result>
+            <result name = "error">/albumEdit.jsp</result>
+        </action>
+
+        <action name = "chooseReview"
+                class = "web.action.ReviewAction"
+                method = "chooseReview">
+            <result name = "create">/createReview.jsp</result>
+            <result name = "edit">/editReview.jsp</result>
+        </action>
+
+        <action name = "createReview"
+                class = "web.action.ReviewAction"
+                method = "createReview">
+            <result name = "success" >/displayAlbum.jsp</result>
+            <result name = "error">/createReview.jsp</result>
+        </action>
+
+        <!--<action name = "createReview"
+                class = "web.action.ReviewAction"
+                method = "createReview">
+            <result name = "success" type="redirectAction">
+                <param name="actionName">displayAlbum</param>
+                <param name="parse">false</param>
+            </result>
+            <result name = "error">/createReview.jsp</result>
+        </action>-->
+
+        <action name = "reviewEdit"
+                class = "web.action.ReviewAction"
+                method = "editReview">
+            <result name = "success">/displayAlbum.jsp</result>
+            <result name = "error">/editReview.jsp</result>
+        </action>
+
+
+        <action name = "deleteArtist"
+                class = "web.action.ArtistAction"
+                method = "deleteArtist">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayArtist.jsp</result>
+            <result name = "success">/Menu.jsp</result>
+        </action>
+
+        <action name = "deleteAlbum"
+                class = "web.action.AlbumAction"
+                method = "deleteAlbum">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayAlbum.jsp</result>
+            <result name = "success">/Menu.jsp</result>
+        </action>
+
+        <action name = "deleteMusic"
+                class = "web.action.MusicAction"
+                method = "deleteMusic">
+            <interceptor-ref name="editStack"></interceptor-ref>
+            <result name = "none">/displayMusic.jsp</result>
+            <result name = "success">/Menu.jsp</result>
         </action>
     </package>
 </struts>

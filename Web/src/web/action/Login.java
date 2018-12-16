@@ -1,11 +1,13 @@
 package web.action;
 
+import shared.Notification;
 import shared.User;
 import web.model.UserBean;
 import com.opensymphony.xwork2.ActionSupport;
 import org.apache.struts2.interceptor.SessionAware;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class Login extends ActionSupport implements SessionAware {
@@ -18,6 +20,10 @@ public class Login extends ActionSupport implements SessionAware {
         if(this.username != null && this.password != null && !username.equals("") && !password.equals("")) {
             User user = getUserBean().Login(username,password);
             if(user != null){
+                ArrayList<Notification> notes = getUserBean().getOfflineNotifications(username);
+
+                getUserBean().clearNotifications(username);
+                session.put("offlineNotifications",notes);
                 session.put("user", user);
                 return SUCCESS;
             }
@@ -53,12 +59,4 @@ public class Login extends ActionSupport implements SessionAware {
     public void setSession(Map<String, Object> session) {
         this.session = session;
     }
-
-    public String logout() throws RemoteException {
-        getUserBean().Logout(username);
-        session.clear();
-        addActionMessage("Logout Successful");
-        return SUCCESS;
-    }
-
 }

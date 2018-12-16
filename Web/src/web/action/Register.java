@@ -14,15 +14,28 @@ public class Register extends ActionSupport implements SessionAware {
         if(this.username != null && this.password != null && this.email != null && this.name != null && !username.equals("") && !password.equals("") && !email.equals("") && !name.equals("")) {
 
             String answer = getUserBean().Register(username,password,email,name,false);
-            if(answer.equalsIgnoreCase("Error")){
-                return ERROR;
-            }else{
+            if(answer.equalsIgnoreCase("Success")){
                 return SUCCESS;
             }
         }
         return ERROR;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public void setUsername(String username) {
         this.username = username;

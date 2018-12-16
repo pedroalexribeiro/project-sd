@@ -20,6 +20,30 @@ public class Music implements Serializable {
         this.lyrics=lyrics;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public int getAlbum_id() {
+        return album_id;
+    }
+
+    public String getLyrics() {
+        return lyrics;
+    }
+
     public String toString() {
         return name+" ,"+type+" ,"+ length+" ,"+lyrics;
     }

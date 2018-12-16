@@ -1,6 +1,5 @@
 package Interceptor;
 
-import java.util.Map;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.interceptor.Interceptor;
@@ -8,18 +7,18 @@ import shared.User;
 import web.action.Login;
 import web.action.Register;
 
-public class LoginInterceptor implements Interceptor {
+import java.util.Map;
+
+
+public class EditorInterceptor implements Interceptor {
     private static final long serialVersionUID = 189237412378L;
 
     @Override
     public String intercept(ActionInvocation invocation) throws Exception {
         Map<String, Object> session = invocation.getInvocationContext().getSession();
         User user = (User)session.get("user");
-        if(user == null) { // If user is trying to login
-            if (invocation.getAction().getClass().equals(Login.class) || invocation.getAction().getClass().equals(Register.class)) {
-                return invocation.invoke();
-            }
-            return ActionSupport.LOGIN;
+        if(!user.editor) { // If user is trying to Enter EditorOnly pages
+            return ActionSupport.NONE;
         }
         else
             return invocation.invoke();

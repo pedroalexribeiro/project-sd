@@ -9,6 +9,8 @@ public class Album implements Serializable {
     public String description;
     public String artist;
     public int id;
+    public String artistName;
+
     public Album(String name,String rel,String description,String artist,int id) {
         this.title = name;
         this.releaseDate=rel;
@@ -19,6 +21,13 @@ public class Album implements Serializable {
     }
 
 
+    public String getArtistName() {
+        return artistName;
+    }
+
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
+    }
 
     public String getTitle() {
         return title;

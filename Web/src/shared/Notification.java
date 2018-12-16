@@ -13,4 +13,12 @@ public class Notification implements Serializable {
         this.text= text;
         this.delivered = false;
     }
+
+    public String getUser() {
+        return user;
+    }
+
+    public String getText() {
+        return text;
+    }
 }

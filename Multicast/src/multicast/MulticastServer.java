@@ -193,7 +193,7 @@ public class MulticastServer {
             stmt = conn.createStatement();
 
             stmt.executeUpdate(sql);
-            return "Sucess";
+            return "Success";
         }catch(SQLException se){
             return "Error";
         }catch(Exception e){
@@ -232,7 +232,7 @@ public class MulticastServer {
             stmt = conn.createStatement();
             stmt.executeUpdate(sql);
 
-            return "Sucess";
+            return "Success";
         }catch(SQLException se){
             return "Error";
         }catch(Exception e){

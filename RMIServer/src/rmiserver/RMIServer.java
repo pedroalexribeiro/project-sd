@@ -137,7 +137,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             return "Error";
         }
         System.out.println("New user created");
-        return "Sucess";
+        return "Success";
 
     }
 
@@ -221,39 +221,39 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     public void sendNotifcationEdits(String type, int id, String username) {
         switch (type) {
             case "album": {
-                String t = "function|search;what|user_album;where|album_id=" + Integer.toString(id) + " AND user_username='" + username + "'";
+                String t = "function|search;what|user_editor_album;where|album_id=" + Integer.toString(id) + " AND user_username='" + username + "'";
                 String check = sendMulticast(t);
                 if (check.equals("") || check.equals("nothing")) {
-                    t = "function|create;what|user_album;user_username|" + username + ";album_id|" + id;
+                    t = "function|create;what|user_editor_album;user_username|" + username + ";album_id|" + id;
                     sendMulticast(t);
                 }
-                t = "function|search;what|user_album;where|album_id=" + Integer.toString(id) + " AND user_username!='" + username + "'";
+                t = "function|search;what|user_editor_album;where|album_id=" + Integer.toString(id) + " AND user_username!='" + username + "'";
                 check = sendMulticast(t);
                 String note = "The album with album id (" + Integer.toString(id) + ") has beed edited";
                 checkNotificationEdits(check, note, username);
                 break;
             }
             case "music": {
-                String t = "function|search;what|user_music;where|music_id=" + Integer.toString(id) + " AND user_username='" + username + "'";
+                String t = "function|search;what|user_editor_music;where|music_id=" + Integer.toString(id) + " AND user_username='" + username + "'";
                 String check = sendMulticast(t);
                 if (check.equals("") || check.equals("nothing")) {
-                    t = "function|create;what|user_music;user_username|" + username + ";music_id|" + id;
+                    t = "function|create;what|user_editor_music;user_username|" + username + ";music_id|" + id;
                     sendMulticast(t);
                 }
-                t = "function|search;what|user_music;where|music_id=" + Integer.toString(id) + " AND user_username!='" + username + "'";
+                t = "function|search;what|user_editor_music;where|music_id=" + Integer.toString(id) + " AND user_username!='" + username + "'";
                 check = sendMulticast(t);
                 String note = "The music with music id (" + Integer.toString(id) + ") has beed edited";
                 checkNotificationEdits(check, note, username);
                 break;
             }
             case "artist": {
-                String t = "function|search;what|user_artist;where|artist_id=" + Integer.toString(id) + " AND user_username='" + username + "'";
+                String t = "function|search;what|user_editor_artist;where|artist_id=" + Integer.toString(id) + " AND user_username='" + username + "'";
                 String check = sendMulticast(t);
                 if (check.equals("") || check.equals("nothing")) {
-                    t = "function|create;what|user_artist;user_username|" + username + ";artist_id|" + id;
+                    t = "function|create;what|user_editor_artist;user_username|" + username + ";artist_id|" + id;
                     sendMulticast(t);
                 }
-                t = "function|search;what|user_artist;where|artist_id=" + Integer.toString(id) + " AND user_username!='" + username + "'";
+                t = "function|search;what|user_editor_artist;where|artist_id=" + Integer.toString(id) + " AND user_username!='" + username + "'";
                 check = sendMulticast(t);
                 String note = "The artist with artist id (" + Integer.toString(id) + ") has beed edited";
                 checkNotificationEdits(check, note, username);
@@ -290,7 +290,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public void clearDatabaseNotifications(String username) throws RemoteException {
-        String t = "function|delete;what|notification;where|user_username=" + username;
+        String t = "function|delete;what|notification;where|user_username='" + username+"'";
         String answer = sendMulticast(t);
         if (answer.equalsIgnoreCase("Error")) {
             System.out.println("Error");
@@ -498,11 +498,11 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         sendMulticast(t);
         t = "function|delete;what|wrote_lyrics;where|music_id="+id;
         sendMulticast(t);
-        t = "function|delete;what|user_editor_music;music_id="+id;
+        t = "function|delete;what|user_editor_music;where|music_id="+id;
         sendMulticast(t);
-        t = "function|delete;what|file;music_id="+id;
+        t = "function|delete;what|file;where|music_id="+id;
         sendMulticast(t);
-        t = "function|delete;what|file_user;file_music_id="+id;
+        t = "function|delete;what|file_user;where|file_music_id="+id;
         sendMulticast(t);
         t = "function|delete;what|music;where|id=" + id;
         String answer = sendMulticast(t);
@@ -510,9 +510,14 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String deleteAlbum(int id) throws RemoteException{
-        String t = "function|delete;what|music;where|album_id=" + id;
+        String t;
+        ArrayList<Music> mus = searchMusic(id);
+        for(Music m : mus){
+            deleteMusic(m.id);
+        }
+        t = "function|delete;what|user_editor_album;where|album_id="+id;
         sendMulticast(t);
-        t = "function|delete;what|user_editor_album;album_id="+id;
+        t = "function|delete;what|review;where|album_id="+id;
         sendMulticast(t);
         t = "function|delete;what|album;where|id=" + id;
         String answer = sendMulticast(t);
@@ -522,15 +527,16 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
 
     public String deleteArtist(int id, ArrayList<Integer> arr) throws RemoteException{
         String t;
-        for (int i : arr) {
-            t = "function|delete;what|music;where|album_id=" + i;
-            sendMulticast(t);
+
+        ArrayList<Album> alb = searchAlbum(id);
+        for(Album a : alb){
+            deleteAlbum(a.id);
         }
         t = "function|delete;what|album;where|artist_id=" + id;
         sendMulticast(t);
         t = "function|delete;what|role;where|artist_id=" + id + " OR group_id="+ id;
         sendMulticast(t);
-        t = "function|delete;what|user_editor_artist;artist_id="+id;
+        t = "function|delete;what|user_editor_artist;where|artist_id="+id;
         sendMulticast(t);
         t = "function|delete;what|artist;where|id=" + id;
         String answer = sendMulticast(t);
@@ -711,6 +717,22 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return artists;
     }
 
+    public ArrayList<Artist> searchArtist(int id) throws RemoteException{
+        String t = "function|search;what|artist;where|id ="+id;
+        String answer = sendMulticast(t);
+
+        ArrayList<Artist> artists = new ArrayList<>();
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                Artist temp = new Artist(arr.get("name"), arr.get("details"), Boolean.parseBoolean(arr.get("solo")), Integer.parseInt(arr.get("id")));
+                artists.add(temp);
+            }
+        }
+        return artists;
+    }
+
     public boolean searchFile(String username, int music_id) throws RemoteException{
         String t = "function|search;what|file;where|user_username='" + username + "' AND music_id=" + music_id;
         String answer = sendMulticast(t);
@@ -743,6 +765,24 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }
         return -1;
     }
+
+    public ArrayList<User> searchUsers(String username) throws RemoteException{
+        String t = "function|search;what|user;where|username LIKE '" + "%" + username + "%" + "'";
+        String answer = sendMulticast(t);
+        ArrayList<User> users = new ArrayList<>();
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                boolean b = arr.get("editor").equals("1");
+                User temp = new User(arr.get("username"), "password", arr.get("email"), arr.get("name"),b);
+                temp.setPersonalInfo(arr.get("personal_info"));
+                users.add(temp);
+            }
+        }
+        return users;
+    }
+
 
     public ArrayList<Playlist> searchPlaylist(String name, String username) throws RemoteException{
         String t = "function|search;what|playlist;where|name LIKE '" + "%" + name + "%" + "' AND user_username='" + username + "'";
