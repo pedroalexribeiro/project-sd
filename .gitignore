@@ -1,5 +1,6 @@
 
-# Created by https://www.gitignore.io/api/java,intellij,database
+# Created by https://www.gitignore.io/api/java,database,intellij
+# Edit at https://www.gitignore.io/?templates=java,database,intellij
 
 ### Database ###
 *.accdb
@@ -7,7 +8,6 @@
 *.dbf
 *.mdb
 *.pdb
-*.sql
 *.sqlite3
 
 ### Intellij ###
@@ -41,9 +41,9 @@
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
-# .idea/modules.xml
-# .idea/*.iml
-# .idea/modules
+.idea/modules.xml
+.idea/*.iml
+.idea/modules
 
 # CMake
 cmake-build-*/
@@ -114,5 +114,4 @@ fabric.properties
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-
-# End of https://www.gitignore.io/api/java,intellij,database
+# End of https://www.gitignore.io/api/java,database,intellij
