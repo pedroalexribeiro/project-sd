@@ -12,6 +12,7 @@ public interface Interface extends Remote {
     String register(String username, String pass, String email, String name, Boolean edit) throws RemoteException;
 
     User login(String username, String pass) throws RemoteException;
+    User loginDrop(String clientId) throws RemoteException;
 
     void logout(String username) throws RemoteException;
 
@@ -27,10 +28,13 @@ public interface Interface extends Remote {
     //Get Notifications
     ArrayList<Notification> getNotifications(String username) throws RemoteException;
 
+    String addDropbox(String username, String dropbox_id, String dropbox_token) throws RemoteException;
+    String getDropboxId(String username) throws RemoteException;
 
     String playlistMethods(String method, String word, String music, String username) throws RemoteException;
 
-    //Add Method
+    //AddMusic Method
+    String addFile(String dropbox_id, String username, int music_id) throws RemoteException;
     String addAlbum(String title, String releaseDate, String description, String artist) throws RemoteException;
     String addArtist(String name, String details, int solo) throws RemoteException;
     String addMusic(String name, String genre, String length, String lyrics, String album) throws RemoteException;

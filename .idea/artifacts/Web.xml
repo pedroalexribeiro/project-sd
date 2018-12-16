@@ -7,9 +7,9 @@
           <element id="module-output" name="Web" />
         </element>
         <element id="directory" name="lib">
-          <element id="library" level="project" name="javassist:javassist:3.12.1.GA" />
-          <element id="library" level="project" name="lib" />
-          <element id="library" level="project" name="javax.servlet:jstl:1.2" />
+          <element id="library" level="project" name="Struts 2" />
+          <element id="library" level="project" name="com.github.scribejava:scribejava-apis:2.0" />
+          <element id="library" level="project" name="com.google.code.gson:gson:2.8.5" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="Web/web/Web" />

@@ -15,16 +15,78 @@
         <action name = "login"
                 class = "web.action.Login"
                 method = "execute">
-            <result name = "success">/Menu.jsp</result>
+            <result name = "success">/menu.jsp</result>
             <result name="login">/index.jsp</result>
-
         </action>
+
         <action name = "register"
                 class = "web.action.Register"
                 method = "execute">
-            <result name = "error">/Register.jsp</result>
+            <result name = "error">/register.jsp</result>
             <result name="success">/index.jsp</result>
-
         </action>
+
+        <action name = "add_music"
+                class = "web.action.AddMusic"
+                method = "execute">
+            <result name ="success">/menu.jsp</result>
+            <result name="error">/error.jsp</result>
+        </action>
+
+        <action name = "add_artist"
+                class = "web.action.AddArtist"
+                method = "execute">
+            <result name ="success">/menu.jsp</result>
+            <result name="error">/error.jsp</result>
+        </action>
+
+        <action name = "add_album"
+                class = "web.action.AddAlbum"
+                method = "execute">
+            <result name ="success">/menu.jsp</result>
+            <result name="error">/error.jsp</result>
+        </action>
+
+        <action name = "add-dropbox"
+                class = "web.action.AuthDrop"
+                method = "execute">
+            <result name="redirect" type="redirect">${url}</result>
+            <result name = "error">/error.jsp</result>
+            <result name="success">/menu.jsp</result>
+        </action>
+
+        <action name = "login-dropbox"
+                class = "web.action.LoginDrop"
+                method = "execute">
+            <result name="redirect" type="redirect">${url}</result>
+            <result name = "success">/menu.jsp</result>
+            <result name="login">/index.jsp</result>
+        </action>
+
+        <action name = "list-files-dropbox"
+                class = "web.action.Dropbox"
+                method = "execute">
+            <result>/viewFilesDrop.jsp</result>
+        </action>
+
+        <action name = "associate_file"
+                class = "web.action.DropboxFile"
+                method = "execute">
+            <result name = "error">/error.jsp</result>
+            <result name="success">/menu.jsp</result>
+        </action>
+
+        <action name = "add-music">
+            <result>/addMusic.jsp</result>
+        </action>
+
+        <action name = "add-artist">
+            <result>/addArtist.jsp</result>
+        </action>
+
+        <action name = "add-album">
+            <result>/addAlbum.jsp</result>
+        </action>
+
     </package>
 </struts>

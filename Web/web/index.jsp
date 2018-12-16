@@ -16,5 +16,6 @@
     <s:textfield name="password" label="Password"/><br>
     <s:submit />
 </s:form>
+<p><a href="<s:url action="login-dropbox" />">Login with dropbox</a></p>
 </body>
 </html>

@@ -29,6 +29,8 @@ public class UDP {
         user.put("name","string");
         user.put("personal_info","string");
         user.put("editor","boolean");
+        user.put("dropbox_token", "string");
+        user.put("dropbox_id", "string");
         notification.put("id","int");
         notification.put("text","string");
         notification.put("user_username","string");
@@ -55,6 +57,7 @@ public class UDP {
         file.put("filepath", "string");
         file.put("user_username", "string");
         file.put("music_id", "int");
+        file.put("dropbox_id", "string");
         review.put("text", "string");
         review.put("rating","int");
         review.put("datee", "date");

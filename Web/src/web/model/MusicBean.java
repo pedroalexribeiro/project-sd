@@ -15,7 +15,7 @@ public class MusicBean {
 
     public MusicBean() {
         try {
-            server = (Interface) LocateRegistry.getRegistry("192.84.13.39", 7000).lookup("Server");
+            server = (Interface) LocateRegistry.getRegistry("192.168.1.8", 7000).lookup("Server");
         }
         catch(NotBoundException|RemoteException e) {
             e.printStackTrace(); // what happens *after* we reach this line?
