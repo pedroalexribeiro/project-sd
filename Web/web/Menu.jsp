@@ -49,6 +49,21 @@
             <div class="row row-header">
                 <div class="col-8   ">
                     <h2>Menu</h2>
+            <p>
+            <a href="add-dropbox">Add Dropbox</a>
+            </p>>
+            <a href="list-files-dropbox">List Files in Dropbox</a>
+            <p>
+            </p>
+            <p>
+            <a href="add-artist">Add Artist</a>
+            </p>
+            <p>
+            <a href="add-album">Add Album</a>
+            </p>
+            <p>
+            <a href="add-music">Add Music</a>
+            </p>
                 </div>
                 <div class="col">
                     <div class="row">

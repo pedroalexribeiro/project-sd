@@ -1,7 +1,6 @@
 package rmiserver;
-import rmiclient.clientInterface;
-import shared.*;
 
+import shared.*;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -10,9 +9,10 @@ import java.util.ArrayList;
 public interface Interface extends Remote {
     String helloWorld() throws RemoteException;
 
-    String register(String username,String pass,String email,String name,Boolean edit) throws RemoteException;
+    String register(String username, String pass, String email, String name, Boolean edit) throws RemoteException;
 
     User login(String username, String pass) throws RemoteException;
+    User loginDrop(String clientId) throws RemoteException;
 
     void logout(String username) throws RemoteException;
 
@@ -28,14 +28,18 @@ public interface Interface extends Remote {
     //Get Notifications
     ArrayList<Notification> getNotifications(String username) throws RemoteException;
 
+    String addDropbox(String username, String dropbox_id, String dropbox_token) throws RemoteException;
+    String getDropboxId(String username) throws RemoteException;
 
-    String playlistMethods(String method,String word,String music,String username) throws RemoteException;
+    String playlistMethods(String method, String word, String music, String username) throws RemoteException;
 
-    //Add Method
-    String addAlbum(String title,String releaseDate,String description,String artist) throws RemoteException;
+    //AddMusic Method
+    String addFile(String dropbox_id, String username, int music_id) throws RemoteException;
+    String addAlbum(String title, String releaseDate, String description, String artist) throws RemoteException;
     String addArtist(String name, String details, int solo) throws RemoteException;
-    String addMusic(String name,String genre,String length,String lyrics,String album) throws RemoteException;
+    String addMusic(String name, String genre, String length, String lyrics, String album) throws RemoteException;
     String addReview(Review review, Boolean isCreated) throws RemoteException;
+
     String addPlaylist(String name, String username) throws RemoteException;
     String addComposed(int music_id, int artist_id) throws RemoteException;
     String addFeatured(int music_id, int artist_id) throws RemoteException;
@@ -50,8 +54,9 @@ public interface Interface extends Remote {
 
     //Delete Method
     String deleteAlbum(int id) throws RemoteException;
-    String deleteArtist(int id,ArrayList<Integer> arr) throws RemoteException;
+    String deleteArtist(int id, ArrayList<Integer> arr) throws RemoteException;
     String deleteMusic(int id) throws RemoteException;
+
     String deletePlaylist(int id) throws RemoteException;
     String deleteComposed(int artist_id, int music_id) throws RemoteException;
     String deleteFeature(int artist_id, int music_id) throws RemoteException;
@@ -70,6 +75,7 @@ public interface Interface extends Remote {
     ArrayList<Review> searchReview(int album_id)throws RemoteException;
     ArrayList<Playlist> searchPlaylist(String name, String username) throws RemoteException;
     ArrayList<Music> searchMusicPlaylist(int playlist_id) throws RemoteException;
+
     ArrayList<Artist> searchSpecificArtist(String artist, boolean solo) throws RemoteException;
     ArrayList<Artist> searchArtistsFromGroup(int group_id) throws RemoteException;
     ArrayList<Artist> searchComposed(int music_id) throws RemoteException;

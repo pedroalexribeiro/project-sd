@@ -1,5 +1,7 @@
 package shared;
 
+import rmiclient.clientInterface;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -12,6 +14,8 @@ public class User implements Serializable {
     public String personalInfo;
     public Boolean editor;
     public Boolean online;
+    public String dropbox_token;
+    public clientInterface cInterface;
 
 
     public ArrayList<Notification> notifications = new ArrayList<>();
@@ -25,6 +29,18 @@ public class User implements Serializable {
         this.personalInfo = "";
         this.online = false;
     }
+
+    public User(String user, String pass, String email, String name, Boolean edit, String dropbox_token) {
+        this.username = user;
+        this.password = pass;
+        this.email = email;
+        this.name = name;
+        this.editor = edit;
+        this.personalInfo = "";
+        this.online = false;
+        this.dropbox_token = dropbox_token;
+    }
+
 
     public void setPersonalInfo(String personalInfo) {
         this.personalInfo = personalInfo;
