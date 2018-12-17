@@ -53,13 +53,13 @@
         <c:choose>
             <c:when test = "${session.searchAlbums.size() > 0 || session.searchMusics.size() > 0}">
                 <c:if test="${session.searchAlbums.size() > 0}">
-                    <h3>Album:</h3>
                     <c:forEach items="${session.searchAlbums}" var="album" begin="0">
                         <div>
+                            <h3>Album:</h3>
                             <p>Title: ${album.title}</p>
+                            <br><p><b>Musics:</b></p>
                             <c:forEach items="${session.searchMusics}" var="music" begin="0">
                                 <c:if test="${album.id == music.album_id}">
-                                    <p>Musics:</p>
                                     <p>title:   ${music.name}</p>
                                 </c:if>
                             </c:forEach>

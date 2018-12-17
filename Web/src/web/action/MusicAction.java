@@ -17,6 +17,7 @@ public class MusicAction extends ActionSupport implements SessionAware{
     public String type;
     public int length;
     public String lyrics;
+    public String albumName;
 
     public String displayMusic() throws Exception{
         Music m = new Music(this.name, this.type, this.length, this.lyrics, this.album_id, this.id);
@@ -39,14 +40,31 @@ public class MusicAction extends ActionSupport implements SessionAware{
         return ERROR;
     }
 
-
     public String deleteMusic() throws Exception{
         Music music =  (Music)session.get("searchMusic");
         getMusicBean().deleteMusic(music.id);
         return SUCCESS;
     }
 
+    public String addMusic() throws Exception{
+        if(this.name!=null && this.type!=null && this.lyrics!=null && this.albumName!=null &&this.length>0){
+            String music = getMusicBean().addMusic(this.name, this.type, ""+this.length, this.lyrics, this.albumName);
+            if(music.equalsIgnoreCase("Success")){
+                return SUCCESS;
+            }
+        }
+        addActionError("There are Errors in this form");
+        return ERROR;
+    }
 
+
+    public String getAlbumName() {
+        return albumName;
+    }
+
+    public void setAlbumName(String albumName) {
+        this.albumName = albumName;
+    }
 
     public void setId(int id) {
         this.id = id;

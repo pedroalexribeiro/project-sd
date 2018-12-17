@@ -22,6 +22,18 @@
                 <interceptor-ref name="EditorInterceptor" />
                 <interceptor-ref name="defaultStack" />
             </interceptor-stack>
+
+            <interceptor name="dropboxInterceptor" class="Interceptor.dropboxInterceptor" />
+            <interceptor-stack name="dropStack">
+                <interceptor-ref name="dropboxInterceptor" />
+                <interceptor-ref name="defaultStack" />
+            </interceptor-stack>
+
+            <interceptor name="dropbox2Interceptor" class="Interceptor.dropbox2Interceptor" />
+            <interceptor-stack name="drop2Stack">
+                <interceptor-ref name="dropbox2Interceptor" />
+                <interceptor-ref name="defaultStack" />
+            </interceptor-stack>
         </interceptors>
 
 
@@ -63,35 +75,37 @@
         </action>
 
         <action name = "add_music"
-                class = "web.action.AddMusic"
-                method = "execute">
+                class = "web.action.MusicAction"
+                method = "addMusic">
             <interceptor-ref name="editStack"></interceptor-ref>
-            <result name = "none">/displayMusic.jsp</result>
+            <result name = "none">/Menu.jsp</result>
             <result name ="success">/Menu.jsp</result>
-            <result name="error">/error.jsp</result>
+            <result name="error">/addMusic.jsp</result>
         </action>
 
         <action name = "add_artist"
-                class = "web.action.AddArtist"
-                method = "execute">
+                class = "web.action.ArtistAction"
+                method = "addArtist">
             <interceptor-ref name="editStack"></interceptor-ref>
-            <result name = "none">/displayMusic.jsp</result>
+            <result name = "none">/Menu.jsp</result>
             <result name ="success">/Menu.jsp</result>
-            <result name="error">/error.jsp</result>
+            <result name="error">/addArtist.jsp</result>
         </action>
 
         <action name = "add_album"
-                class = "web.action.AddAlbum"
-                method = "execute">
+                class = "web.action.AlbumAction"
+                method = "addAlbum">
             <interceptor-ref name="editStack"></interceptor-ref>
-            <result name = "none">/displayMusic.jsp</result>
+            <result name = "none">/Menu.jsp</result>
             <result name ="success">/Menu.jsp</result>
-            <result name="error">/error.jsp</result>
+            <result name="error">/addAlbum  .jsp</result>
         </action>
 
         <action name = "add-dropbox"
                 class = "web.action.AuthDrop"
                 method = "execute">
+            <interceptor-ref name="drop2Stack"></interceptor-ref>
+            <result name = "none">/Menu.jsp</result>
             <result name="redirect" type="redirect">${url}</result>
             <result name = "error">/error.jsp</result>
             <result name="success">/Menu.jsp</result>
@@ -108,12 +122,16 @@
         <action name = "list-files-dropbox"
                 class = "web.action.Dropbox"
                 method = "execute">
+            <interceptor-ref name="dropStack"></interceptor-ref>
+            <result name = "none">/Menu.jsp</result>
             <result>/viewFilesDrop.jsp</result>
         </action>
 
         <action name = "associate_file"
                 class = "web.action.DropboxFile"
                 method = "execute">
+            <interceptor-ref name="dropStack"></interceptor-ref>
+            <result name = "none">/Menu.jsp</result>
             <result name = "error">/error.jsp</result>
             <result name="success">/Menu.jsp</result>
         </action>
@@ -180,7 +198,7 @@
                 method = "editArtist">
             <interceptor-ref name="editStack"></interceptor-ref>
             <result name = "none">/displayArtist.jsp</result>
-            <result name = "success">/displayArtist.jsp</result>
+            <result name = "success" >/displayArtist.jsp</result>
             <result name = "error">/albumEdit.jsp</result>
         </action>
 
@@ -198,20 +216,10 @@
             <result name = "error">/createReview.jsp</result>
         </action>
 
-        <!--<action name = "createReview"
-                class = "web.action.ReviewAction"
-                method = "createReview">
-            <result name = "success" type="redirectAction">
-                <param name="actionName">displayAlbum</param>
-                <param name="parse">false</param>
-            </result>
-            <result name = "error">/createReview.jsp</result>
-        </action>-->
-
         <action name = "reviewEdit"
                 class = "web.action.ReviewAction"
                 method = "editReview">
-            <result name = "success">/displayAlbum.jsp</result>
+            <result name = "success"  type="redirect">displayAlbum</result>
             <result name = "error">/editReview.jsp</result>
         </action>
 

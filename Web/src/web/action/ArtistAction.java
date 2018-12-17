@@ -62,6 +62,16 @@ public class ArtistAction extends ActionSupport implements SessionAware{
         return SUCCESS;
     }
 
+    public String addArtist() throws Exception{
+        if(this.name != null && this.details != null){
+            String artist = getMusicBean().addArtist(this.name, this.details, 1);
+            if(artist.equalsIgnoreCase("Success")){
+                return SUCCESS;
+            }
+        }
+        addActionError("There are Errors in this form");
+        return ERROR;
+    }
 
     public String getName() {
         return name;

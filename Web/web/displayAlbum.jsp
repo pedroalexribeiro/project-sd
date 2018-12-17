@@ -2,9 +2,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
 <script type="text/javascript">
     var websocket = null;
 
@@ -36,38 +33,7 @@
 
     }
     function onMessage(message) { // print the received message
-        if(message.data === "review"){
-            console.log("asdasdasd");
-            $.ajax ({
-                url: '<s:url action="callAction"/>',
-                type: 'POST',
-                dataType: 'text',
-                success: function (data) {
-                    var str = "";
-                    var f_split = data.split(";;");
-                    var average_rating = f_split[1].split("||");
-                    document.getElementById("avg_rate").innerHTML = average_rating[1];
-                    console.log(f_split[0]
-                    );
-                    var info_reviews = f_split[0].split("||");
-                    var reviews = info_reviews.split("**");
-                    var ind;
-                    for (var i=0; i<reviews[0].length;i++){
-                        ind = reviews[i].split(";");
-                        for (var j=0; j<ind.length;j++){
-                            var atrib = ind[j].split("|");
-                            str += "<p>" + atrib[0] + atrib[1] + "</p>";
-                        }
-                        str += "<br><br>";
-                    }
-                    document.getElementById("reviews").innerHTML = str;
-                    console.log(data);
-                }
-            });
-        }else{
-            alert(message.data);
-        }
-
+        alert(message.data);
     }
 </script>
 <head>

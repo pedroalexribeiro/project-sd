@@ -57,6 +57,7 @@ public class AlbumAction extends ActionSupport implements SessionAware{
         if(this.title != null && this.releaseDate != null && this.description != null){
             Album album =  (Album)session.get("searchAlbum");
             Album a = new Album(this.title,this.releaseDate,this.description,album.artist,album.id);
+            a.setAvgRating(album.getAvgRating());
             User user= (User) this.session.get("user");
             String answer = getMusicBean().updateAlbum(a,user.username);
             if(answer.equals("Success")) {
@@ -73,6 +74,18 @@ public class AlbumAction extends ActionSupport implements SessionAware{
         getMusicBean().deleteAlbum(album.id);
         return SUCCESS;
     }
+
+    public String addAlbum() throws Exception{
+        if(this.title != null && this.releaseDate != null && this.description != null && this.artist!=null){
+            String album = getMusicBean().addAlbum(this.title, this.releaseDate, this.description, this.artist);
+            if(album.equalsIgnoreCase("Success")){
+                return SUCCESS;
+            }
+        }
+        addActionError("There are Errors in this form");
+        return ERROR;
+    }
+
 
     public String call() throws RemoteException {
         int cont=0;
