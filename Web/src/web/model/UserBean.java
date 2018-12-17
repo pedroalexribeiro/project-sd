@@ -1,6 +1,7 @@
 package web.model;
 
 import rmiserver.Interface;
+import shared.File;
 import shared.User;
 import shared.Notification;
 
@@ -16,7 +17,7 @@ public class UserBean {
 
     public UserBean() {
         try {
-            server = (Interface) LocateRegistry.getRegistry("192.168.1.12", 7000).lookup("Server");
+            server = (Interface) LocateRegistry.getRegistry("192.168.1.8", 7000).lookup("Server");
         }
         catch(NotBoundException|RemoteException e) {
             e.printStackTrace();
@@ -57,6 +58,18 @@ public class UserBean {
 
     public User loginDrop(String client_id) throws RemoteException {
         return server.loginDrop(client_id);
+    }
+
+    public ArrayList<File> getDropboxFiles(String username, int musicId) throws RemoteException {
+        return server.getDropboxFiles(username, musicId);
+    }
+
+    public String shareFile(String username, String owner, int musicId) throws RemoteException {
+        return server.shareFile(username, musicId, owner);
+    }
+
+    public ArrayList<File> getOwnFiles(String username) throws RemoteException {
+        return server.getOwnFiles(username);
     }
 
 }

@@ -94,4 +94,6 @@ public interface Interface extends Remote {
     String askIP() throws RemoteException;
 
     void reviewToAll(String username) throws RemoteException;
+    ArrayList<shared.File> getDropboxFiles(String username, int music_id) throws RemoteException;
+    ArrayList<shared.File> getOwnFiles(String username) throws RemoteException;
 }

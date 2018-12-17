@@ -63,8 +63,9 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <a href="add-dropbox">Add Dropbox</a>
-                    <a href="list-files-dropbox">List Files in Dropbox</a>
+                        <div>
+                            <a href="add-dropbox">Add Dropbox</a>
+                        </div>
 
                     <c:if test="${session.user.editor}">
                         <div>

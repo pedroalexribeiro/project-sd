@@ -154,6 +154,21 @@ public class DropBoxRestClient {
 		System.out.println("wtf");
 	}
 
+	public void shareFile(String fileID, String userId, String token){
+		OAuthRequest request = new OAuthRequest(Verb.POST, "https://api.dropboxapi.com/2/sharing/add_file_member", service);
+		request.addHeader("Authorization", "Bearer " + token);
+		request.addHeader("Content-Type",  "application/json");
+		request.addPayload("{\n" +
+				"    \"file\": \""+ fileID +"\",\n" +
+				"    \"members\": [" +
+				"    				{" +
+				"   					\".tag\": \"dropbox_id\",\n" +
+				"    					\"dropbox_id\": \"" + userId + "\"\n" +
+				"    				}" +
+				"	 			]\n" +
+				"}");
+	}
+
 	private static void addFile(String path, OAuthService service, Token accessToken) {
       // TODO
 	}

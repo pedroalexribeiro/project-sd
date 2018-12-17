@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/RMIClient/RMIClient.iml" filepath="$PROJECT_DIR$/RMIClient/RMIClient.iml" />
       <module fileurl="file://$PROJECT_DIR$/RMIServer/RMIServer.iml" filepath="$PROJECT_DIR$/RMIServer/RMIServer.iml" />
       <module fileurl="file://$PROJECT_DIR$/Web/Web.iml" filepath="$PROJECT_DIR$/Web/Web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Web/Web.iml" filepath="$PROJECT_DIR$/Web/Web.iml" />
     </modules>
   </component>
 </project>

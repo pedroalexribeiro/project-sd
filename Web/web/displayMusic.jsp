@@ -47,7 +47,16 @@
         <title>Display Music</title>
     </head>
     <body>
-        <h>Music</h><br>
+        <h>Music</h>
+        <s:form action="list-files-dropbox" method="post">
+            <s:hidden name="musicId" value="%{#attr.id}"></s:hidden>
+            <s:submit type="button" value="Associate with a File" />
+        </s:form>
+        <c:forEach items="${files}" var="file">
+            A file by: <c:out value="${file.username}" />
+            <br>
+        </c:forEach>
+        <br>
         <p>title:   ${session.searchMusic.name}</p>
         <p>Genre:   ${session.searchMusic.type}</p>
         <p> Length: ${session.searchMusic.length}</p>

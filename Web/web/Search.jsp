@@ -69,6 +69,7 @@
                                     <s:param name="name">${user.name}</s:param>
                                     <s:param name="personalInfo">${user.personalInfo}</s:param>
                                     <s:param name="editor">${user.editor}</s:param>
+                                    <s:param name="dropbox_id">${user.dropbox_id}</s:param>
                                 </s:url>
                                 <div>
                                     <s:a href="%{urlTagUser}">

@@ -260,6 +260,20 @@
             <result>/addAlbum.jsp</result>
         </action>
 
+        <action name = "show_own_files"
+                class = "web.action.DropboxFile"
+                method = "showOwnFiles">
+            <result name = "none">/Menu.jsp</result>
+            <result name = "success">/viewOwnFiles.jsp</result>
+        </action>
+
+        <action name = "share_file"
+                class = "web.action.DropboxFile"
+                method = "shareFile">
+            <result name = "error">/error.jsp</result>
+            <result name = "success">/Menu.jsp</result>
+        </action>
+
         <action name="callAction"
                 class="web.action.AlbumAction"
                 method="call">

@@ -1,6 +1,7 @@
 package rmiserver;
 
 import rmiclient.clientInterface;
+import shared.File;
 import shared.Notification;
 import shared.Review;
 import shared.UDP;
@@ -162,7 +163,11 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             Boolean editor = true;
             System.out.println(answer.get("editor"));
             if (answer.get("editor").equals("0")) editor = false;
-            tempUser = new User(answer.get("username"), answer.get("password"), answer.get("email"), answer.get("name"), editor, answer.get("dropbox_token"));
+            if(answer.get("dropbox_token") != null){
+                tempUser = new User(answer.get("username"), answer.get("password"), answer.get("email"), answer.get("name"), editor, answer.get("dropbox_token"), answer.get("dropbox_id"));
+            }else{
+                tempUser = new User(answer.get("username"), answer.get("password"), answer.get("email"), answer.get("name"), editor);
+            }
             onlineUsers.add(tempUser);
         }
         writeFile();
@@ -293,7 +298,9 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             for(User user : onlineUsers){
                 try {
                     if(!user.username.equals(username)){
-                        user.cInterface.liveNotification(note);
+                        if(user.cInterface != null){
+                            user.cInterface.liveNotification(note);
+                        }
                     }
                 } catch (RemoteException e) {
                     System.out.println("ups..");
@@ -423,7 +430,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             Map<String, String> answer = UDP.protocolToHash(user);
             Boolean editor = true;
             if (answer.get("editor").equals("0")) editor = false;
-            tempUser = new User(answer.get("username"), answer.get("password"), answer.get("email"), answer.get("name"), editor, answer.get("dropbox_token"));
+            tempUser = new User(answer.get("username"), answer.get("password"), answer.get("email"), answer.get("name"), editor, answer.get("dropbox_token"), answer.get("dropbox_id"));
         }
         return tempUser;
     }
@@ -810,6 +817,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 String temp = new String(arr.get("file_user_username"));
                 usernames.add(temp);
             }
+            return usernames;
         }
         return null;
     }
@@ -832,7 +840,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
                 boolean b = arr.get("editor").equals("1");
-                User temp = new User(arr.get("username"), "password", arr.get("email"), arr.get("name"),b);
+                User temp = new User(arr.get("username"), "password", arr.get("email"), arr.get("name"),b, "", arr.get("dropbox_id"));
                 temp.setPersonalInfo(arr.get("personal_info"));
                 users.add(temp);
             }
@@ -840,6 +848,25 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         return users;
     }
 
+    public ArrayList<shared.File> getOwnFiles(String username) throws RemoteException{
+        String t = "function|search;what|file;where|user_username = '" + username + "'";
+        String answer = sendMulticast(t);
+        ArrayList<shared.File> files = new ArrayList<>();
+        if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+            String objects[] = answer.split("\\*\\*");
+            for (int i = 0; i < objects.length; i++) {
+                Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                String temp = arr.get("dropbox_id");
+                if(!temp.isEmpty()){
+                    shared.File f = new shared.File("", arr.get("dropbox_id"));
+                    f.setUsername(arr.get("user_username"));
+                    f.setMusicId(Integer.parseInt(arr.get("music_id")));
+                    files.add(f);
+                }
+            }
+        }
+        return files;
+    }
 
     public ArrayList<Playlist> searchPlaylist(String name, String username) throws RemoteException{
         String t = "function|search;what|playlist;where|name LIKE '" + "%" + name + "%" + "' AND user_username='" + username + "'";
@@ -1044,7 +1071,7 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
     }
 
     public String shareFile(String username, int music_id, String file_user_username) throws RemoteException{
-        return sendMulticast("function|create;what|file_user;user_username|" + username + ";music_id|" + music_id + ";file_user_username|" + file_user_username);
+        return sendMulticast("function|create;what|file_user;user_username|" + username + ";file_music_id|" + music_id + ";file_user_username|" + file_user_username);
     }
 
     public String downloadFile(String username, int music_id, String ip, int port) throws RemoteException{
@@ -1063,36 +1090,42 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
         }
     }
 
-    public ArrayList<String> getDropboxFiles(String username, int music_id) throws RemoteException {
-        String t = "function|search;what|files;where|user_username = '" + username + "' AND music_id = " + music_id;
+    public ArrayList<shared.File> getDropboxFiles(String username, int music_id) throws RemoteException {
+        String t = "function|search;what|file;where|user_username = '" + username + "' AND music_id = " + music_id;
         String answer = sendMulticast(t);
-        ArrayList<String> ids = new ArrayList<>();
+        ArrayList<shared.File> files = new ArrayList<>();
         if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
             String objects[] = answer.split("\\*\\*");
             for (int i = 0; i < objects.length; i++) {
                 Map<String, String> arr = UDP.protocolToHash(objects[i]);
                 String temp = arr.get("dropbox_id");
                 if(!temp.isEmpty()){
-                    ids.add(temp);
+                    shared.File f = new shared.File("", arr.get("dropbox_id"));
+                    f.setUsername(arr.get("user_username"));
+                    files.add(f);
                 }
             }
         }
         ArrayList<String> usernames = searchUserFile(username, music_id);
-        for(String user : usernames){
-            t = "function|search;what|files;where|user_username = '" + user + "' AND music_id = " + music_id;
-            answer = sendMulticast(t);
-            if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
-                String objects[] = answer.split("\\*\\*");
-                for (int i = 0; i < objects.length; i++) {
-                    Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                    String temp = arr.get("dropbox_id");
-                    if(!temp.isEmpty()){
-                        ids.add(temp);
+        if(usernames != null) {
+            for (String user : usernames) {
+                t = "function|search;what|file;where|user_username = '" + user + "' AND music_id = " + music_id;
+                answer = sendMulticast(t);
+                if (!answer.equals("") && !answer.equalsIgnoreCase("nothing")) {
+                    String objects[] = answer.split("\\*\\*");
+                    for (int i = 0; i < objects.length; i++) {
+                        Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                        String temp = arr.get("dropbox_id");
+                        if (!temp.isEmpty()) {
+                            shared.File f = new shared.File("", arr.get("dropbox_id"));
+                            f.setUsername(arr.get("user_username"));
+                            files.add(f);
+                        }
                     }
                 }
             }
         }
-        return ids;
+        return files;
     }
 
     public String askIP()throws RemoteException {

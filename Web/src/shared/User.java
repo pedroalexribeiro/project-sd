@@ -14,8 +14,9 @@ public class User implements Serializable {
     public String personalInfo;
     public Boolean editor;
     public Boolean online;
-    public String dropbox_token;
+    public String dropbox_token = null;
     public clientInterface cInterface;
+    public String dropbox_id;
 
 
     public ArrayList<Notification> notifications = new ArrayList<>();
@@ -30,7 +31,7 @@ public class User implements Serializable {
         this.online = false;
     }
 
-    public User(String user, String pass, String email, String name, Boolean edit, String dropbox_token) {
+    public User(String user, String pass, String email, String name, Boolean edit, String dropbox_token, String dropbox_id) {
         this.username = user;
         this.password = pass;
         this.email = email;
@@ -39,6 +40,7 @@ public class User implements Serializable {
         this.personalInfo = "";
         this.online = false;
         this.dropbox_token = dropbox_token;
+        this.dropbox_id = dropbox_id;
     }
 
 
@@ -98,4 +100,19 @@ public class User implements Serializable {
 
     public ArrayList<Notification> getNotifications(){return notifications;}
 
+    public String getDropbox_token() {
+        return dropbox_token;
+    }
+
+    public void setDropbox_token(String dropbox_token) {
+        this.dropbox_token = dropbox_token;
+    }
+
+    public String getDropbox_id() {
+        return dropbox_id;
+    }
+
+    public void setDropbox_id(String dropbox_id) {
+        this.dropbox_id = dropbox_id;
+    }
 }

@@ -16,11 +16,12 @@ public class DisplayUser extends ActionSupport implements SessionAware{
     private String name;
     private boolean editor;
     private String personalInfo;
+    private String dropbox_id;
 
 
     @Override
     public String execute() throws Exception{
-        User u = new User(this.username,"password",this.email,this.name,this.editor);
+        User u = new User(this.username,"password",this.email,this.name,this.editor, "", dropbox_id);
         u.setPersonalInfo(this.personalInfo);
         session.put("searchUser",u);
         return SUCCESS;
@@ -64,6 +65,14 @@ public class DisplayUser extends ActionSupport implements SessionAware{
 
     public void setPersonalInfo(String personalInfo) {
         this.personalInfo = personalInfo;
+    }
+
+    public String getDropbox_id() {
+        return dropbox_id;
+    }
+
+    public void setDropbox_id(String dropbox_id) {
+        this.dropbox_id = dropbox_id;
     }
 
     @Override

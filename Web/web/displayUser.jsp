@@ -78,6 +78,12 @@
             </s:a>
         </c:if>
 
+        <s:form action="show_own_files" method="post">
+            <s:hidden name="other_username" value="%{#attr.username}"></s:hidden>
+            <s:hidden name="other_drop_id" value="%{#attr.dropbox_id}"></s:hidden>
+            <s:submit type="button" value="Share a file" />
+        </s:form>
+
         <a href="Menu.jsp">Back</a>
     </body>
 </html>

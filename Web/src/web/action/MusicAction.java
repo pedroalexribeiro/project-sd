@@ -2,10 +2,13 @@ package web.action;
 
 import com.opensymphony.xwork2.ActionSupport;
 import org.apache.struts2.interceptor.SessionAware;
+import shared.File;
 import shared.Music;
 import shared.User;
 import web.model.MusicBean;
+import web.model.UserBean;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class MusicAction extends ActionSupport implements SessionAware{
@@ -18,10 +21,13 @@ public class MusicAction extends ActionSupport implements SessionAware{
     public int length;
     public String lyrics;
     public String albumName;
+    public ArrayList<File> files;
 
     public String displayMusic() throws Exception{
         Music m = new Music(this.name, this.type, this.length, this.lyrics, this.album_id, this.id);
         session.put("searchMusic",m);
+        User user= (User) this.session.get("user");
+        files = getUserBean().getDropboxFiles(user.username, id);
         /*Hyperlink to Album?*/
         return SUCCESS;
     }
@@ -126,5 +132,23 @@ public class MusicAction extends ActionSupport implements SessionAware{
     @Override
     public void setSession(Map<String, Object> session) {
         this.session = session;
+    }
+
+    public UserBean getUserBean() {
+        if(!session.containsKey("userBean"))
+            this.setUserBean(new UserBean());
+        return (UserBean) session.get("userBean");
+    }
+
+    public void setUserBean(UserBean userBean) {
+        this.session.put("userBean", userBean);
+    }
+
+    public ArrayList<File> getFiles() {
+        return files;
+    }
+
+    public void setFiles(ArrayList<File> files) {
+        this.files = files;
     }
 }

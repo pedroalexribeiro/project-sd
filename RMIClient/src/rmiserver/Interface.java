@@ -68,10 +68,10 @@ public interface Interface extends Remote {
     //Search Method
     ArrayList<Album> searchAlbum(String word)throws RemoteException;
     ArrayList<Album> searchAlbum(int id)throws RemoteException;
-
     ArrayList<Music> searchMusic(String word)throws RemoteException;
     ArrayList<Music> searchMusic(int album_id)throws RemoteException;
     ArrayList<Artist> searchArtist(String word)throws RemoteException;
+    ArrayList<Artist> searchArtist(int id)throws RemoteException;
     Review searchReview(String username, int album_id)throws RemoteException;
     ArrayList<Review> searchReview(int album_id)throws RemoteException;
     ArrayList<Playlist> searchPlaylist(String name, String username) throws RemoteException;
@@ -88,8 +88,12 @@ public interface Interface extends Remote {
     String shareFile(String username, int music_id, String file_user_username) throws RemoteException;
     boolean searchFile(String username, int music_id) throws RemoteException;
     int searchUser(String username) throws RemoteException;
+    ArrayList<User> searchUsers(String username) throws RemoteException;
     ArrayList<String> searchUserFile(String username, int music_id) throws RemoteException;
     String downloadFile(String username, int music_id, String ip, int port) throws RemoteException;
     String askIP() throws RemoteException;
 
+    void reviewToAll(String username) throws RemoteException;
+    ArrayList<File> getDropboxFiles(String username, int music_id) throws RemoteException;
+    ArrayList<File> getOwnFiles(String username) throws RemoteException;
 }

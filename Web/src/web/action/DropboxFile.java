@@ -5,6 +5,7 @@ import org.apache.struts2.interceptor.SessionAware;
 import rest.DropBoxRestClient;
 import shared.File;
 import shared.User;
+import web.model.UserBean;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -15,16 +16,39 @@ public class DropboxFile extends ActionSupport implements SessionAware {
     private Map<String, Object> session;
     private ArrayList<File> files;
     private String username;
+    private String other_username;
+    private String other_drop_id;
     private String dropbox_id;
-    private int music_id;
+    private int music_id = 0;
 
     public ArrayList<File> getFiles() {
         return files;
     }
 
     public String execute() throws Exception{
-        //files = getDropbox().listFiles(getUser().dropbox_token);
-        getDropbox().downloadFile(dropbox_id, getUser().dropbox_token);
+        if(username != null && dropbox_id != null && music_id != 0){
+            getUserBean().associateFile(username, dropbox_id, music_id);
+            return SUCCESS;
+        }else{
+            return ERROR;
+        }
+    }
+
+    public String shareFile() throws Exception{
+        if(username != null && other_username != null && music_id != 0 && dropbox_id != null && other_drop_id != null){
+            getUserBean().shareFile(other_username, username, music_id);
+            getDropbox().shareFile(dropbox_id, other_drop_id, getUser().dropbox_token);
+            return SUCCESS;
+        }else{
+            return ERROR;
+        }
+    }
+
+    public String showOwnFiles() throws Exception{
+        files = getUserBean().getOwnFiles(getUser().getUsername());
+        if(files == null || files.isEmpty()){
+            return NONE;
+        }
         return SUCCESS;
     }
 
@@ -69,5 +93,31 @@ public class DropboxFile extends ActionSupport implements SessionAware {
 
     public void setMusic_id(int music_id) {
         this.music_id = music_id;
+    }
+
+    public String getOther_username() {
+        return other_username;
+    }
+
+    public void setOther_username(String other_username) {
+        this.other_username = other_username;
+    }
+
+    public String getOther_drop_id() {
+        return other_drop_id;
+    }
+
+    public void setOther_drop_id(String other_drop_id) {
+        this.other_drop_id = other_drop_id;
+    }
+
+    public UserBean getUserBean() {
+        if(!session.containsKey("userBean"))
+            this.setUserBean(new UserBean());
+        return (UserBean) session.get("userBean");
+    }
+
+    public void setUserBean(UserBean userBean) {
+        this.session.put("userBean", userBean);
     }
 }
