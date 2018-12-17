@@ -48,7 +48,9 @@ public class MusicBean {
     public String updateArtist(Artist artist, String username) throws RemoteException {
         return server.updateArtist(artist,username);
     }
-
+    public void reviewToAll(String username) throws RemoteException{
+        server.reviewToAll(username);
+    }
 
 
     public String deleteMusic(int id) throws RemoteException{

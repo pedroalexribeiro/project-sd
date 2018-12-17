@@ -62,7 +62,6 @@ public class WebSocket extends UnicastRemoteObject implements clientInterface, S
 
     private void sendMessage(String text){
         try {
-
             userSessions.get(username).getBasicRemote().sendText(text);
         }
          catch (IOException e) {

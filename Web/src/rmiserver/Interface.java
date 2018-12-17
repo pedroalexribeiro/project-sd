@@ -93,5 +93,6 @@ public interface Interface extends Remote {
     ArrayList<String> searchUserFile(String username, int music_id) throws RemoteException;
     String downloadFile(String username, int music_id, String ip, int port) throws RemoteException;
     String askIP() throws RemoteException;
+    void reviewToAll(String username) throws RemoteException;
 
 }

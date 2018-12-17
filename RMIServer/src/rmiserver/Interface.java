@@ -93,4 +93,5 @@ public interface Interface extends Remote {
     String downloadFile(String username, int music_id, String ip, int port) throws RemoteException;
     String askIP() throws RemoteException;
 
+    void reviewToAll(String username) throws RemoteException;
 }

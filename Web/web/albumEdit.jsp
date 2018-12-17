@@ -62,12 +62,11 @@
             <s:form action="albumEdit" method="post">
                 <s:textfield name="title" label="title" value="%{#session.searchAlbum.title}"></s:textfield>
                 <s:textfield name="releaseDate" label="releaseDate" value="%{#session.searchAlbum.releaseDate}"></s:textfield>
-                <s:textfield name="description" label="description" value="%{#session.searchaAlbum.description}"></s:textfield>
+                <s:textfield name="description" label="description" value="%{#session.searchAlbum.description}"></s:textfield>
                 <s:submit />
             </s:form>
 
             <a href="displayAlbum.jsp">Back</a>
-Z
 
         </div>
     </div>

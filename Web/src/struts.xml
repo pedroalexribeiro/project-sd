@@ -45,7 +45,7 @@
                 class = "web.action.Register"
                 method = "execute">
             <result name ="success">/index.jsp</result>
-            <result name = "error">/Register.jsp</result>
+            <result name = "error">/register.jsp</result>
         </action>
 
         <action name = "login"
@@ -194,7 +194,7 @@
         <action name = "createReview"
                 class = "web.action.ReviewAction"
                 method = "createReview">
-            <result name = "success" >/displayAlbum.jsp</result>
+            <result name = "success" type="redirect">displayAlbum</result>
             <result name = "error">/createReview.jsp</result>
         </action>
 
@@ -250,6 +250,14 @@
 
         <action name = "add-album">
             <result>/addAlbum.jsp</result>
+        </action>
+
+        <action name="callAction"
+                class="web.action.AlbumAction"
+                method="call">
+            <result type="stream">
+                <param name="contentType">text/plain</param>
+            </result>
         </action>
 
     </package>

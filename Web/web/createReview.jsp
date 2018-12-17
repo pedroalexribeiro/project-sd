@@ -10,7 +10,6 @@
 
     window.onload = function() { // URI = ws://10.16.0.165:8080/WebSocket/ws
         connect('ws://' + window.location.host + '/ws');
-        document.getElementById("chat").focus();
     };
     function connect(host) { // connect to the host websocket
         if ('WebSocket' in window)
@@ -38,9 +37,6 @@
     }
     function onMessage(message) { // print the received message
         alert(message.data);
-        if(document.getElementById("Editor") != null){
-            document.getElementById("Editor").innerText = "Editor";
-        }
     }
 </script>
 <head>

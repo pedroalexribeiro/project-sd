@@ -5,6 +5,10 @@ import org.apache.struts2.interceptor.SessionAware;
 import shared.*;
 import web.model.MusicBean;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -16,30 +20,36 @@ public class AlbumAction extends ActionSupport implements SessionAware{
     private String releaseDate;
     private String description;
     private String artist;
+    private InputStream inputStream;
 
     public String displayAlbum() throws Exception{
         int cont=0;
-        Album a = new Album(this.title,this.releaseDate,this.description,this.artist,this.id);
-        Artist ar = getMusicBean().searchArtist(Integer.parseInt(this.artist)).get(0);
-        a.setArtistName(ar.name);
-        ArrayList<Review> reviews = getMusicBean().searchReview(this.id);
-        if(reviews != null){
-            session.put("searchReviews",reviews);
-            if(reviews.size()>0){
-                for(Review r : reviews){
-                    cont += r.getRating();
+        Album a;
+        if(this.title == null){
+            a =  (Album)session.get("searchAlbum");
+
+        }else{
+            a = new Album(this.title,this.releaseDate,this.description,this.artist,this.id);
+        }
+            Artist ar = getMusicBean().searchArtist(Integer.parseInt(a.artist)).get(0);
+            a.setArtistName(ar.name);
+            ArrayList<Review> reviews = getMusicBean().searchReview(a.id);
+
+
+            if(reviews != null){
+                session.put("searchReviews",reviews);
+                if(reviews.size()>0){
+                    for(Review r : reviews){
+                        cont += r.getRating();
+                    }
+                    a.setAvgRating(cont / (reviews.size()));
                 }
-                a.setAvgRating(cont / (reviews.size()));
             }
-        }
-        ArrayList<Music> music = getMusicBean().searchMusic(this.id);
-        if(music != null){
-            session.put("searchMusics",music);
-        }
-
-        /*Average Rating calculation*/
-        session.put("searchAlbum",a);
-
+            ArrayList<Music> music = getMusicBean().searchMusic(a.id);
+            if(music != null){
+                session.put("searchMusics",music);
+            }
+            session.put("searchAlbum",a);
         return SUCCESS;
     }
 
@@ -64,6 +74,28 @@ public class AlbumAction extends ActionSupport implements SessionAware{
         return SUCCESS;
     }
 
+    public String call() throws RemoteException {
+        int cont=0;
+        String info = "reviews||";
+        Album a =  (Album)session.get("searchAlbum");
+        ArrayList<Review> reviews = getMusicBean().searchReview(a.id);
+        if(reviews != null){
+            session.put("searchReviews",reviews);
+            if(reviews.size()>0){
+                for(Review r : reviews){
+                    cont += r.getRating();
+                    info += "User:|"+r.getUsername() + ";Text:|"+r.getText() + ";Rating:|"+r.getRating() + ";Date:|"+r.getDate() + "**";
+
+                }
+                a.setAvgRating(cont / (reviews.size()));
+            }
+        }
+        info = info.substring(0, info.length() - 2);
+        info += ";;cont||"+cont;
+        inputStream = new ByteArrayInputStream(
+                info.getBytes(StandardCharsets.UTF_8));
+        return SUCCESS;
+    }
 
 
     public void setId(int id) {
@@ -104,6 +136,14 @@ public class AlbumAction extends ActionSupport implements SessionAware{
 
     public String getTitle(){
         return title;
+    }
+
+    public InputStream getInputStream() {
+        return inputStream;
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
     }
 
     public MusicBean getMusicBean() {

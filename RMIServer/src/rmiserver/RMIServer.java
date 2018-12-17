@@ -246,8 +246,8 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 }
                 t = "function|search;what|user_editor_album;where|album_id=" + Integer.toString(id) + " AND user_username!='" + username + "'";
                 check = sendMulticast(t);
-                String note = "The album with album id (" + Integer.toString(id) + ") has beed edited";
-                checkNotificationEdits(check, note, username);
+                String note = "The album with album id " + Integer.toString(id) + " has beed edited";
+                checkNotificationEdits(check, note, username,false);
                 break;
             }
             case "music": {
@@ -259,8 +259,8 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 }
                 t = "function|search;what|user_editor_music;where|music_id=" + Integer.toString(id) + " AND user_username!='" + username + "'";
                 check = sendMulticast(t);
-                String note = "The music with music id (" + Integer.toString(id) + ") has beed edited";
-                checkNotificationEdits(check, note, username);
+                String note = "The music with music id " + Integer.toString(id) + " has beed edited";
+                checkNotificationEdits(check, note, username,false);
                 break;
             }
             case "artist": {
@@ -272,35 +272,56 @@ public class RMIServer extends UnicastRemoteObject implements Interface {
                 }
                 t = "function|search;what|user_editor_artist;where|artist_id=" + Integer.toString(id) + " AND user_username!='" + username + "'";
                 check = sendMulticast(t);
-                String note = "The artist with artist id (" + Integer.toString(id) + ") has beed edited";
-                checkNotificationEdits(check, note, username);
+                String note = "The artist with artist id " + Integer.toString(id) + " has beed edited";
+                checkNotificationEdits(check, note, username,false);
                 break;
+            }
+
+            case "review": {
+                checkNotificationEdits("", "review", username,true);
             }
         }
     }
 
-    public void checkNotificationEdits(String info, String note, String username) {
+    public void reviewToAll(String username) throws RemoteException{
+        sendNotifcationEdits("review",0,username);
+    }
+
+    public void checkNotificationEdits(String info, String note, String username,boolean all) {
         boolean checkSend;
-        if (!info.equals("") && !info.equalsIgnoreCase("nothing")) {
-            String objects[] = info.split("\\*\\*");
-            for (int i = 0; i < objects.length; i++) {
-                checkSend = false;
-                Map<String, String> arr = UDP.protocolToHash(objects[i]);
-                for (User user : onlineUsers) {
-                    if (user.username.equals(arr.get("user_username"))) {
-                        checkSend = true;
-                        try {
-                            user.cInterface.liveNotification(note);
-                        } catch (RemoteException e) {
-                            String t = "function|create;what|notification;id|null;text|" + note + ";user_username|" + username;
-                            sendMulticast(t);
-                        }
-                        break;
+        if(all) {
+            for(User user : onlineUsers){
+                try {
+                    if(!user.username.equals(username)){
+                        user.cInterface.liveNotification(note);
                     }
+                } catch (RemoteException e) {
+                    System.out.println("ups..");
                 }
-                if (!checkSend) {
-                    String t = "function|create;what|notification;id|null;text|" + note + ";user_username|" + arr.get("user_username");
-                    sendMulticast(t);
+            }
+        }
+        else{
+            if (!info.equals("") && !info.equalsIgnoreCase("nothing")) {
+                String objects[] = info.split("\\*\\*");
+                for (int i = 0; i < objects.length; i++) {
+                    checkSend = false;
+                    Map<String, String> arr = UDP.protocolToHash(objects[i]);
+                    for (User user : onlineUsers) {
+                        if (user.username.equals(arr.get("user_username"))) {
+                            checkSend = true;
+                            try {
+                                user.cInterface.liveNotification(note);
+                            } catch (RemoteException e) {
+                                String t = "function|create;what|notification;id|null;text|" + note + ";user_username|" + username;
+                                sendMulticast(t);
+                            }
+                            break;
+                        }
+                    }
+                    if (!checkSend) {
+                        String t = "function|create;what|notification;id|null;text|" + note + ";user_username|" + arr.get("user_username");
+                        sendMulticast(t);
+                    }
                 }
             }
         }
