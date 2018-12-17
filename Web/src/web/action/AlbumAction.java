@@ -54,10 +54,11 @@ public class AlbumAction extends ActionSupport implements SessionAware{
     }
 
     public String editAlbum() throws Exception{
-        if(this.title != null && this.releaseDate != null && this.description != null){
+        if(this.title != null && this.releaseDate != null && this.description != null && !this.title.trim().equals("") && !this.releaseDate.trim().equals("") && !this.description.trim().equals("")){
             Album album =  (Album)session.get("searchAlbum");
             Album a = new Album(this.title,this.releaseDate,this.description,album.artist,album.id);
             a.setAvgRating(album.getAvgRating());
+            a.setArtistName(album.getArtistName());
             User user= (User) this.session.get("user");
             String answer = getMusicBean().updateAlbum(a,user.username);
             if(answer.equals("Success")) {
@@ -76,7 +77,7 @@ public class AlbumAction extends ActionSupport implements SessionAware{
     }
 
     public String addAlbum() throws Exception{
-        if(this.title != null && this.releaseDate != null && this.description != null && this.artist!=null){
+        if(this.title != null && this.releaseDate != null && this.description != null && this.artist!=null && !this.title.trim().equals("") && !this.releaseDate.trim().equals("") && !this.description.trim().equals("") && !this.artist.trim().equals("")){
             String album = getMusicBean().addAlbum(this.title, this.releaseDate, this.description, this.artist);
             if(album.equalsIgnoreCase("Success")){
                 return SUCCESS;

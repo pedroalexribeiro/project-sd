@@ -6,7 +6,7 @@
         var websocket = null;
 
         window.onload = function() { // URI = ws://10.16.0.165:8080/WebSocket/ws
-            connect('ws://' + window.location.host + '/ws');
+            connect('ws://' + window.location.host + '/Web/ws');
             document.getElementById("chat").focus();
         };
         function connect(host) { // connect to the host websocket
@@ -53,7 +53,7 @@
             <s:submit type="button" value="Associate with a File" />
         </s:form>
         <c:forEach items="${files}" var="file">
-            A file by: <c:out value="${file.username}" />
+            A file by: <c:out value="${file.username}" /> <audio src="${file.tmpLink}" controls>Your browser does not support the audio element.</audio>
             <br>
         </c:forEach>
         <br>

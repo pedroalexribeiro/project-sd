@@ -15,5 +15,7 @@
     <s:textfield name="details" label="details"/><br>
     <s:submit />
 </s:form>
+
+<a href="Menu.jsp">Back</a>
 </body>
 </html>

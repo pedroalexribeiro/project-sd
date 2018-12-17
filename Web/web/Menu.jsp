@@ -6,7 +6,7 @@
     var websocket = null;
 
     window.onload = function() { // URI = ws://10.16.0.165:8080/WebSocket/ws
-        connect('ws://' + window.location.host + '/ws');
+        connect('ws://' + window.location.host + '/Web/ws');
         document.getElementById("chat").focus();
     };
     function connect(host) { // connect to the host websocket
@@ -63,9 +63,9 @@
             </div>
             <div class="row">
                 <div class="col">
-                        <div>
-                            <a href="add-dropbox">Add Dropbox</a>
-                        </div>
+                    <div>
+                        <a href="add-dropbox">Add Dropbox</a>
+                    </div>
 
                     <c:if test="${session.user.editor}">
                         <div>

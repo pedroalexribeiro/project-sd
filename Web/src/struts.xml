@@ -98,7 +98,7 @@
             <interceptor-ref name="editStack"></interceptor-ref>
             <result name = "none">/Menu.jsp</result>
             <result name ="success">/Menu.jsp</result>
-            <result name="error">/addAlbum  .jsp</result>
+            <result name="error">/addAlbum.jsp</result>
         </action>
 
         <action name = "add-dropbox"
@@ -263,6 +263,8 @@
         <action name = "show_own_files"
                 class = "web.action.DropboxFile"
                 method = "showOwnFiles">
+            <interceptor-ref name="dropStack"></interceptor-ref>
+            <result name = "none">/Menu.jsp</result>
             <result name = "none">/Menu.jsp</result>
             <result name = "success">/viewOwnFiles.jsp</result>
         </action>
@@ -270,6 +272,8 @@
         <action name = "share_file"
                 class = "web.action.DropboxFile"
                 method = "shareFile">
+            <interceptor-ref name="dropStack"></interceptor-ref>
+            <result name = "none">/Menu.jsp</result>
             <result name = "error">/error.jsp</result>
             <result name = "success">/Menu.jsp</result>
         </action>

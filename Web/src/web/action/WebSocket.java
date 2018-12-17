@@ -6,6 +6,7 @@ import rmiserver.Interface;
 import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.NotBoundException;
+import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
@@ -31,6 +32,8 @@ public class WebSocket extends UnicastRemoteObject implements clientInterface, S
     }
     @OnOpen
     public void start(Session session) {
+        System.getProperties().put("java.security.policy", "~/workspace/project-sd/Web/java.policy.applet");
+        System.setSecurityManager(new RMISecurityManager());
         this.session = session;
     }
 
@@ -43,7 +46,7 @@ public class WebSocket extends UnicastRemoteObject implements clientInterface, S
         this.username=username;
         userSessions.put(this.username,this.session);
         try {
-            Interface server = (Interface) LocateRegistry.getRegistry("192.168.1.12", 7000).lookup("Server");
+            Interface server = (Interface) LocateRegistry.getRegistry("192.168.1.8", 7000).lookup("Server");
             server.subscribe(this.username,this);
         }
         catch(NotBoundException |RemoteException e) {

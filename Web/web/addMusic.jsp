@@ -18,5 +18,7 @@
     <s:textfield name="albumName" label="albumName"/><br>
     <s:submit />
 </s:form>
+
+<a href="Menu.jsp">Back</a>
 </body>
 </html>

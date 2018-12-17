@@ -35,7 +35,7 @@ public class ArtistAction extends ActionSupport implements SessionAware{
     }
 
     public String editArtist() throws Exception{
-        if(this.name != null && this.details != null){
+        if(this.name != null && this.details != null && !this.name.trim().equals("") && !this.details.trim().equals("")){
             Artist artist =  (Artist)session.get("searchArtist");
             Artist a = new Artist(this.name, this.details,true,artist.id);
             User user= (User) this.session.get("user");
@@ -63,7 +63,7 @@ public class ArtistAction extends ActionSupport implements SessionAware{
     }
 
     public String addArtist() throws Exception{
-        if(this.name != null && this.details != null){
+        if(this.name != null && this.details != null && !this.name.trim().equals("") && !this.details.trim().equals("")){
             String artist = getMusicBean().addArtist(this.name, this.details, 1);
             if(artist.equalsIgnoreCase("Success")){
                 return SUCCESS;

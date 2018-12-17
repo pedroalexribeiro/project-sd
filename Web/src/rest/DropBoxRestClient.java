@@ -108,50 +108,19 @@ public class DropBoxRestClient {
 		return files;
 	}
 
-	public void downloadFile(String clientId, String token) {
-		OAuthRequest request = new OAuthRequest(Verb.POST, "https://content.dropboxapi.com/2/files/download", service);
+	public String playFile(String clientId, String token) {
+		OAuthRequest request = new OAuthRequest(Verb.POST, "https://api.dropboxapi.com/2/files/get_temporary_link", service);
 		request.addHeader("Authorization", "Bearer " + token);
-		request.addHeader("Content-Type", "");
-		request.addHeader("Dropbox-API-Arg", "{" +
-				"    \"path\": \"" + clientId + "\"" +
+		request.addHeader("Content-Type", "application/json");
+		request.addPayload("{\n" +
+				"    \"path\": \""+ clientId + "\"\n" +
 				"}");
 		Response response = request.send();
-		System.out.println(response.getCode());
-		InputStream in = new ByteArrayInputStream(response.getBody().getBytes(StandardCharsets.UTF_8));
+		System.out.println(clientId);
+		System.out.println(response.getBody());
 
-		java.io.File file = new java.io.File("teste.pdf");
-		try {
-			file.createNewFile();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		OutputStream fileOut;
-		try {
-			fileOut = new FileOutputStream(file);
-			int read = 0;
-			byte[] buffer = new byte[1024];
-			while ((read = in.read(buffer)) != -1) {
-				fileOut.write(buffer, 0, read);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-//		int ok = 16 << 10;
-//		byte[] copyBuffer = new byte[ok];
-//		try {
-//
-//			while (true) {
-//				int count;
-//				count = in.read(copyBuffer);
-//				if (count == -1) break;
-//				fileOut.write(copyBuffer, 0, count);
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		System.out.println("wtf");
+		JSONObject rj = (JSONObject) JSONValue.parse(response.getBody());
+		return (String) rj.get("link");
 	}
 
 	public void shareFile(String fileID, String userId, String token){
@@ -167,6 +136,8 @@ public class DropBoxRestClient {
 				"    				}" +
 				"	 			]\n" +
 				"}");
+		request.send();
+
 	}
 
 	private static void addFile(String path, OAuthService service, Token accessToken) {

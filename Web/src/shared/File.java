@@ -8,6 +8,7 @@ public class File implements Serializable {
     public String id;
     public String username;
     public int musicId;
+    public String tmpLink;
 
     public File(String name, String id){
         this.name = name;
@@ -44,5 +45,13 @@ public class File implements Serializable {
 
     public void setMusicId(int musicId) {
         this.musicId = musicId;
+    }
+
+    public String getTmpLink() {
+        return tmpLink;
+    }
+
+    public void setTmpLink(String tmpLink) {
+        this.tmpLink = tmpLink;
     }
 }

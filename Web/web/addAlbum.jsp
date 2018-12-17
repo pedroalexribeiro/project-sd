@@ -17,5 +17,8 @@
     <s:textfield name="artist" label="artist Name"/><br>
     <s:submit />
 </s:form>
+
+
+<a href="Menu.jsp">Back</a>
 </body>
 </html>

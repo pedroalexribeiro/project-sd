@@ -9,7 +9,7 @@
     var websocket = null;
 
     window.onload = function() { // URI = ws://10.16.0.165:8080/WebSocket/ws
-        connect('ws://' + window.location.host + '/ws');
+        connect('ws://' + window.location.host + '/Web/ws');
     };
     function connect(host) { // connect to the host websocket
         if ('WebSocket' in window)

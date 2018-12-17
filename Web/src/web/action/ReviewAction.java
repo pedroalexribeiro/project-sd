@@ -36,7 +36,7 @@ public class ReviewAction extends ActionSupport implements SessionAware{
             Review review = new Review(user.username,alb.id,this.text,this.rating, "now");
             String answer = getMusicBean().addReview(review,false);
             if(answer.equals("Success")) {
-                //getMusicBean().reviewToAll(user.username);
+                getMusicBean().reviewToAll(user.username);
                 return SUCCESS;
             }
         }

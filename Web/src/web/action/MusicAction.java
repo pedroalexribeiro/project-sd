@@ -2,6 +2,7 @@ package web.action;
 
 import com.opensymphony.xwork2.ActionSupport;
 import org.apache.struts2.interceptor.SessionAware;
+import rest.DropBoxRestClient;
 import shared.File;
 import shared.Music;
 import shared.User;
@@ -28,12 +29,15 @@ public class MusicAction extends ActionSupport implements SessionAware{
         session.put("searchMusic",m);
         User user= (User) this.session.get("user");
         files = getUserBean().getDropboxFiles(user.username, id);
+        for(File f : files){
+            f.setTmpLink(getDropbox().playFile(f.id, getUser().dropbox_token));
+        }
         /*Hyperlink to Album?*/
         return SUCCESS;
     }
 
     public String editMusic() throws Exception{
-        if(this.name!=null && this.type!=null && this.lyrics!=null){
+        if(this.name!=null && this.type!=null && this.lyrics!=null && !this.name.trim().equals("") && !this.type.trim().equals("") && !this.lyrics.trim().equals("")){
             Music music =  (Music)session.get("searchMusic");
             Music m = new Music(this.name, this.type, this.length, this.lyrics,music.album_id,music.id);
             User user= (User) this.session.get("user");
@@ -53,7 +57,7 @@ public class MusicAction extends ActionSupport implements SessionAware{
     }
 
     public String addMusic() throws Exception{
-        if(this.name!=null && this.type!=null && this.lyrics!=null && this.albumName!=null &&this.length>0){
+        if(this.name!=null && this.type!=null && this.lyrics!=null && this.albumName!=null &&this.length>0 && !this.name.trim().equals("") && !this.type.trim().equals("") && !this.lyrics.trim().equals("") && !this.albumName.trim().equals("")){
             String music = getMusicBean().addMusic(this.name, this.type, ""+this.length, this.lyrics, this.albumName);
             if(music.equalsIgnoreCase("Success")){
                 return SUCCESS;
@@ -150,5 +154,13 @@ public class MusicAction extends ActionSupport implements SessionAware{
 
     public void setFiles(ArrayList<File> files) {
         this.files = files;
+    }
+
+    public DropBoxRestClient getDropbox() {
+        return new DropBoxRestClient("http://localhost:8080/Web/login-dropbox");
+    }
+
+    public User getUser(){
+        return (User) session.get("user");
     }
 }

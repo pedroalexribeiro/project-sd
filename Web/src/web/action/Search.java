@@ -16,7 +16,7 @@ public class Search extends ActionSupport implements SessionAware {
     private String str;
     @Override
     public String execute() throws Exception{
-        if(str != null && !str.equals("")) {
+        if(str != null && !str.trim().equals("")) {
 
             ArrayList<Artist> artists = getMusicBean().searchArtist(str);
             if(artists!=null){
