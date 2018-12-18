@@ -1,9 +1,9 @@
 package shared;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Artist implements Serializable {
+    static final long serialVersionUID = 42L;
     public String name;
     public String details;
     public int id;

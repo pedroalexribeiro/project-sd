@@ -1,8 +1,8 @@
 package shared;
-
 import java.io.Serializable;
 
 public class Music implements Serializable {
+    static final long serialVersionUID = 42L;
     public String name;
     public String type;
     public int length;
@@ -10,7 +10,7 @@ public class Music implements Serializable {
     public int id;
     public String lyrics;
 
-    public Music(String name,String type,int length,String lyrics,int album_id, int id) {
+    public Music(String name, String type, int length, String lyrics, int album_id, int id) {
         this.name = name;
         this.type = type;
         this.length=length;

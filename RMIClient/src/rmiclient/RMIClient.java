@@ -50,7 +50,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
             System.exit(0);
         }
         rmi_ip = args[0];*/
-        rmi_ip = "192.168.1.13";
+        rmi_ip = "192.168.137.230";
         Network newNet = new Network();
         System.setProperty("java.rmi.server.hostname", newNet.getIP());
         run(false, "");
@@ -1267,7 +1267,7 @@ public class RMIClient extends UnicastRemoteObject implements clientInterface {
 
     public static void run(Boolean testing, String input) {
 
-        System.getProperties().put("java.security.policy", "java.policy.applet");
+        System.getProperties().put("java.security.policy", "RMIClient/src/java.policy.applet");
         System.setSecurityManager(new RMISecurityManager());
 
         try {

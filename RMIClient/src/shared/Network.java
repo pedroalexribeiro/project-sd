@@ -1,12 +1,13 @@
 package shared;
-
+import java.io.Serializable;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Network {
+public class Network implements Serializable {
+    static final long serialVersionUID = 42L;
     public static String getIP() {
 
         try(final DatagramSocket socket = new DatagramSocket()){
